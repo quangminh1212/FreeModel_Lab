@@ -4,7 +4,27 @@ const EXTENSION_ID = "jamdobbdcddmkpgfpajpbnmfgobfjgca";
 const providerRoot = document.querySelector("#providers");
 const statusLine = document.querySelector("#status");
 const refreshButton = document.querySelector("#refresh");
+const themeToggle = document.querySelector("#theme-toggle");
+const themeIcon = document.querySelector("#theme-icon");
+const themeLabel = document.querySelector("#theme-label");
 let session = null;
+
+function applyTheme(theme) {
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = isDark ? "dark" : "light";
+  themeToggle.setAttribute("aria-pressed", String(isDark));
+  themeToggle.setAttribute("aria-label", isDark ? "Bật giao diện sáng" : "Bật giao diện tối");
+  themeToggle.title = isDark ? "Bật giao diện sáng" : "Bật giao diện tối";
+  themeIcon.textContent = isDark ? "☀" : "☾";
+  themeLabel.textContent = isDark ? "Chế độ sáng" : "Chế độ tối";
+}
+
+themeToggle.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(nextTheme);
+  try { localStorage.setItem("freemodel-theme", nextTheme); } catch { /* Keep the choice for this page only. */ }
+});
+applyTheme(document.documentElement.dataset.theme || "light");
 
 function el(tag, className, value) {
   const node = document.createElement(tag);

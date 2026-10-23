@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="light">
+    <meta name="color-scheme" content="light dark">
     <title>FreeModel Lab</title>
+    <script src="/theme.js"></script>
     <link rel="stylesheet" href="/style.css">
     <script src="/app.js" defer></script>
   </head>
@@ -17,7 +18,16 @@
           <h1>Quota miễn phí, rõ từng provider</h1>
           <p class="subtitle">Nguồn chính thức, endpoint và trạng thái key trên máy này.</p>
         </div>
-        <button id="refresh" class="button button-quiet" type="button">Cập nhật trạng thái key</button>
+        <div class="header-actions">
+          <button id="theme-toggle" class="button button-quiet theme-toggle" type="button" aria-pressed="false">
+            <span id="theme-icon" class="theme-icon" aria-hidden="true">☾</span>
+            <span id="theme-label">Chế độ tối</span>
+          </button>
+          <button id="refresh" class="button button-quiet" type="button">
+            <span aria-hidden="true">↻</span>
+            <span>Cập nhật trạng thái key</span>
+          </button>
+        </div>
       </header>
 
       <section class="notice notice-info" aria-label="Phạm vi">

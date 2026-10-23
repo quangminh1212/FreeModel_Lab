@@ -78,6 +78,7 @@ function setSessionCookie(response: ServerResponse, token: string): void {
 async function sendStatic(response: ServerResponse, path: string): Promise<void> {
   const files: Record<string, { name: string; type: string }> = {
     "/": { name: "index.html", type: "text/html; charset=utf-8" },
+    "/theme.js": { name: "theme.js", type: "text/javascript; charset=utf-8" },
     "/app.js": { name: "app.js", type: "text/javascript; charset=utf-8" },
     "/style.css": { name: "style.css", type: "text/css; charset=utf-8" }
   };
@@ -158,7 +159,7 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
       try { await sendStatic(response, "/"); } catch { writeJson(response, 500, { error: "Dashboard assets are unavailable. Reinstall the npm package." }); }
       return;
     }
-    if (request.method === "GET" && ["/app.js", "/style.css"].includes(requestUrl.pathname)) {
+    if (request.method === "GET" && ["/theme.js", "/app.js", "/style.css"].includes(requestUrl.pathname)) {
       try { await sendStatic(response, requestUrl.pathname); } catch { writeJson(response, 404, { error: "Dashboard asset not found." }); }
       return;
     }
