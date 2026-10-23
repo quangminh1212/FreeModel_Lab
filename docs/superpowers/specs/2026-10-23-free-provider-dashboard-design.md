@@ -23,6 +23,8 @@ Dashboard thay thế việc tra cứu rời rạc trong CLI, đồng thời gi�
 - Mỗi mục phải có nguồn chính thức cho free tier và giới hạn, cùng ngày xác minh gần nhất. Thông tin được xác minh trong vòng 30 ngày mới xuất hiện trong danh sách free đang hoạt động; mục quá hạn hoặc chưa đủ rõ được ẩn cho đến khi xác minh lại.
 - Không suy diễn quota còn lại từ số liệu giá hoặc mức dùng miễn phí chung. Nếu provider không có API usage/quota chính thức, hiển thị giới hạn công bố và ghi “không có quota live”.
 
+Registry là dữ liệu được project duy trì trong repo. Mỗi bản ghi provider có stable ID, tên, domain chính thức, danh sách model/endpoint, trạng thái free, điều kiện tài khoản/thanh toán, chế độ tạo key và cờ có API usage chính thức hay không. Mỗi xác nhận free tier và mỗi giới hạn có nguồn riêng, phạm vi áp dụng, đơn vị/reset period nếu được công bố, và `verified_at`. Đồng bộ upstream chỉ đưa ra candidate; không ghi đè trạng thái free hay quota đã được xác minh.
+
 ## 3. Trải nghiệm người dùng
 
 Dashboard local mở trong Chrome profile người dùng đang sử dụng. Màn hình chính hiển thị danh sách provider miễn phí dưới dạng bảng hoặc thẻ:
@@ -45,6 +47,8 @@ Các thao tác riêng:
 - **Kiểm tra kết nối:** nếu có key, gửi một yêu cầu tối thiểu theo API chính thức sau khi người dùng bấm; không polling nền. Kết quả phân biệt được kết nối, lỗi xác thực, rate limit, quota hết và lỗi mạng khi provider cho phép nhận biết.
 - Nếu không có key hoặc API usage chính thức, giao diện ghi rõ điều đó thay vì hiển thị trạng thái live giả định.
 
+Lần chạy đầu có wizard cài đặt: hướng dẫn người dùng mở đúng Chrome profile, cài extension local và native host, rồi xác minh handshake. Bản đầu cài extension bằng Chrome Developer mode từ thư mục của project; setup đăng ký Native Messaging host theo đúng extension ID trong profile đó. Khi extension hoặc host cập nhật, handshake phải xác minh lại ID và phiên bản; nếu không khớp thì tắt chức năng tạo/lưu key cho đến khi cài đặt lại. Không tải mã extension động từ provider hoặc catalog upstream.
+
 ## 4. Kiến trúc
 
 ### 4.1 Các thành phần
@@ -55,6 +59,8 @@ Các thao tác riêng:
 4. **Native Messaging host:** cầu nối local giữa extension và Python để lưu key mới vào Windows Credential Locker. Extension chỉ chuyển key mới khi provider vừa tạo; không chuyển cookie hay session.
 5. **Provider registry:** metadata đã xác minh, gồm free tier, model, endpoint, giới hạn, yêu cầu thanh toán, URL nguồn, ngày xác minh và khả năng tạo key.
 6. **Provisioning adapters:** adapter API chính thức hiện có được giữ làm ưu tiên. Provider chưa có adapter chính thức dùng Chrome flow khi có thể xác định trang và thao tác an toàn; trường hợp còn lại dùng hướng dẫn và `save-key`.
+
+Các adapter triển khai một capability contract rõ ràng: phương thức (`official_api`, `chrome_ui`, `manual`, `no_key`), endpoint/domain được phép, điều kiện trước khi chạy, nguồn xác minh, kết quả đã chuẩn hóa và nhóm lỗi đã loại bí mật. Lỗi công khai chỉ dùng các nhóm như `auth_required`, `permission_denied`, `rate_limited`, `unsupported_ui`, `network_error` và `credential_store_error`; không hiển thị response body nguyên bản hoặc giá trị key.
 
 ```mermaid
 flowchart LR
@@ -76,6 +82,7 @@ flowchart LR
 - Nếu trang đổi, selector không còn khớp, hoặc kết quả không xác định, extension dừng và chuyển sang hướng dẫn thủ công. Không bấm nút thay thế theo suy đoán.
 - Provider không cần key cho free path vẫn có thể xuất hiện trong danh sách và được đánh dấu “không cần key”.
 - Việc ghi đè key yêu cầu xác nhận riêng; UI không giả định key cũ đã được revoke.
+- Nếu provider đã tạo key nhưng Credential Locker không xác nhận lưu thành công, không tạo key lần nữa tự động. Giữ trang provider mở; cho phép thử lưu lại key hiện có trong bộ nhớ của tiến trình hoặc hướng dẫn người dùng revoke key vừa tạo rồi tạo lại thủ công.
 
 ## 5. Ranh giới bảo mật và tự động hóa
 
@@ -83,10 +90,11 @@ flowchart LR
 - Không dùng Chrome remote debugging/CDP để điều khiển profile mặc định.
 - Extension không dùng quyền `cookies` hoặc `debugger`; quyền host chỉ cấp theo domain chính thức khi người dùng yêu cầu luồng provider đó.
 - Không tự tạo tài khoản, nhập/lưu mật khẩu, lấy OTP, vượt MFA/CAPTCHA, tự chấp nhận điều khoản hoặc thanh toán.
+- Nếu phiên provider hết hạn, mở trang đăng nhập trong Chrome và chờ người dùng đăng nhập; extension không tự điền mật khẩu hoặc thông tin xác thực.
 - Khi provider yêu cầu MFA/CAPTCHA hoặc xác nhận nhạy cảm, extension tạm dừng để người dùng thao tác trong Chrome.
 - Không xoay tài khoản/key để né quota, không tự gọi liên tục, không tuyên bố free tier là không giới hạn.
 - Key không đi vào database dashboard, browser storage, log, telemetry, exception message hoặc giao diện sau khi lưu. Chỉ trạng thái “đã lưu” được hiển thị.
-- Local service chỉ bind loopback, xác thực Origin/CSRF và không bật CORS rộng; extension/native host xác thực nguồn gọi và giới hạn message theo schema hẹp. Native host chỉ cho phép extension ID đã cài trong manifest của Chrome.
+- Local service chỉ bind loopback, xác thực Origin/CSRF, dùng token phiên ngẫu nhiên trong bộ nhớ và không bật CORS rộng; extension/native host xác thực nguồn gọi và giới hạn message theo schema hẹp. Native host chỉ cho phép extension ID đã cài trong manifest của Chrome. Handshake phải chứng minh extension đang chạy trong đúng Chrome profile người dùng chọn.
 
 ## 6. Lỗi và trạng thái không chắc chắn
 
