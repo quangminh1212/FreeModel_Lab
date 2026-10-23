@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>FreeModel Lab Bridge</title>
+    <style>
+      body { width: 290px; margin: 0; padding: 18px; color: #17261f; background: #f5f8f4; font: 13px/1.5 system-ui, sans-serif; }
+      h1 { margin: 0 0 5px; font-size: 16px; }
+      p { margin: 0; color: #62736a; }
+      .status { margin: 15px 0; border-radius: 10px; padding: 11px; background: white; color: #52635a; }
+      .status[data-ok="true"] { background: #e8f5ec; color: #0c5635; }
+      button { border: 0; border-radius: 9px; padding: 9px 12px; color: white; background: #15744b; font: inherit; font-weight: 700; cursor: pointer; }
+      .fine { margin-top: 13px; font-size: 11px; }
+    </style>
+    <script src="popup.js" defer></script>
+  </head>
+  <body>
+    <h1>FreeModel Lab Bridge</h1>
+    <p>Kết nối cục bộ giữa dashboard và kho credential của hệ điều hành.</p>
+    <div id="status" class="status" role="status" aria-live="polite">Đang kiểm tra Native Messaging…</div>
+    <button id="check" type="button">Kiểm tra lại</button>
+    <p class="fine">Extension không đọc cookie, mật khẩu, lịch sử hoặc nội dung tab provider. Key chỉ được chuyển khi bạn bấm lưu trong dashboard.</p>
+  </body>
+</html>

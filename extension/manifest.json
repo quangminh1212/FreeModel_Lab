@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "FreeModel Lab Bridge",
+  "version": "0.2.0",
+  "description": "User-triggered secure key handoff to the local FreeModel Lab app.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq6tX5llUk90u8gtMtVJek+/VPvpT2O5B6nfgFPhxJzDIr3ndYdaLphMnU97PR536aAOWB8NplojA/sP0lEFahkNecrFn+H0a1d+rVFPFOs2DxNvEDxrvs2+l/Ebu4unu+ap/E1DbA6eSnGROhnDbye+m1w/fiAar06PbMYeroGUuyVkSj9QzF9ISb+w0E/IQLC5tKbcLyY8K4yhZIYOSF95rx+CER4879CfAYh2fKQu+XRdjk6cNHxjnrx0WK3qItMIfjza08ycF1CX0FDwRy1Wg8FQXfae4YXdPplRtyfeOE7yF7hEZFzA8m4By6e/1i6iTNbEgvxPyCUmw4POxwQIDAQAB",
+  "permissions": ["nativeMessaging"],
+  "externally_connectable": {
+    "matches": ["http://127.0.0.1/*"]
+  },
+  "background": {
+    "service_worker": "service-worker.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "FreeModel Lab Bridge"
+  }
+}

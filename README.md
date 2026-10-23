@@ -1,85 +1,89 @@
 # FreeModel Lab
 
-CLI tra cứu endpoint và tạo/lưu credential cho các provider trong
-[mnfst/awesome-free-llm-apis](https://github.com/mnfst/awesome-free-llm-apis).
+Dashboard cục bộ để xem quota free có nguồn chính thức, endpoint, trang quota tài khoản và trạng thái key đã lưu. Dự án chạy bằng Node.js/npm trên Windows, macOS và Linux; không cần Python.
 
-## Tạo credential tự động
+Repo upstream [`mnfst/awesome-free-llm-apis`](https://github.com/mnfst/awesome-free-llm-apis) chỉ dùng để tìm provider. Danh sách hoạt động bên dưới được kiểm tra riêng với tài liệu của chính provider; quota có thể thay đổi hoặc phụ thuộc tài khoản.
 
-Repo chỉ tự tạo credential qua API chính thức khi provider công bố API quản lý
-key/token. Hiện có adapter cho:
+## Provider trong registry
 
-| Provider | Repo làm được | Cần chuẩn bị |
-| --- | --- | --- |
-| Google Gemini | Tạo authorization API key bị giới hạn vào Gemini API | Google Cloud project, service account có sẵn, `gcloud auth login`, API Keys API và Gemini API được bật, quyền IAM tương ứng |
-| Cloudflare Workers AI | Tạo account API token chỉ có quyền Workers AI Read/Edit | Account ID và bootstrap token đã tạo trong dashboard với quyền `Account API Tokens Write` |
-| OpenRouter | Tạo API key mới qua management API và lưu hạn mức chi tiêu theo tháng | Management key đã tạo trong dashboard và mức trần chi tiêu dương |
-| Kilo Code | Luồng free được catalog ghi là không cần key | Không cần tạo key cho luồng này |
-| OVHcloud AI Endpoints | Dùng trang quản lý key trong dashboard; lệnh CLI chính thức `cloud ai authorization create` chỉ bật quyền dùng dịch vụ, không tạo API key | Public Cloud project và điều kiện thanh toán theo tài liệu OVHcloud |
-| Provider còn lại | Chưa có adapter provisioning được xác minh trong repo | Tạo key trên trang chính thức rồi dùng `save-key` |
+| Provider | Quota miễn phí công bố | Endpoint | Trang xem quota |
+| --- | --- | --- | --- |
+| Google Gemini API | Free tier cho một số model; RPM/TPM/RPD khác nhau theo model, project và tài khoản | `https://generativelanguage.googleapis.com/v1beta` | [AI Studio](https://aistudio.google.com/) |
+| Cloudflare Workers AI | 10.000 Neurons/ngày trên Workers Free; reset 00:00 UTC; một số model cần Workers Paid | `https://api.cloudflare.com/client/v4/accounts/{account_id}/ai/run/{model}` | [Cloudflare dashboard](https://dash.cloudflare.com/) |
+| GroqCloud | Free plan có giới hạn theo model; xem Free Plan Limits và số hiện tại trong account Limits | `https://api.groq.com/openai/v1` | [Groq Limits](https://console.groq.com/settings/limits) |
+| Mistral AI Studio | Free mode gồm usage hàng tháng trong hạn mức; quota và rate theo tổ chức/model | `https://api.mistral.ai/v1` | [Mistral Usage & Limits](https://docs.mistral.ai/admin/billing-usage/usage-limits) |
+| OpenRouter | 50 requests/ngày ở Free plan cho free-model access; model miễn phí và capacity thay đổi | `https://openrouter.ai/api/v1` | [OpenRouter pricing](https://openrouter.ai/pricing/) |
 
-Tài liệu chính thức của các adapter: [Google Cloud API keys](https://docs.cloud.google.com/docs/authentication/api-keys), [Cloudflare create tokens via API](https://developers.cloudflare.com/fundamentals/api/how-to/create-via-api/) và [Workers AI REST API](https://developers.cloudflare.com/workers-ai/get-started/rest-api/), [OpenRouter create API key](https://openrouter.ai/docs/api/api-reference/api-keys/create-a-new-api-key).
+Mỗi dòng có nguồn và ngày xác minh. Sau 30 ngày, dashboard gắn nhãn nguồn cần kiểm tra lại. App không gửi model request để suy ra quota còn lại. Khi provider chỉ công bố giới hạn trong account, hãy mở link quota chính thức để xem giá trị của tài khoản bạn.
 
-OVHcloud: [hướng dẫn AI Endpoints](https://github.com/ovh/docs/blob/develop/pages/public_cloud/ai_machine_learning/endpoints_guide_01_getting_started/guide.en-sg.md), [lệnh CLI authorize](https://github.com/ovh/ovhcloud-cli/blob/main/doc/ovhcloud_cloud_ai_authorization_create.md).
+## Cài từ repo
 
-Endpoint là địa chỉ API do provider công bố; repo tra cứu và lưu endpoint đó,
-không tự dựng endpoint mới. Với Cloudflare, lệnh `provision` điền Account ID vào
-endpoint mẫu trong catalog.
+Cần Node.js 24 trở lên và npm.
 
-## Cài đặt
-
-Cần Python 3.10 trở lên và Windows để lưu key vào Windows Credential Locker:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python -m pip install -r requirements.txt
+```sh
+git clone https://github.com/quangminh1212/FreeModel_Lab.git
+cd FreeModel_Lab
+npm install
+npm run build
+npm link
 ```
 
-## Lệnh
+Mở dashboard trong Chrome đã đăng nhập:
 
-```powershell
-# Cập nhật catalog công khai
-python .\provider_helper.py sync
-
-# Liệt kê provider, endpoint và trang tạo key
-python .\provider_helper.py list
-
-# Xem nơi repo có thể tự tạo credential
-python .\provider_helper.py capabilities
-
-# Tạo key Gemini. Service account phải tồn tại và có quyền cần thiết.
-python .\provider_helper.py provision "Google Gemini" `
-  --project your-google-cloud-project `
-  --service-account-email key-user@your-google-cloud-project.iam.gserviceaccount.com
-
-# Tạo Workers AI token. Lệnh sẽ hỏi bootstrap token bằng prompt ẩn.
-python .\provider_helper.py provision "Cloudflare Workers AI" `
-  --account-id 0123456789abcdef0123456789abcdef
-
-# Tạo OpenRouter key có trần chi tiêu $1 mỗi tháng.
-# Lệnh sẽ hỏi management key bằng prompt ẩn.
-# Trần này cho phép phát sinh phí tối đa $1; chỉ chọn model free nếu không muốn trả phí.
-python .\provider_helper.py provision "OpenRouter" --limit-usd 1.00
-
-# Xem hướng dẫn cho một provider
-python .\provider_helper.py guide "Cohere"
-
-# Lưu key do bạn tự tạo trên dashboard
-python .\provider_helper.py save-key "Cohere"
-
-# Kiểm tra đã lưu key hay chưa, không hiển thị giá trị
-python .\provider_helper.py key-status "Cohere"
+```sh
+freemodel-lab start
 ```
 
-`provision` không đọc Gmail, cookie hay phiên trình duyệt. Mỗi provider vẫn cần
-quyền riêng của tài khoản: Gemini dùng danh tính `gcloud`, còn OpenRouter và
-Cloudflare cần một management/bootstrap key ban đầu mà bạn tự tạo và nhập tại
-prompt ẩn. Key mới được lưu vào Windows Credential Locker; giá trị key không
-được in ra hoặc ghi vào file. `--overwrite` chỉ thay key lưu cục bộ, không thu
-hồi key cũ ở provider.
+Lệnh mở URL loopback trong Chrome. Nếu Chrome không mở được tự động, chép URL được in ra vào profile Chrome bạn muốn dùng. Dừng bằng `Ctrl+C`. Dùng `freemodel-lab start --no-open` nếu muốn tự mở trình duyệt.
 
-Tạo key không làm tăng quota miễn phí và không bỏ giới hạn sử dụng. Quota, giá,
-điều khoản, endpoint và danh sách provider có thể thay đổi; hãy kiểm tra lại ở
-trang chính thức trước khi dùng.
+## Extension và Native Messaging
 
-Catalog upstream: [`data.json`](https://github.com/mnfst/awesome-free-llm-apis/blob/main/data.json).
+Extension chỉ nhận quyền `nativeMessaging`; không có quyền cookies, history, debugger hoặc host access tới trang provider. Việc cài đặt host chỉ áp dụng cho user hiện tại.
+
+```sh
+freemodel-lab chrome install
+```
+
+Trong Chrome, bật **Developer mode** tại `chrome://extensions`, chọn **Load unpacked**, rồi mở đúng thư mục extension mà CLI in ra. Ghim **FreeModel Lab Bridge** và bấm extension để kiểm tra host. Để gỡ host:
+
+```sh
+freemodel-lab chrome remove
+```
+
+Chrome yêu cầu extension được nạp unpacked thủ công; app không cài extension từ Chrome Web Store. Dashboard vẫn có thể lưu key trực tiếp qua kết nối loopback nếu extension chưa cài.
+
+## Tạo và lưu key
+
+Dashboard có adapter tạo key qua API chính thức cho Gemini, Cloudflare và OpenRouter. Mỗi lần chỉ tạo cho provider bạn chọn; trước khi gửi request phải xác nhận rõ trong giao diện.
+
+- **Gemini:** cần `gcloud auth login`, Google Cloud project, service account đã tồn tại và quyền IAM phù hợp. Key được giới hạn vào Gemini API.
+- **Cloudflare:** cần account ID và bootstrap token có quyền tạo account token. App tạo token chỉ có quyền Workers AI Read/Edit, và không lưu bootstrap token.
+- **OpenRouter:** cần management key và trần chi tiêu hàng tháng dương. Trần này cho phép phát sinh phí nếu chọn model trả phí; chỉ dùng model free để giữ chi phí ở mức $0.
+- **Groq và Mistral:** mở trang key chính thức bằng Chrome, tự hoàn tất xác minh nếu có, rồi dán key vào biểu mẫu trong dashboard.
+
+MFA, CAPTCHA, điều khoản, thanh toán hoặc cấp quyền nhạy cảm luôn do bạn xử lý trong Chrome. App không đọc cookie hay thông tin đăng nhập trong profile, không tự tạo tài khoản, không thu thập OTP và không xoay key/tài khoản để né quota.
+
+Key được lưu trong kho credential native của hệ điều hành: Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Trên Linux phải có Secret Service như GNOME Keyring/KWallet; app báo lỗi nếu không có, không ghi key vào file hay fallback sang keyutils. `key-status` chỉ báo trạng thái, không hiển thị key.
+
+```sh
+freemodel-lab list
+freemodel-lab guide gemini
+freemodel-lab key-status
+freemodel-lab save-key groq
+freemodel-lab save-key groq --replace
+freemodel-lab provision gemini --project my-project --service-account-email key-user@my-project.iam.gserviceaccount.com
+freemodel-lab provision cloudflare-workers-ai --account-id 0123456789abcdef0123456789abcdef
+freemodel-lab provision openrouter --limit-usd 1.00
+```
+
+Các key bootstrap của CLI được nhập trong prompt ẩn. Dùng `--replace` chỉ thay key cục bộ; nó không thu hồi key cũ trên provider. Nếu provider đã nhận yêu cầu tạo key nhưng app không thể lưu key, hãy thu hồi key mới trong dashboard provider trước khi thử lại.
+
+## Nguồn quota chính thức
+
+- [Gemini API rate limits](https://ai.google.dev/gemini-api/docs/rate-limits) và [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing)
+- [Cloudflare Workers AI pricing](https://developers.cloudflare.com/workers-ai/platform/pricing/) và [models requiring Workers Paid](https://developers.cloudflare.com/changelog/post/2026-07-28-models-require-workers-paid/)
+- [Groq rate limits](https://console.groq.com/docs/rate-limits)
+- [Mistral usage and limits](https://docs.mistral.ai/admin/billing-usage/usage-limits)
+- [OpenRouter pricing](https://openrouter.ai/pricing/) và [free models](https://openrouter.ai/collections/free-models/)
+
+Quota miễn phí là quyền sử dụng có giới hạn, không phải dịch vụ vô hạn hay cam kết uptime. Kiểm tra nguồn trong dashboard trước khi đưa vào ứng dụng cần độ tin cậy cao.

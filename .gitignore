@@ -5,3 +5,8 @@ __pycache__/
 .env
 .env.*
 !.env.example
+node_modules/
+dist/
+*.sea-config.json
+*.sea.blob
+freemodel-native-host.exe

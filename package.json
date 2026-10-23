@@ -1,0 +1,34 @@
+{
+  "name": "freemodel-lab",
+  "version": "0.2.0",
+  "description": "Local dashboard for officially documented free LLM API quotas and user-controlled key setup",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "freemodel-lab": "dist/cli.js"
+  },
+  "files": [
+    "dist/",
+    "web/",
+    "extension/",
+    "README.md",
+    "AI_GUIDE.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npm run build",
+    "start": "node dist/cli.js start"
+  },
+  "dependencies": {
+    "@napi-rs/keyring": "^2.1.2",
+    "open": "^11.0.4",
+    "postject": "1.0.0-alpha.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.0",
+    "typescript": "^7.0.2"
+  }
+}
