@@ -32,17 +32,17 @@ npm link
 
 ## Chạy dự án với tự động reload
 
-Trên Windows, mở `run.bat` để tự chuyển vào thư mục dự án, kiểm tra Node.js 24 trở lên, cài dependency và khởi chạy dashboard ở chế độ phát triển. Có thể chạy tương tự trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
+Trên Windows, mở `run.bat` để tự chuyển vào thư mục dự án, kiểm tra Node.js 24 trở lên, cài dependency và khởi chạy dashboard ở chế độ phát triển. App in URL cục bộ và không tự mở trình duyệt. Có thể chạy tương tự trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
 
 Chế độ phát triển theo dõi `src/` và `web/`: sửa TypeScript sẽ tự build lại và restart server; sửa HTML, CSS hoặc JavaScript sẽ tự refresh tab dashboard hiện tại. Dùng `Ctrl+C` để dừng.
 
-Mở dashboard trong Chrome đã đăng nhập:
+Khởi chạy dashboard:
 
 ```sh
 freemodel-lab start
 ```
 
-Lệnh mở URL loopback trong Chrome. Nếu Chrome không mở được tự động, chép URL được in ra vào profile Chrome bạn muốn dùng. Dừng bằng `Ctrl+C`. Dùng `freemodel-lab start --no-open` nếu muốn tự mở trình duyệt.
+Lệnh in URL loopback nhưng không tự mở trình duyệt. Dán URL vào Chrome hoặc trình duyệt bạn muốn dùng. Nếu muốn chủ động yêu cầu mở Chrome, chạy `freemodel-lab start --open`. Dùng `freemodel-lab start --no-open` để giữ chế độ không mở trình duyệt. Dừng bằng `Ctrl+C`.
 
 ## Extension và Native Messaging
 

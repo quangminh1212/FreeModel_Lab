@@ -6,7 +6,7 @@ Tra cứu danh mục provider free, cập nhật ứng viên từ nguồn upstre
 
 ## Quy trình
 
-1. Chạy `freemodel-lab start` để mở dashboard cục bộ trong Chrome. Dashboard bind vào `127.0.0.1`, không chia sẻ trên mạng LAN.
+1. Chạy `freemodel-lab start` để khởi chạy dashboard cục bộ. Lệnh in URL và không tự mở trình duyệt; dán URL vào trình duyệt khi cần. Dashboard bind vào `127.0.0.1`, không chia sẻ trên mạng LAN.
 2. Dùng nút cập nhật danh sách để tải nguồn upstream mới. Upstream chỉ cung cấp ứng viên khám phá; kiểm tra trang chính thức trước khi thêm. Chỉ coi quota đã được xác minh khi nguồn chính thức còn trong 30 ngày.
 3. Dùng nút tạo key chỉ cho provider có adapter rõ ràng: Gemini, Cloudflare Workers AI hoặc OpenRouter. Xem lại quyền và chi phí, rồi xác nhận request một lần.
 4. Với provider chưa có adapter đã xác minh, mở trang key chính thức, hoàn tất thao tác thủ công trong Chrome, rồi dán key vào dashboard hoặc dùng `freemodel-lab save-key <provider-id>`.

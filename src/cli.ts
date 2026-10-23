@@ -15,7 +15,7 @@ function parseArgs(args: string[]): ParsedArgs {
     const item = args[index]!;
     if (!item.startsWith("--")) { positionals.push(item); continue; }
     const key = item.slice(2);
-    if (["overwrite", "replace", "no-open", "help"].includes(key)) { flags.add(key); continue; }
+    if (["overwrite", "replace", "open", "no-open", "help"].includes(key)) { flags.add(key); continue; }
     const value = args[index + 1];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for --${key}.`);
     values.set(key, value);
@@ -25,7 +25,7 @@ function parseArgs(args: string[]): ParsedArgs {
 }
 
 function usage(): void {
-  process.stdout.write(`FreeModel Lab - free provider catalog, API keys, and endpoints\n\nCommands:\n  freemodel-lab start [--no-open]\n  freemodel-lab list\n  freemodel-lab guide <provider-id>\n  freemodel-lab provision <provider-id> [options]\n  freemodel-lab save-key <provider-id> [--replace]\n  freemodel-lab key-status [provider-id]\n  freemodel-lab integration export <provider-id> [--account-id <id>]\n  freemodel-lab chrome install\n  freemodel-lab chrome remove\n\nIntegration export prints JSON containing the saved key to stdout.\nProvision options:\n  Gemini:     --project <id> --service-account-email <email> [--name <name>] [--overwrite]\n  Cloudflare: --account-id <id> [--name <name>] [--expires-on <ISO-8601>] [--overwrite]\n  OpenRouter: --limit-usd <positive-cap> [--name <name>] [--overwrite]\n`);
+  process.stdout.write(`FreeModel Lab - free provider catalog, API keys, and endpoints\n\nCommands:\n  freemodel-lab start [--open | --no-open]\n  freemodel-lab list\n  freemodel-lab guide <provider-id>\n  freemodel-lab provision <provider-id> [options]\n  freemodel-lab save-key <provider-id> [--replace]\n  freemodel-lab key-status [provider-id]\n  freemodel-lab integration export <provider-id> [--account-id <id>]\n  freemodel-lab chrome install\n  freemodel-lab chrome remove\n\nIntegration export prints JSON containing the saved key to stdout.\nProvision options:\n  Gemini:     --project <id> --service-account-email <email> [--name <name>] [--overwrite]\n  Cloudflare: --account-id <id> [--name <name>] [--expires-on <ISO-8601>] [--overwrite]\n  OpenRouter: --limit-usd <positive-cap> [--name <name>] [--overwrite]\n`);
 }
 
 async function readHidden(prompt: string): Promise<string> {
@@ -150,9 +150,9 @@ function commandIntegrationExport(providerId: string, accountId?: string): void 
   process.stdout.write(`${JSON.stringify(configuration, null, 2)}\n`);
 }
 
-async function commandStart(noOpen: boolean): Promise<void> {
-  const dashboard = await startServer({ openChrome: !noOpen });
-  process.stdout.write(`FreeModel Lab đang chạy trên máy này.\nMở dashboard trong Chrome đã đăng nhập: ${dashboard.url}\nDừng bằng Ctrl+C.\n`);
+async function commandStart(openChrome: boolean): Promise<void> {
+  const dashboard = await startServer({ openChrome });
+  process.stdout.write(`FreeModel Lab đang chạy trên máy này.\nURL dashboard: ${dashboard.url}\n${openChrome ? "Đã yêu cầu mở Chrome." : "Tự mở URL này trong trình duyệt khi cần."}\nDừng bằng Ctrl+C.\n`);
   await new Promise<void>((resolve) => process.once("SIGINT", resolve));
   await dashboard.close();
   process.stdout.write("Dashboard đã dừng.\n");
@@ -162,7 +162,7 @@ async function main(): Promise<void> {
   const [command = "help", ...args] = process.argv.slice(2);
   const parsed = parseArgs(args);
   if (parsed.flags.has("help") || command === "help") { usage(); return; }
-  if (command === "start") { await commandStart(parsed.flags.has("no-open")); return; }
+  if (command === "start") { await commandStart(parsed.flags.has("open") && !parsed.flags.has("no-open")); return; }
   if (command === "list") { commandList(); return; }
   if (command === "guide") {
     if (!parsed.positionals[0]) throw new Error("Cần provider ID. Chạy `freemodel-lab list` để xem danh sách.");

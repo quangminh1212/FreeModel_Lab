@@ -91,7 +91,7 @@ async function rebuild() {
         continue;
       }
       await restartDashboard();
-      log("Server đã cập nhật; tab Chrome sẽ tự refresh.");
+      log("Server đã cập nhật; dashboard sẽ tự refresh khi bạn mở URL.");
     } catch (error) {
       process.stderr.write(`[dev] Build/restart failed: ${error instanceof Error ? error.message : String(error)}\n`);
     }
@@ -166,7 +166,7 @@ async function main() {
   log("Building the project...");
   if (!(await compile())) throw new Error("Initial TypeScript build failed.");
   await bumpVersion();
-  await openDashboard(true);
+  await openDashboard(false);
   log("Watching src/ and web/. Save a file to rebuild or refresh; press Ctrl+C to stop.");
 }
 
