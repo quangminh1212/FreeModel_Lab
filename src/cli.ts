@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { getProvider, listProviders, resolveEndpoint } from "./registry";
-import { hasSecret, saveSecret } from "./secrets";
+import { getSecret, hasSecret, saveSecret } from "./secrets";
 import { provision, type ProvisionInput } from "./provisioners";
 import { startServer } from "./server";
 import { installChromeHost, removeChromeHost } from "./chrome-host";
@@ -25,7 +25,7 @@ function parseArgs(args: string[]): ParsedArgs {
 }
 
 function usage(): void {
-  process.stdout.write(`FreeModel Lab - quota free và key của provider\n\nCommands:\n  freemodel-lab start [--no-open]\n  freemodel-lab list\n  freemodel-lab guide <provider-id>\n  freemodel-lab provision <provider-id> [options]\n  freemodel-lab save-key <provider-id> [--replace]\n  freemodel-lab key-status [provider-id]\n  freemodel-lab chrome install\n  freemodel-lab chrome remove\n\nProvision options:\n  Gemini:     --project <id> --service-account-email <email> [--name <name>] [--overwrite]\n  Cloudflare: --account-id <id> [--name <name>] [--expires-on <ISO-8601>] [--overwrite]\n  OpenRouter: --limit-usd <positive-cap> [--name <name>] [--overwrite]\n`);
+  process.stdout.write(`FreeModel Lab - free provider catalog, API keys, and endpoints\n\nCommands:\n  freemodel-lab start [--no-open]\n  freemodel-lab list\n  freemodel-lab guide <provider-id>\n  freemodel-lab provision <provider-id> [options]\n  freemodel-lab save-key <provider-id> [--replace]\n  freemodel-lab key-status [provider-id]\n  freemodel-lab integration export <provider-id> [--account-id <id>]\n  freemodel-lab chrome install\n  freemodel-lab chrome remove\n\nIntegration export prints JSON containing the saved key to stdout.\nProvision options:\n  Gemini:     --project <id> --service-account-email <email> [--name <name>] [--overwrite]\n  Cloudflare: --account-id <id> [--name <name>] [--expires-on <ISO-8601>] [--overwrite]\n  OpenRouter: --limit-usd <positive-cap> [--name <name>] [--overwrite]\n`);
 }
 
 async function readHidden(prompt: string): Promise<string> {
@@ -131,6 +131,25 @@ async function commandSaveKey(providerId: string, replace: boolean): Promise<voi
   process.stdout.write("Đã lưu key vào kho credential của hệ điều hành.\n");
 }
 
+function commandIntegrationExport(providerId: string, accountId?: string): void {
+  const provider = getProvider(providerId);
+  if (!provider) throw new Error("Provider ID không hợp lệ. Chạy `freemodel-lab list` để xem danh sách.");
+  const apiKey = getSecret(providerId);
+  if (!apiKey) throw new Error("Provider chưa có key trong kho credential của hệ điều hành.");
+  const endpoint = resolveEndpoint(provider, accountId);
+  if (endpoint.includes("{account_id}")) throw new Error("Cloudflare cần --account-id để xuất endpoint hoàn chỉnh.");
+  const configuration = {
+    providerId: provider.id,
+    name: provider.name,
+    endpoint,
+    baseURL: endpoint,
+    apiKey,
+    models: provider.quota.models ?? []
+  };
+  process.stderr.write("Cảnh báo: JSON xuất ra stdout có chứa API key. Chỉ chuyển trực tiếp vào ứng dụng hoặc tệp riêng tư.\n");
+  process.stdout.write(`${JSON.stringify(configuration, null, 2)}\n`);
+}
+
 async function commandStart(noOpen: boolean): Promise<void> {
   const dashboard = await startServer({ openChrome: !noOpen });
   process.stdout.write(`FreeModel Lab đang chạy trên máy này.\nMở dashboard trong Chrome đã đăng nhập: ${dashboard.url}\nDừng bằng Ctrl+C.\n`);
@@ -163,6 +182,11 @@ async function main(): Promise<void> {
   if (command === "key-status") {
     if (parsed.positionals[0]) process.stdout.write(`${parsed.positionals[0]}: ${statusValue(parsed.positionals[0])}\n`);
     else for (const provider of listProviders()) process.stdout.write(`${provider.name}: ${statusValue(provider.id)}\n`);
+    return;
+  }
+  if (command === "integration" && parsed.positionals[0] === "export") {
+    if (!parsed.positionals[1]) throw new Error("Cần provider ID. Chạy `freemodel-lab list` để xem danh sách.");
+    commandIntegrationExport(parsed.positionals[1], parsed.values.get("account-id"));
     return;
   }
   if (command === "chrome" && parsed.positionals[0] === "install") {

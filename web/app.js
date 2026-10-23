@@ -2,6 +2,8 @@
 
 const EXTENSION_ID = "jamdobbdcddmkpgfpajpbnmfgobfjgca";
 const providerRoot = document.querySelector("#providers");
+const candidateRoot = document.querySelector("#candidates");
+const catalogStatus = document.querySelector("#catalog-status");
 const statusLine = document.querySelector("#status");
 const refreshButton = document.querySelector("#refresh");
 const themeToggle = document.querySelector("#theme-toggle");
@@ -109,7 +111,9 @@ function modelList(models) {
 
 function quotaDetails(provider, stale) {
   const block = el("section", "quota-block");
-  block.append(el("p", "quota-label", stale ? "Quota đã công bố · nguồn cần xác minh lại" : "Quota free hiện tại"));
+  const upstream = provider.catalogSource === "upstream";
+  const label = upstream ? "Quota theo danh sách upstream · cần xác minh" : stale ? "Quota đã công bố · nguồn cần xác minh lại" : "Quota free hiện tại";
+  block.append(el("p", "quota-label", label));
   block.append(el("p", "quota-summary", provider.quota.summary));
   const meta = el("div", "quota-meta");
   for (const [label, value] of [["Phạm vi", provider.quota.scope], ["Chu kỳ", provider.quota.reset]]) {
@@ -282,7 +286,10 @@ function renderProvider(provider) {
   row.append(el("div", "provider-icon", provider.name.slice(0, 1)));
   const copy = el("div", "provider-title-wrap");
   copy.append(el("h2", "", provider.name));
-  copy.append(el("p", "provider-type", provider.category === "router" ? "Model router" : "Hosted inference API"));
+  const providerType = provider.catalogSource === "upstream"
+    ? "Nguồn upstream · chưa xác minh"
+    : provider.category === "router" ? "Model router" : "Hosted inference API";
+  copy.append(el("p", "provider-type", providerType));
   const ageMs = Date.now() - new Date(`${provider.verifiedAt}T00:00:00Z`).getTime();
   const stale = !Number.isFinite(ageMs) || ageMs > 30 * 24 * 60 * 60 * 1000;
   const chipText = provider.keySaved === null ? "Kho key chưa sẵn sàng" : provider.keySaved ? "Key đã lưu" : "Chưa có key";
@@ -300,14 +307,65 @@ function renderProvider(provider) {
   card.append(endpoint);
 
   const actions = el("div", "card-actions");
-  actions.append(safeLink("Trang tạo key ↗", provider.keyUrl), safeLink("Quota trên provider ↗", provider.quotaUrl));
+  if (provider.catalogSource === "upstream") {
+    actions.append(safeLink("Trang provider ↗", provider.keyUrl));
+  } else {
+    actions.append(safeLink("Trang tạo key ↗", provider.keyUrl), safeLink("Quota trên provider ↗", provider.quotaUrl));
+  }
   card.append(actions);
   addSaveForm(card, provider);
   if (provider.provisioner) card.append(provisionForm(provider));
 
   const source = el("footer", "source-line");
-  source.append(document.createTextNode("Nguồn quota: "), safeLink("tài liệu chính thức ↗", provider.sourceUrl, ""));
-  source.append(document.createTextNode(" · Xác minh "));
+  source.append(document.createTextNode(provider.catalogSource === "upstream" ? "Nguồn tổng hợp: " : "Nguồn quota: "));
+  source.append(safeLink(provider.catalogSource === "upstream" ? "danh sách upstream ↗" : "tài liệu chính thức ↗", provider.sourceUrl, ""));
+  source.append(document.createTextNode(provider.catalogSource === "upstream" ? " · Nguồn cập nhật " : " · Xác minh "));
+  source.append(el("time", "", provider.verifiedAt));
+  card.append(source);
+  return card;
+}
+
+function renderCandidate(provider) {
+  const card = el("article", "provider-card candidate-card");
+  const header = el("header", "card-head");
+  const row = el("div", "provider-title-row");
+  row.append(el("div", "provider-icon", provider.name.slice(0, 1)));
+  const copy = el("div", "provider-title-wrap");
+  copy.append(el("h2", "", provider.name));
+  copy.append(el("p", "provider-type", provider.category === "router" ? "Model router · ứng viên" : "Hosted inference · ứng viên"));
+  row.append(copy, el("span", "key-chip key-chip-stale", "Chưa xác minh"));
+  header.append(row);
+  card.append(header);
+  const details = el("section", "quota-block");
+  details.append(el("p", "quota-label", "Mô tả từ nguồn tổng hợp"));
+  details.append(el("p", "quota-summary", provider.quota.summary));
+  details.append(el("p", "quota-note", "Đối chiếu quota và điều kiện sử dụng trên trang provider trước khi thêm."));
+  const models = modelList(provider.quota.models);
+  if (models) details.append(models);
+  card.append(details);
+  const endpoint = el("div", "endpoint-box");
+  endpoint.append(el("p", "endpoint-label", "API endpoint"), el("code", "endpoint-value", provider.endpoint));
+  card.append(endpoint);
+  const actions = el("div", "card-actions");
+  actions.append(safeLink("Trang provider ↗", provider.keyUrl));
+  const addButton = el("button", "button button-primary button-small", "Thêm vào danh mục");
+  addButton.type = "button";
+  addButton.addEventListener("click", async () => {
+    addButton.disabled = true;
+    try {
+      await api(`/api/providers/import/${encodeURIComponent(provider.id)}`, { method: "POST", body: "{}" });
+      card.remove();
+      setStatus(`${provider.name} đã được thêm. Endpoint lưu ở metadata cục bộ; API key có thể lưu trong kho bảo mật của hệ điều hành.`, "success");
+      await loadProviders(false);
+    } catch (error) {
+      setStatus(error instanceof Error ? error.message : "Không thể thêm provider.", "error");
+      addButton.disabled = false;
+    }
+  });
+  actions.append(addButton);
+  card.append(actions);
+  const source = el("footer", "source-line");
+  source.append(document.createTextNode("Nguồn upstream · cập nhật "));
   source.append(el("time", "", provider.verifiedAt));
   card.append(source);
   return card;
@@ -315,21 +373,42 @@ function renderProvider(provider) {
 
 async function loadProviders(showLoading = true) {
   if (showLoading) setStatus("Đang đọc quota công bố và trạng thái key trên máy này…");
-  refreshButton.disabled = true;
   try {
     const [sessionInfo, data] = await Promise.all([api("/api/session"), api("/api/providers")]);
     session = sessionInfo;
     providerRoot.replaceChildren(...data.providers.map(renderProvider));
-    const latest = data.providers.reduce((value, provider) => provider.verifiedAt > value ? provider.verifiedAt : value, "");
+    const officialProviders = data.providers.filter((provider) => provider.catalogSource !== "upstream");
+    const upstreamCount = data.providers.length - officialProviders.length;
+    const latest = officialProviders.map((provider) => provider.verifiedAt).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || "";
     document.querySelector("#verified-at").textContent = latest || "—";
     const staleCount = data.providers.filter((provider) => Date.now() - new Date(`${provider.verifiedAt}T00:00:00Z`).getTime() > 30 * 24 * 60 * 60 * 1000).length;
-    setStatus(`${data.providers.length} provider có quota free trong registry. Quota công bố được xác minh ${latest || "chưa rõ ngày"}; ${staleCount ? `${staleCount} nguồn đã quá 30 ngày, hãy kiểm tra lại` : "các nguồn còn trong hạn rà soát"}. Dashboard không gửi model request để suy ra quota.`, staleCount ? "warning" : "success");
+    setStatus(`${officialProviders.length} provider có nguồn chính thức${upstreamCount ? ` · ${upstreamCount} mục upstream chưa xác minh` : ""}. Quota chính thức được rà soát ${latest || "chưa rõ ngày"}; ${staleCount ? `${staleCount} nguồn đã quá 30 ngày, hãy kiểm tra lại` : "các nguồn chính thức còn trong hạn rà soát"}. Dashboard không gửi model request để suy ra quota.`, staleCount ? "warning" : "success");
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Không tải được dashboard.", "error");
-  } finally {
-    refreshButton.disabled = false;
   }
 }
 
-refreshButton.addEventListener("click", () => loadProviders());
+async function refreshCatalog() {
+  refreshButton.disabled = true;
+  refreshButton.querySelector("span:last-child").textContent = "Đang cập nhật…";
+  catalogStatus.textContent = "Đang lấy danh sách provider free từ nguồn upstream…";
+  try {
+    const update = await api("/api/catalog/refresh", { method: "POST", body: "{}" });
+    catalogStatus.dataset.kind = "";
+    candidateRoot.replaceChildren(...update.candidates.map(renderCandidate));
+    const upstreamDate = update.sourceUpdatedAt === "unknown" ? "không công bố ngày cập nhật" : `ngày ${update.sourceUpdatedAt}`;
+    const fetchedAt = new Date(update.fetchedAt).toLocaleString();
+    catalogStatus.textContent = `Nguồn upstream cập nhật ${upstreamDate}; vừa tải lúc ${fetchedAt}. Có ${update.candidates.length} ứng viên free chưa nằm trong danh mục; dữ liệu upstream chưa được xác minh độc lập.`;
+    if (!update.candidates.length) candidateRoot.append(el("p", "empty-state", "Không có ứng viên mới phù hợp bộ lọc free hiện tại."));
+  } catch (error) {
+    catalogStatus.textContent = error instanceof Error ? `Không cập nhật được nguồn upstream: ${error.message}` : "Không cập nhật được nguồn upstream.";
+    catalogStatus.dataset.kind = "error";
+  } finally {
+    refreshButton.disabled = false;
+    refreshButton.querySelector("span:last-child").textContent = "Cập nhật danh sách free";
+  }
+}
+
+refreshButton.addEventListener("click", () => refreshCatalog());
 loadProviders();
+refreshCatalog();

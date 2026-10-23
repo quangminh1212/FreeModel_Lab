@@ -15,8 +15,8 @@
         <div class="brand-mark" aria-hidden="true">F</div>
         <div class="brand-copy">
           <p class="eyebrow">FREE MODEL LAB · LOCAL DASHBOARD</p>
-          <h1>Quota miễn phí, rõ từng provider</h1>
-          <p class="subtitle">Nguồn chính thức, endpoint và trạng thái key trên máy này.</p>
+          <h1>Provider free, endpoint và API key</h1>
+          <p class="subtitle">Cập nhật nguồn miễn phí, lưu kết nối cục bộ và tích hợp vào ứng dụng khác.</p>
         </div>
         <div class="header-actions">
           <button id="theme-toggle" class="button button-quiet theme-toggle" type="button" aria-pressed="false">
@@ -25,17 +25,30 @@
           </button>
           <button id="refresh" class="button button-quiet" type="button">
             <span aria-hidden="true">↻</span>
-            <span>Cập nhật trạng thái key</span>
+            <span>Cập nhật danh sách free</span>
           </button>
         </div>
       </header>
 
       <section class="notice notice-info" aria-label="Phạm vi">
         <span class="notice-icon" aria-hidden="true">i</span>
-        <p>Dashboard chỉ liệt kê gói free còn được provider công bố. Quota tài khoản có thể thay đổi theo model và tài khoản. Khi gặp MFA, CAPTCHA, điều khoản hoặc thanh toán, hãy tự xử lý trong Chrome.</p>
+        <p>Danh mục chính chỉ giữ provider có quota free. Nguồn upstream dùng để tìm ứng viên, không tự xác nhận quota; hãy kiểm tra nguồn chính thức trước khi thêm. API key nằm trong kho bảo mật của hệ điều hành.</p>
+      </section>
+
+      <section class="source-section" aria-labelledby="source-heading">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">UPSTREAM DISCOVERY</p>
+            <h2 id="source-heading">Nguồn provider mới</h2>
+            <p class="section-copy">Tải danh sách cập nhật từ GitHub. Các mục chưa xác minh được ghi rõ và chỉ vào danh mục khi bạn chọn thêm.</p>
+          </div>
+        </div>
+        <p id="catalog-status" class="catalog-status" role="status" aria-live="polite">Đang tải nguồn upstream…</p>
+        <div id="candidates" class="provider-grid" aria-label="Ứng viên provider free"></div>
       </section>
 
       <div id="status" class="status-line" role="status" aria-live="polite">Đang tải danh sách provider…</div>
+      <h2 class="section-title">Danh mục provider của bạn</h2>
       <section id="providers" class="provider-grid" aria-label="Providers có quota miễn phí"></section>
 
       <footer class="footer">

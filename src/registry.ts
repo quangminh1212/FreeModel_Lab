@@ -1,3 +1,5 @@
+import { listUserProviders } from "./user-providers";
+
 export type QuotaRecord = {
   summary: string;
   scope: string;
@@ -18,10 +20,12 @@ export type ProviderRecord = {
   verifiedAt: string;
   provisioner?: "gemini" | "cloudflare" | "openrouter";
   endpointNeedsAccountId?: boolean;
+  catalogSource?: "official" | "upstream";
+  addedAt?: string;
 };
 
-// Registry entries are curated from official provider pages. The upstream
-// awesome-free-llm-apis repository is discovery-only and is never merged here.
+// Built-in registry entries are curated from official provider pages. Upstream
+// entries are added separately after an explicit user action.
 export const PROVIDERS: ProviderRecord[] = [
   {
     id: "gemini",
@@ -38,7 +42,8 @@ export const PROVIDERS: ProviderRecord[] = [
     },
     sourceUrl: "https://ai.google.dev/gemini-api/docs/rate-limits",
     verifiedAt: "2026-10-23",
-    provisioner: "gemini"
+    provisioner: "gemini",
+    catalogSource: "official"
   },
   {
     id: "cloudflare-workers-ai",
@@ -57,7 +62,8 @@ export const PROVIDERS: ProviderRecord[] = [
     sourceUrl: "https://developers.cloudflare.com/workers-ai/platform/pricing/",
     verifiedAt: "2026-10-23",
     provisioner: "cloudflare",
-    endpointNeedsAccountId: true
+    endpointNeedsAccountId: true,
+    catalogSource: "official"
   },
   {
     id: "groq",
@@ -74,7 +80,8 @@ export const PROVIDERS: ProviderRecord[] = [
       notes: ["The documentation describes its public table as a high-level summary; the account Limits page is authoritative for the current organization."]
     },
     sourceUrl: "https://console.groq.com/docs/rate-limits",
-    verifiedAt: "2026-10-23"
+    verifiedAt: "2026-10-23",
+    catalogSource: "official"
   },
   {
     id: "mistral",
@@ -90,7 +97,8 @@ export const PROVIDERS: ProviderRecord[] = [
       notes: ["Pay-as-you-go extends usage beyond included free usage and can incur charges."]
     },
     sourceUrl: "https://docs.mistral.ai/admin/billing-usage/usage-limits",
-    verifiedAt: "2026-10-23"
+    verifiedAt: "2026-10-23",
+    catalogSource: "official"
   },
   {
     id: "openrouter",
@@ -107,16 +115,21 @@ export const PROVIDERS: ProviderRecord[] = [
     },
     sourceUrl: "https://openrouter.ai/pricing/",
     verifiedAt: "2026-10-23",
-    provisioner: "openrouter"
+    provisioner: "openrouter",
+    catalogSource: "official"
   }
 ];
 
 export function getProvider(id: string): ProviderRecord | undefined {
-  return PROVIDERS.find((provider) => provider.id === id);
+  return PROVIDERS.find((provider) => provider.id === id)
+    ?? listUserProviders().find((provider) => provider.id === id);
 }
 
 export function listProviders(): ProviderRecord[] {
-  return PROVIDERS.map((provider) => ({ ...provider, quota: { ...provider.quota } }));
+  return [...PROVIDERS, ...listUserProviders()].map((provider) => ({
+    ...provider,
+    quota: { ...provider.quota, models: provider.quota.models ? [...provider.quota.models] : undefined, notes: provider.quota.notes ? [...provider.quota.notes] : undefined }
+  }));
 }
 
 export function resolveEndpoint(provider: ProviderRecord, accountId?: string): string {

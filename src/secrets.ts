@@ -17,20 +17,24 @@ function entryFor(providerId: string): Entry {
   }
 }
 
-export function hasSecret(providerId: string): boolean {
+export function getSecret(providerId: string): string | undefined {
   const entry = entryFor(providerId);
   try {
     const value = entry.getPassword();
-    return typeof value === "string" && value.length > 0;
+    return typeof value === "string" && value.length > 0 ? value : undefined;
   } catch (error) {
     const message = error instanceof Error ? error.message.toLowerCase() : "";
-    if (message.includes("not found") || message.includes("no entry")) return false;
+    if (message.includes("not found") || message.includes("no entry")) return undefined;
     throw new Error(
       process.platform === "linux"
         ? "Could not read from Linux Secret Service. No key was changed."
         : "Could not read from the operating system credential store. No key was changed."
     );
   }
+}
+
+export function hasSecret(providerId: string): boolean {
+  return getSecret(providerId) !== undefined;
 }
 
 export function saveSecret(providerId: string, value: string, overwrite = false): void {

@@ -13,7 +13,7 @@ Xây dựng một ứng dụng local phân phối qua npm, chạy trên Windows,
 - Xem endpoint và nguồn chính thức của quota.
 - Tạo API key bằng API chính thức hoặc hỗ trợ thao tác trên trang provider trong Chrome đã đăng nhập; lưu key vào kho bí mật của hệ điều hành.
 
-Danh sách upstream chỉ dùng để tìm provider ứng viên. Ứng dụng chỉ đưa vào danh sách đang hoạt động khi tài liệu chính thức xác nhận provider còn quota miễn phí duy trì. Không đưa trial hoặc credit một lần vào danh sách.
+Danh sách upstream chỉ dùng để tìm provider ứng viên; không tự động nhập hoặc coi là nguồn xác minh. Dashboard đánh dấu rõ ứng viên chưa được rà soát và chỉ lưu endpoint vào danh mục cá nhân sau khi người dùng chọn thêm.
 
 ## 2. Nền tảng và cách cài
 
@@ -52,7 +52,7 @@ Bảng mặc định ưu tiên provider/model và quota miễn phí. Người d�
 
 Các thao tác:
 
-- **Làm mới danh mục:** cập nhật danh sách ứng viên upstream và kiểm tra nguồn đã cấu hình; dữ liệu upstream chưa xác minh không xuất hiện thành quota đang hoạt động.
+- **Làm mới danh mục:** tải ứng viên upstream, loại bỏ các mô tả trial-only và credit một lần, rồi chờ người dùng chọn mục cần lưu. Ứng viên vẫn mang nhãn chưa xác minh.
 - **Mở nguồn:** mở tài liệu chính thức về quota hoặc trang API usage của provider.
 - **Làm mới quota tài khoản:** gọi API quota chính thức, chỉ với provider hỗ trợ.
 - **Tạo key:** chỉ bắt đầu khi người dùng bấm nút cho provider đó.
@@ -66,7 +66,7 @@ Không chạy kiểm tra kết nối hoặc gọi model ngầm. Không tuyên b�
 2. **Local web UI:** chạy trong Chrome hiện có của người dùng. Bảo vệ API local bằng token phiên ngẫu nhiên, xác minh Origin/CSRF và không bật CORS rộng.
 3. **Chrome extension:** chỉ xin quyền host theo domain provider đang được xử lý. Khi cần UI automation, thao tác trên tab provider đang hiển thị trong profile người dùng.
 4. **Native Messaging host:** host executable theo OS/architecture, được phân phối cùng package npm hoặc optional package tương ứng, làm cầu nối extension với service/kho bí mật. Host chỉ cho phép extension ID được khai báo; kiểm tra origin và schema từng message.
-5. **Provider registry:** metadata quota đã xác minh, endpoint, nguồn, verified_at và capability cho quota live/key provisioning. Đồng bộ upstream chỉ tạo ứng viên, không ghi đè dữ liệu đã xác minh.
+5. **Provider registry:** metadata quota, endpoint, nguồn, verified_at và capability cho quota live/key provisioning. Đồng bộ upstream chỉ tạo ứng viên; người dùng có thể lưu endpoint đã chọn vào danh mục cá nhân, kèm nhãn upstream chưa xác minh.
 6. **Quota adapters:** đọc quota tài khoản qua API chính thức nếu có; chuẩn hóa giới hạn, đơn vị, chu kỳ và thời điểm đo.
 7. **Key provisioning adapters:** dùng API provisioning chính thức khi provider hỗ trợ; nếu không, dùng Chrome flow đã được kiểm chứng hoặc hướng dẫn thủ công.
 
@@ -151,7 +151,7 @@ Không bao gồm:
 5. Dữ liệu quá hạn không được trình bày như hiện tại.
 6. Khi provider hỗ trợ, người dùng có thể bấm để đọc quota account hoặc tạo key; không phát sinh gọi nền liên tục.
 7. Key được lưu vào kho native của OS. Linux thiếu Secret Service thì báo lỗi rõ, không rơi về keyutils hoặc file rõ.
-8. MFA/CAPTCHA/điều khoản/xác nhận thanh toán dừng để người dùng thao tác; key không xuất hiện trong log/UI sau khi lưu.
+8. MFA/CAPTCHA/điều khoản/xác nhận thanh toán dừng để người dùng thao tác; dashboard không hiển thị key sau khi lưu. Lệnh tích hợp chỉ xuất key khi người dùng gọi rõ ràng và in ra stdout.
 9. Nếu automation không chắc chắn, dừng an toàn và đưa fallback thủ công.
 
 ## 12. Nguồn và căn cứ thiết kế

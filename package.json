@@ -1,7 +1,7 @@
 {
   "name": "freemodel-lab",
   "version": "0.2.0",
-  "description": "Local dashboard for officially documented free LLM API quotas and user-controlled key setup",
+  "description": "Local free provider catalog, secure API key vault, and endpoint integration",
   "license": "MIT",
   "type": "commonjs",
   "engines": {

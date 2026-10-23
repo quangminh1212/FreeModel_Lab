@@ -114,6 +114,16 @@ h1 { margin: 0; font-size: clamp(24px, 3.4vw, 34px); letter-spacing: -.04em; lin
 .status-line[data-kind="error"] { color: var(--red); }
 .status-line[data-kind="success"] { color: var(--green-dark); }
 .status-line[data-kind="warning"] { color: var(--gold); }
+.source-section { margin: 26px 0 30px; }
+.section-heading { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 10px; }
+.section-heading .eyebrow { margin-bottom: 5px; }
+.section-heading h2 { margin-bottom: 5px; font-size: 19px; }
+.section-copy { max-width: 690px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.catalog-status { margin: 0 0 11px; color: var(--muted); font-size: 10px; line-height: 1.5; }
+.catalog-status[data-kind="error"] { color: var(--red); }
+.section-title { margin: 0 0 12px; font-size: 19px; }
+.candidate-card .quota-block { padding-bottom: 8px; }
+.empty-state { grid-column: 1 / -1; margin: 0; padding: 13px 15px; border: 1px dashed var(--line); border-radius: 12px; color: var(--muted); font-size: 11px; }
 
 .provider-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: 14px; }
 .provider-card { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--card); box-shadow: var(--shadow); }
@@ -169,6 +179,7 @@ h2 { margin: 0 0 4px; font-size: 16px; letter-spacing: -.02em; }
   .topbar { grid-template-columns: auto minmax(0, 1fr); align-items: start; }
   .header-actions { grid-column: 2; justify-content: flex-start; }
   .provider-grid { grid-template-columns: 1fr; gap: 12px; }
+  .section-heading { align-items: flex-start; }
 }
 
 @media (max-width: 520px) {

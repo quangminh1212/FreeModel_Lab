@@ -1,8 +1,8 @@
 # FreeModel Lab
 
-Dashboard cục bộ để xem quota free có nguồn chính thức, endpoint, trang quota tài khoản và trạng thái key đã lưu. Dự án chạy bằng Node.js/npm trên Windows, macOS và Linux; không cần Python.
+Danh mục cục bộ để cập nhật nguồn provider có quota free, xem endpoint và lưu API key an toàn để đưa vào công cụ khác. Dự án chạy bằng Node.js/npm trên Windows, macOS và Linux; không cần Python.
 
-Repo upstream [`mnfst/awesome-free-llm-apis`](https://github.com/mnfst/awesome-free-llm-apis) chỉ dùng để tìm provider. Danh sách hoạt động bên dưới được kiểm tra riêng với tài liệu của chính provider; quota có thể thay đổi hoặc phụ thuộc tài khoản.
+Repo upstream [`mnfst/awesome-free-llm-apis`](https://github.com/mnfst/awesome-free-llm-apis) được tải khi mở dashboard và khi bấm **Cập nhật danh sách free**. App chỉ đưa ứng viên vào kho sau khi bạn chủ động chọn **Thêm vào danh mục**. Dữ liệu upstream được ghi nhãn chưa xác minh; hãy mở nguồn provider để đối chiếu quota và điều kiện hiện tại. Danh mục có sẵn bên dưới được kiểm tra riêng với tài liệu chính thức.
 
 ## Provider trong registry
 
@@ -14,7 +14,9 @@ Repo upstream [`mnfst/awesome-free-llm-apis`](https://github.com/mnfst/awesome-f
 | Mistral AI Studio | Free mode gồm usage hàng tháng trong hạn mức; quota và rate theo tổ chức/model | `https://api.mistral.ai/v1` | [Mistral Usage & Limits](https://docs.mistral.ai/admin/billing-usage/usage-limits) |
 | OpenRouter | 50 requests/ngày ở Free plan cho free-model access; model miễn phí và capacity thay đổi | `https://openrouter.ai/api/v1` | [OpenRouter pricing](https://openrouter.ai/pricing/) |
 
-Mỗi dòng có nguồn và ngày xác minh. Sau 30 ngày, dashboard gắn nhãn nguồn cần kiểm tra lại. App không gửi model request để suy ra quota còn lại. Khi provider chỉ công bố giới hạn trong account, hãy mở link quota chính thức để xem giá trị của tài khoản bạn.
+Mỗi dòng có nguồn và ngày kiểm tra/cập nhật. Sau 30 ngày, dashboard gắn nhãn nguồn cần kiểm tra lại. App không gửi model request để suy ra quota còn lại. Khi provider chỉ công bố giới hạn trong account, hãy mở link quota chính thức để xem giá trị của tài khoản bạn.
+
+Provider bạn thêm từ upstream và endpoint của chúng được lưu trong thư mục dữ liệu riêng của user; tệp này chỉ chứa metadata, không chứa API key. API key vẫn nằm trong Credential Manager, Keychain hoặc Linux Secret Service.
 
 ## Cài từ repo
 
@@ -71,10 +73,22 @@ MFA, CAPTCHA, điều khoản, thanh toán hoặc cấp quyền nhạy cảm lu�
 
 Key được lưu trong kho credential native của hệ điều hành: Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Trên Linux phải có Secret Service như GNOME Keyring/KWallet; app báo lỗi nếu không có, không ghi key vào file hay fallback sang keyutils. `key-status` chỉ báo trạng thái, không hiển thị key.
 
+## Tích hợp với ứng dụng khác
+
+Lệnh sau xuất endpoint và key đã lưu thành JSON để nhập vào ứng dụng hỗ trợ provider đó:
+
+```sh
+freemodel-lab integration export groq
+freemodel-lab integration export cloudflare-workers-ai --account-id 0123456789abcdef0123456789abcdef
+```
+
+JSON được in ra `stdout` có chứa API key. Chỉ chạy lệnh khi bạn định cấu hình ứng dụng đích; không dán kết quả vào chat, issue, log hoặc tệp chia sẻ. Các ứng dụng dùng OpenAI-compatible API thường cần `endpoint` làm base URL, `apiKey` làm API key và một model ID được provider hỗ trợ. Provider khác có thể cần SDK hoặc cách cấu hình riêng.
+
 ```sh
 freemodel-lab list
 freemodel-lab guide gemini
 freemodel-lab key-status
+freemodel-lab integration export groq
 freemodel-lab save-key groq
 freemodel-lab save-key groq --replace
 freemodel-lab provision gemini --project my-project --service-account-email key-user@my-project.iam.gserviceaccount.com

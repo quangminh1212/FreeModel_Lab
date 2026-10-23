@@ -3,6 +3,8 @@ import { createServer, type IncomingMessage, type ServerResponse } from "node:ht
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { listProviders, getProvider, resolveEndpoint } from "./registry";
+import { refreshFreeCatalog } from "./catalog-updater";
+import { addUserProvider } from "./user-providers";
 import { hasSecret, saveSecret } from "./secrets";
 import { provision, type ProvisionInput } from "./provisioners";
 
@@ -126,6 +128,7 @@ function sanitizeProvisionInput(body: Record<string, unknown>): ProvisionInput {
 export async function startServer(options: StartOptions = {}): Promise<{ url: string; close: () => Promise<void> }> {
   const devMode = options.devMode === true;
   const sessionToken = options.sessionToken ?? randomBytes(32).toString("base64url");
+  const availableCandidates = new Map<string, ReturnType<typeof listProviders>[number]>();
   const server = createServer(async (request, response) => {
     const host = request.headers.host;
     const requestUrl = new URL(request.url ?? "/", `http://${host ?? "invalid"}`);
@@ -194,17 +197,49 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
       writeJson(response, 200, { sessionToken, port });
       return;
     }
+    if (request.method === "POST" && requestUrl.pathname === "/api/catalog/refresh") {
+      try {
+        await readJson(request);
+        const update = await refreshFreeCatalog(listProviders());
+        availableCandidates.clear();
+        for (const candidate of update.candidates) availableCandidates.set(candidate.id, candidate);
+        writeJson(response, 200, update);
+      } catch (error) {
+        writeJson(response, 502, { error: error instanceof Error ? error.message : "Could not refresh provider sources." });
+      }
+      return;
+    }
+    const importMatch = request.method === "POST" && requestUrl.pathname.match(/^\/api\/providers\/import\/([^/]+)$/);
+    if (importMatch) {
+      const candidateId = decodeURIComponent(importMatch[1] ?? "");
+      const candidate = availableCandidates.get(candidateId);
+      if (!candidate) { writeJson(response, 404, { error: "This source candidate expired. Refresh the catalog and try again." }); return; }
+      try {
+        await readJson(request);
+        if (getProvider(candidate.id)) throw new Error("This provider is already saved.");
+        const provider = addUserProvider(candidate);
+        availableCandidates.delete(candidateId);
+        writeJson(response, 201, { ok: true, provider });
+      } catch (error) {
+        writeJson(response, 400, { error: error instanceof Error ? error.message : "Could not save provider metadata." });
+      }
+      return;
+    }
     if (request.method === "GET" && requestUrl.pathname === "/api/providers") {
-      const providers = listProviders().map((provider) => {
-        let keySaved: boolean | null = false;
-        try { keySaved = hasSecret(provider.id); } catch { keySaved = null; }
-        return {
-          ...provider,
-          endpoint: resolveEndpoint(provider),
-          keySaved
-        };
-      });
-      writeJson(response, 200, { providers });
+      try {
+        const providers = listProviders().map((provider) => {
+          let keySaved: boolean | null = false;
+          try { keySaved = hasSecret(provider.id); } catch { keySaved = null; }
+          return {
+            ...provider,
+            endpoint: resolveEndpoint(provider),
+            keySaved
+          };
+        });
+        writeJson(response, 200, { providers });
+      } catch (error) {
+        writeJson(response, 500, { error: error instanceof Error ? error.message : "Could not read the provider catalog." });
+      }
       return;
     }
     if (request.method === "POST" && isNative) {
