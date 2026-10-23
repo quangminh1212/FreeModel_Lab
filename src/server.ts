@@ -8,8 +8,10 @@ import { provision, type ProvisionInput } from "./provisioners";
 
 const MAX_BODY_BYTES = 48 * 1024;
 const WEB_ROOT = resolve(__dirname, "..", "web");
+const DEV_RELOAD_SCRIPT = resolve(__dirname, "..", "scripts", "dev-reload.js");
+const DEV_VERSION_FILE = resolve(__dirname, "..", "node_modules", ".cache", "freemodel-lab", "dev-version");
 
-type StartOptions = { port?: number; openChrome?: boolean };
+type StartOptions = { port?: number; openChrome?: boolean; devMode?: boolean; sessionToken?: string };
 
 function writeJson(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, {
@@ -75,7 +77,7 @@ function setSessionCookie(response: ServerResponse, token: string): void {
   response.end();
 }
 
-async function sendStatic(response: ServerResponse, path: string): Promise<void> {
+async function sendStatic(response: ServerResponse, path: string, devMode = false): Promise<void> {
   const files: Record<string, { name: string; type: string }> = {
     "/": { name: "index.html", type: "text/html; charset=utf-8" },
     "/theme.js": { name: "theme.js", type: "text/javascript; charset=utf-8" },
@@ -86,7 +88,15 @@ async function sendStatic(response: ServerResponse, path: string): Promise<void>
   if (!file) throw new Error("Not found.");
   const body = await readFile(resolve(WEB_ROOT, file.name));
   response.writeHead(200, { ...securityHeaders(), "Content-Type": file.type });
-  response.end(body);
+  if (path === "/" && devMode) {
+    const html = body.toString("utf8").replace(
+      "</body>",
+      "  <script src=\"/__dev/reload.js\" defer></script>\n  </body>"
+    );
+    response.end(html);
+  } else {
+    response.end(body);
+  }
 }
 
 function isLoopback(request: IncomingMessage): boolean {
@@ -114,7 +124,8 @@ function sanitizeProvisionInput(body: Record<string, unknown>): ProvisionInput {
 }
 
 export async function startServer(options: StartOptions = {}): Promise<{ url: string; close: () => Promise<void> }> {
-  const sessionToken = randomBytes(32).toString("base64url");
+  const devMode = options.devMode === true;
+  const sessionToken = options.sessionToken ?? randomBytes(32).toString("base64url");
   const server = createServer(async (request, response) => {
     const host = request.headers.host;
     const requestUrl = new URL(request.url ?? "/", `http://${host ?? "invalid"}`);
@@ -143,6 +154,22 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
       writeJson(response, 401, { error: "Dashboard session expired. Restart the command and open its new local link." });
       return;
     }
+    if (devMode && request.method === "GET" && requestUrl.pathname === "/__dev/reload.js") {
+      try {
+        const body = await readFile(DEV_RELOAD_SCRIPT);
+        response.writeHead(200, { ...securityHeaders(), "Content-Type": "text/javascript; charset=utf-8" });
+        response.end(body);
+      } catch {
+        writeJson(response, 404, { error: "Development reload script is unavailable." });
+      }
+      return;
+    }
+    if (devMode && request.method === "GET" && requestUrl.pathname === "/__dev/version") {
+      let version = "0";
+      try { version = (await readFile(DEV_VERSION_FILE, "utf8")).trim(); } catch { /* The dev runner creates this file before startup. */ }
+      writeJson(response, 200, { version });
+      return;
+    }
     const isApiRequest = requestUrl.pathname.startsWith("/api/");
     const origin = request.headers.origin;
     const isMutation = request.method !== "GET";
@@ -156,7 +183,7 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
     }
 
     if (request.method === "GET" && requestUrl.pathname === "/") {
-      try { await sendStatic(response, "/"); } catch { writeJson(response, 500, { error: "Dashboard assets are unavailable. Reinstall the npm package." }); }
+      try { await sendStatic(response, "/", devMode); } catch { writeJson(response, 500, { error: "Dashboard assets are unavailable. Reinstall the npm package." }); }
       return;
     }
     if (request.method === "GET" && ["/theme.js", "/app.js", "/style.css"].includes(requestUrl.pathname)) {

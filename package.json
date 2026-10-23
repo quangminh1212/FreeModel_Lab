@@ -14,16 +14,20 @@
     "dist/",
     "web/",
     "extension/",
+    "scripts/",
+    "run.bat",
     "README.md",
     "AI_GUIDE.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "dev": "node scripts/dev.cjs",
     "prepare": "npm run build",
     "start": "node dist/cli.js start"
   },
   "dependencies": {
     "@napi-rs/keyring": "^2.1.2",
+    "chokidar": "^4.0.3",
     "open": "^11.0.4",
     "postject": "1.0.0-alpha.6"
   },

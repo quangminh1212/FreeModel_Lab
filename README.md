@@ -28,6 +28,12 @@ npm run build
 npm link
 ```
 
+## Chạy dự án với tự động reload
+
+Trên Windows, mở `run.bat` để tự chuyển vào thư mục dự án, kiểm tra Node.js 24 trở lên, cài dependency và khởi chạy dashboard ở chế độ phát triển. Có thể chạy tương tự trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
+
+Chế độ phát triển theo dõi `src/` và `web/`: sửa TypeScript sẽ tự build lại và restart server; sửa HTML, CSS hoặc JavaScript sẽ tự refresh tab dashboard hiện tại. Dùng `Ctrl+C` để dừng.
+
 Mở dashboard trong Chrome đã đăng nhập:
 
 ```sh
