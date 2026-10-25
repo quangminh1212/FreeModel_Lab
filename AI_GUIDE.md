@@ -10,7 +10,7 @@ Tra cứu danh mục provider free, cập nhật ứng viên từ nguồn upstre
 2. Dùng nút cập nhật danh sách để tải nguồn upstream mới. Upstream chỉ cung cấp ứng viên khám phá; kiểm tra trang chính thức trước khi thêm. Chỉ coi quota đã được xác minh khi nguồn chính thức còn trong 30 ngày.
 3. Dùng nút tạo key chỉ cho provider có adapter rõ ràng: Gemini, Cloudflare Workers AI hoặc OpenRouter. Xem lại quyền và chi phí, rồi xác nhận request một lần.
 4. Với provider chưa có adapter đã xác minh, mở trang key chính thức, hoàn tất thao tác thủ công trong Chrome, rồi dán key vào dashboard hoặc dùng `freemodel-lab save-key <provider-id>`.
-5. Dùng `freemodel-lab key-status` để xem trạng thái lưu. Dashboard và API trạng thái không đọc lại hay trả về giá trị key.
+5. Dùng `freemodel-lab key-status` để xem trạng thái lưu. Trong dashboard, nút **Kiểm tra key** đọc lại `GET /api/providers` và dùng boolean `keySaved` có thẩm quyền từ phản hồi đó để báo key có tồn tại trong kho credential của hệ điều hành hay không — route ảo `GET /api/keys/:id/status` ở phiên bản cũ đã bị xoá nên không còn trả về 404. Dashboard và API không bao giờ hiển thị hay trả về giá trị key, không ghi key vào log.
 6. Dùng `freemodel-lab integration export <provider-id>` khi cần cấu hình ứng dụng khác. Lệnh này cố ý xuất key ra stdout; giữ đầu ra riêng tư và không đưa vào log, issue hoặc chat.
 
 ## Ranh giới an toàn
@@ -20,7 +20,7 @@ Tra cứu danh mục provider free, cập nhật ứng viên từ nguồn upstre
 - Không dùng private dashboard API, không tự retry thao tác tạo key khi kết quả chưa rõ, và không tạo key thay thế ngầm.
 - Không xoay key/account để né quota. Một key mới không làm quota tăng và không biến gói trả phí thành free.
 - Chỉ dùng HTTPS provider endpoint và API provisioning chính thức; không gửi key ra log, telemetry, repo hoặc phản hồi dashboard.
-- Lưu key bằng Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Linux không có Secret Service thì phải dừng và báo lỗi; không lưu plaintext hoặc fallback sang keyutils.
+- Lưu key DUY NHẤT bằng Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Linux không có Secret Service thì phải dừng và báo lỗi; không lưu plaintext, không ghi key ra file, không fallback sang keyutils, và không bao giờ hiển thị/ghi log/trả về giá trị key qua API. Nút trong biểu mẫu dashboard ghi nhãn **Lưu vào kho bảo mật**.
 - Extension chỉ dùng `nativeMessaging`, xác thực extension origin và schema message. Key chỉ được chuyển khi người dùng bấm lưu trong dashboard.
 - Dashboard chỉ nhận kết nối loopback, kiểm tra Host/Origin và session, không bật CORS rộng.
 

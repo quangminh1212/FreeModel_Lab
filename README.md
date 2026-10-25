@@ -46,7 +46,7 @@ Lệnh in URL loopback nhưng không tự mở trình duyệt. Dán URL vào Chr
 
 ## Extension và Native Messaging
 
-Extension chỉ nhận quyền `nativeMessaging`; không có quyền cookies, history, debugger hoặc host access tới trang provider. Việc cài đặt host chỉ áp dụng cho user hiện tại.
+Extension chỉ nhận quyền `nativeMessaging`; không có quyền cookies, history, debugger hoặc host access tới trang provider. Việc cài đặt host chỉ áp dụng cho user hiện tại. Hiện tại extension chỉ kiểm tra kết nối Native Messaging; luồng chuyển key qua extension chưa được nối vào dashboard. Dashboard lưu key trực tiếp qua API loopback đã xác thực.
 
 ```sh
 freemodel-lab chrome install
@@ -58,7 +58,7 @@ Trong Chrome, bật **Developer mode** tại `chrome://extensions`, chọn **Loa
 freemodel-lab chrome remove
 ```
 
-Chrome yêu cầu extension được nạp unpacked thủ công; app không cài extension từ Chrome Web Store. Dashboard vẫn có thể lưu key trực tiếp qua kết nối loopback nếu extension chưa cài.
+Chrome yêu cầu extension được nạp unpacked thủ công; app không cài extension từ Chrome Web Store. Việc lưu key trong dashboard không phụ thuộc vào extension.
 
 ## Tạo và lưu key
 
@@ -71,7 +71,7 @@ Dashboard có adapter tạo key qua API chính thức cho Gemini, Cloudflare và
 
 MFA, CAPTCHA, điều khoản, thanh toán hoặc cấp quyền nhạy cảm luôn do bạn xử lý trong Chrome. App không đọc cookie hay thông tin đăng nhập trong profile, không tự tạo tài khoản, không thu thập OTP và không xoay key/tài khoản để né quota.
 
-Key được lưu trong kho credential native của hệ điều hành: Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Trên Linux phải có Secret Service như GNOME Keyring/KWallet; app báo lỗi nếu không có, không ghi key vào file hay fallback sang keyutils. `key-status` chỉ báo trạng thái, không hiển thị key.
+Key được lưu DUY NHẤT trong kho credential native của hệ điều hành: Windows Credential Manager, macOS Keychain hoặc Linux Secret Service. Trên Linux phải có Secret Service như GNOME Keyring/KWallet; app báo lỗi nếu không có, không ghi key vào file hay fallback sang keyutils. Dashboard không bao giờ hiển thị giá trị key, không bao giờ trả về key qua API, không bao giờ ghi key vào log, và không bao giờ đọc cookie/storage/profile của Chrome. Nút lưu key trong biểu mẫu ghi nhãn **Lưu vào kho bảo mật**; `key-status` chỉ báo trạng thái, không hiển thị key.
 
 ## Tích hợp với ứng dụng khác
 
@@ -107,3 +107,7 @@ Các key bootstrap của CLI được nhập trong prompt ẩn. Dùng `--replace
 - [OpenRouter pricing](https://openrouter.ai/pricing/) và [free models](https://openrouter.ai/collections/free-models/)
 
 Quota miễn phí là quyền sử dụng có giới hạn, không phải dịch vụ vô hạn hay cam kết uptime. Kiểm tra nguồn trong dashboard trước khi đưa vào ứng dụng cần độ tin cậy cao.
+
+## Chất lượng và khả năng tiếp cận
+
+GitHub Actions build trên Node.js 24 cho Windows, macOS và Linux. Giao diện hỗ trợ thao tác bàn phím, giảm chuyển động theo cài đặt hệ điều hành, chế độ tương phản cao và mục tiêu chạm tối thiểu 24 px ở các nút nhỏ. Đây là các biện pháp hỗ trợ; dự án chưa có đánh giá độc lập chứng nhận tuân thủ WCAG 2.2 AA.

@@ -132,12 +132,17 @@ async function requestJson(
 }
 
 function gcloudAccessToken(): string {
-  const result = spawnSync("gcloud", ["auth", "print-access-token"], {
-    encoding: "utf8",
-    timeout: REQUEST_TIMEOUT_MS,
-    windowsHide: true,
-    stdio: ["ignore", "pipe", "ignore"]
-  });
+  const windows = process.platform === "win32";
+  const result = spawnSync(
+    windows ? "cmd.exe" : "gcloud",
+    windows ? ["/d", "/s", "/c", "gcloud auth print-access-token"] : ["auth", "print-access-token"],
+    {
+      encoding: "utf8",
+      timeout: REQUEST_TIMEOUT_MS,
+      windowsHide: true,
+      stdio: ["ignore", "pipe", "ignore"]
+    }
+  );
   const token = result.stdout?.trim();
   if (result.error || result.status !== 0 || !token) {
     throw new Error("No gcloud access token is available. Install Google Cloud CLI and run `gcloud auth login` first.");

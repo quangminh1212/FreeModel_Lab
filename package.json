@@ -3,6 +3,21 @@
   "version": "0.2.0",
   "description": "Local free provider catalog, secure API key vault, and endpoint integration",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quangminh1212/FreeModel_Lab.git"
+  },
+  "homepage": "https://github.com/quangminh1212/FreeModel_Lab#readme",
+  "bugs": {
+    "url": "https://github.com/quangminh1212/FreeModel_Lab/issues"
+  },
+  "keywords": [
+    "llm",
+    "api",
+    "provider-catalog",
+    "credential-manager",
+    "local-dashboard"
+  ],
   "type": "commonjs",
   "engines": {
     "node": ">=24"
@@ -14,16 +29,21 @@
     "dist/",
     "web/",
     "extension/",
-    "scripts/",
+    "scripts/dev.cjs",
+    "scripts/dev-reload.js",
+    "scripts/check-web-assets.js",
     "run.bat",
     "README.md",
-    "AI_GUIDE.md"
+    "AI_GUIDE.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "node scripts/dev.cjs",
     "prepare": "npm run build",
-    "start": "node dist/cli.js start"
+    "start": "node dist/cli.js start",
+    "check:web": "node scripts/check-web-assets.js"
   },
   "dependencies": {
     "@napi-rs/keyring": "^2.1.2",

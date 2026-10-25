@@ -10,3 +10,5 @@ dist/
 *.sea-config.json
 *.sea.blob
 freemodel-native-host.exe
+.backup/
+*.log

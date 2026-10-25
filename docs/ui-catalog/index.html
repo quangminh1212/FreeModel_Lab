@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FreeModel Lab — Catalog phong cách UI</title>
+<style>
+/* ================================================================
+   FreeModel Lab — UI Style Catalog
+   Mỗi "style" là 1 bộ design token. Sample bên dưới render thật
+   bằng chính các token đó (không phải screenshot).
+   ================================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: #0d0d0f;
+  color: #e6e6e8;
+  font: 14px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 1240px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* ---- Page chrome (không đổi theo style) ---- */
+.page-head { border-bottom: 1px solid #26262b; padding-bottom: 24px; margin-bottom: 32px; }
+.page-head h1 { margin: 0 0 6px; font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+.page-head p { margin: 0; color: #9a9aa2; max-width: 74ch; }
+.page-head .meta { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  height: 22px; padding: 0 9px; border-radius: 11px;
+  border: 1px solid #2e2e35; background: #17171b;
+  color: #a8a8b0; font-size: 11.5px;
+}
+.chip b { color: #e6e6e8; font-weight: 600; }
+
+.filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 28px; }
+.filters button {
+  height: 28px; padding: 0 12px; border-radius: 14px;
+  border: 1px solid #2e2e35; background: #14141a; color: #a8a8b0;
+  font: inherit; font-size: 12.5px; cursor: pointer;
+}
+.filters button:hover { background: #1c1c23; color: #e6e6e8; }
+.filters button[aria-pressed="true"] { background: #e6e6e8; border-color: #e6e6e8; color: #0d0d0f; font-weight: 600; }
+
+/* ---- Section ---- */
+.group { margin: 0 0 44px; }
+.group-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 6px; }
+.group-head h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.group-head span { color: #7d7d86; font-size: 12px; }
+.group-sub { margin: 0 0 18px; color: #8a8a93; font-size: 12.5px; max-width: 78ch; }
+
+/* ---- Card ---- */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(390px, 1fr)); gap: 20px; }
+.card {
+  border: 1px solid #26262b; border-radius: 10px;
+  background: #131318; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+.card-head { padding: 13px 14px 11px; border-bottom: 1px solid #22222a; }
+.card-title { display: flex; align-items: center; gap: 8px; }
+.card-title h3 { margin: 0; font-size: 14px; font-weight: 600; }
+.card-title .badge-src {
+  font-size: 10px; padding: 1px 6px; border-radius: 4px;
+  border: 1px solid #33333d; color: #8a8a93; text-transform: uppercase; letter-spacing: .04em;
+}
+.card-title .badge-src[data-src="oss"] { border-color: #2f4a34; color: #6fbf7d; }
+.card-title .badge-src[data-src="theme"] { border-color: #3a3450; color: #a998e0; }
+.card-title .badge-src[data-src="vendor"] { border-color: #4a3a2a; color: #d8a25e; }
+.card-title .badge-src[data-src="custom"] { border-color: #2a3a4a; color: #6fadcf; }
+.card-desc { margin: 5px 0 0; color: #8a8a93; font-size: 12px; line-height: 1.5; }
+.card-links { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 6px; }
+.card-links a {
+  font-size: 11px; color: #7fa8d0; text-decoration: none;
+  border-bottom: 1px dotted #3a4a5a;
+}
+.card-links a:hover { color: #9fc8f0; }
+
+/* ---- Sample frame: đây là phần render THẬT theo style ---- */
+.sample {
+  padding: 14px; background: #0d0d0f;
+  border-bottom: 1px solid #22222a;
+}
+.sample-inner {
+  /* reset nền để token của style tự lo */
+  border-radius: 6px; overflow: hidden;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  grid-template-rows: 26px minmax(0, 1fr) 18px;
+  grid-template-areas: "top top" "side main" "bot bot";
+  height: 208px;
+  font-size: 11px;
+}
+.s-top { grid-area: top; display: flex; align-items: center; gap: 6px; padding: 0 8px; font-size: 10.5px; }
+.s-side { grid-area: side; padding: 7px 6px; display: grid; gap: 2px; align-content: start; }
+.s-main { grid-area: main; padding: 9px 11px; overflow: hidden; }
+.s-bot { grid-area: bot; display: flex; align-items: center; justify-content: space-between; padding: 0 8px; font-size: 9.5px; }
+.s-row {
+  display: flex; align-items: center; gap: 5px;
+  padding: 3px 5px; border-radius: 3px; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.s-row .s-dot { width: 5px; height: 5px; border-radius: 50%; flex: none; }
+.s-h1 { margin: 0 0 2px; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.s-sub { margin: 0 0 8px; font-size: 10px; }
+.s-btns { display: flex; gap: 5px; margin-bottom: 8px; }
+.s-btn { padding: 3px 9px; font-size: 10px; border-radius: 3px; }
+.s-field { padding: 3px 7px; font-size: 10px; border-radius: 3px; margin-bottom: 8px; }
+.s-tag { font-size: 9px; padding: 1px 5px; border-radius: 3px; }
+.s-list { display: grid; gap: 3px; }
+.s-item { display: flex; justify-content: space-between; gap: 8px; padding: 2px 0; font-size: 10px; }
+.s-mono { font-family: "Cascadia Code", Consolas, monospace; font-size: 9.5px; }
+
+/* ---- Token table ---- */
+.card-foot { padding: 10px 14px 12px; display: grid; gap: 8px; }
+.swatches { display: flex; gap: 4px; }
+.swatches i { width: 18px; height: 18px; border-radius: 4px; border: 1px solid rgba(128,128,128,.25); }
+.specs { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 2px 10px; font-size: 11px; color: #8a8a93; }
+.specs dt { color: #6d6d76; }
+.specs dd { margin: 0; color: #a8a8b0; }
+.rate { display: inline-flex; gap: 2px; }
+.rate i { width: 5px; height: 5px; border-radius: 50%; background: #2f2f38; }
+.rate i.on { background: #c9a227; }
+.verdict {
+  font-size: 11.5px; padding: 6px 8px; border-radius: 5px;
+  background: #17171d; border: 1px solid #26262b; color: #9a9aa2;
+}
+.verdict b { color: #d5d5da; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="page-head">
+    <h1>Catalog phong cách UI — FreeModel Lab</h1>
+    <p>
+      Mỗi thẻ dưới đây render <strong>mẫu thật</strong> bằng chính design token của phong cách đó (không phải ảnh chụp).
+      Mẫu mô phỏng đúng bố cục dashboard: titlebar, sidebar, editor, statusbar.
+      Chọn phong cách bạn thích — tôi sẽ áp toàn bộ vào dashboard thật.
+    </p>
+    <div class="meta">
+      <span class="chip"><b id="count">0</b> phong cách</span>
+      <span class="chip">Nguồn: GitHub open-source + design system công khai</span>
+      <span class="chip">Ràng buộc: 4 file tĩnh, CSP chặt, không CDN, font hệ thống</span>
+      <span class="chip">Cần: dark + light</span>
+    </div>
+  </header>
+
+  <div class="filters" id="filters" role="group" aria-label="Lọc theo nhóm">
+    <button type="button" data-filter="all" aria-pressed="true">Tất cả</button>
+    <button type="button" data-filter="editor" aria-pressed="false">Editor / IDE</button>
+    <button type="button" data-filter="minimal" aria-pressed="false">Tối giản</button>
+    <button type="button" data-filter="terminal" aria-pressed="false">Terminal / Retro</button>
+    <button type="button" data-filter="product" aria-pressed="false">SaaS / Product</button>
+    <button type="button" data-filter="enterprise" aria-pressed="false">Enterprise</button>
+    <button type="button" data-filter="expressive" aria-pressed="false">Cá tính mạnh</button>
+  </div>
+
+  <div id="out"></div>
+</div>
+
+<script>
+/* ================================================================
+   Palette hex lấy trực tiếp từ repo upstream (đã verify):
+   - Catppuccin : catppuccin/palette  palette.json
+   - Nord       : nordtheme/nord      src/nord.scss
+   - Rose Pine  : rose-pine/neovim    palette.lua
+   - Gruvbox    : morhetz/gruvbox     colors/gruvbox.vim
+   - One Dark   : navarasu/onedark.nvim palette.lua
+   - Kanagawa   : rebelot/kanagawa.nvim colors.lua
+   ================================================================ */
+
+/* ---------- Style definitions ---------- */
+/* t = tokens, s = sample-render config */
+const STYLES = [
+  /* ============ EDITOR / IDE ============ */
+  {
+    id: "vscode-dark-modern", name: "VS Code Dark Modern", src: "vendor", group: "editor",
+    desc: "Hiện tại của dashboard. Nền xám trung tính, accent xanh Microsoft, mật độ dày đặc kiểu IDE.",
+    links: [["VS Code", "https://github.com/microsoft/vscode"]],
+    effort: 1,
+    t: { appBg:"#1f1f1f", barBg:"#181818", sideBg:"#181818", barFg:"#cccccc", fg:"#cccccc", fgMuted:"#9d9d9d",
+         border:"#2b2b2b", accent:"#0078d4", accentFg:"#ffffff", hover:"#26282a", sel:"#2b3f5c",
+         input:"#313131", ok:"#3fb950", warn:"#cca700", err:"#f14c4c", radius:"4px", radiusSm:"3px", radiusMd:"6px", syntaxKey:"#9cdcfe", syntaxString:"#ce9178", syntaxNumber:"#b5cea8", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "vscode-light-modern", name: "VS Code Light Modern", src: "vendor", group: "editor",
+    desc: "Bản sáng của VS Code. Trắng tuyệt đối cho editor, xám nhạt cho chrome, viền rất nhẹ.",
+    links: [["VS Code", "https://github.com/microsoft/vscode"]],
+    effort: 1,
+    t: { appBg:"#ffffff", barBg:"#f8f8f8", sideBg:"#f8f8f8", barFg:"#3b3b3b", fg:"#3b3b3b", fgMuted:"#616161",
+         border:"#e5e5e5", accent:"#005fb8", accentFg:"#ffffff", hover:"#f0f1f1", sel:"#d8e4f2",
+         input:"#ffffff", ok:"#1a7f37", warn:"#8a6d00", err:"#c72e2e", radius:"4px", radiusSm:"3px", radiusMd:"6px", syntaxKey:"#0451a5", syntaxString:"#a31515", syntaxNumber:"#098658", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "github-primer", name: "GitHub Primer", src: "vendor", group: "editor",
+    desc: "Design system của GitHub. Nền xanh-đen, viền rõ, accent xanh lá, cảm giác 'dev tool chính thống'.",
+    links: [["primer/primer", "https://github.com/primer/primer"], ["primer/primitives", "https://github.com/primer/primitives"]],
+    effort: 2,
+    t: { appBg:"#0d1117", barBg:"#010409", sideBg:"#0d1117", barFg:"#e6edf3", fg:"#e6edf3", fgMuted:"#8b949e",
+         border:"#30363d", accent:"#238636", accentFg:"#ffffff", hover:"#161b22", sel:"#1f3a5f",
+         input:"#0d1117", ok:"#3fb950", warn:"#d29922", err:"#f85149", radius:"6px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "catppuccin-mocha", name: "Catppuccin Mocha", src: "theme", group: "editor",
+    desc: "Pastel trên nền tối. Rất phổ biến trong giới dev, mềm mại, dễ nhìn lâu, cá tính rõ.",
+    links: [["catppuccin/catppuccin", "https://github.com/catppuccin/catppuccin"], ["catppuccin/palette", "https://github.com/catppuccin/palette"]],
+    effort: 1,
+    t: { appBg:"#1e1e2e", barBg:"#181825", sideBg:"#181825", barFg:"#cdd6f4", fg:"#cdd6f4", fgMuted:"#a6adc8",
+         border:"#313244", accent:"#89b4fa", accentFg:"#1e1e2e", hover:"#313244", sel:"#45475a",
+         input:"#313244", ok:"#a6e3a1", warn:"#f9e2af", err:"#f38ba8", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "catppuccin-latte", name: "Catppuccin Latte", src: "theme", group: "editor",
+    desc: "Bản sáng của Catppuccin. Trắng ấm, pastel dịu — dễ chịu hơn nhiều so với trắng tuyệt đối.",
+    links: [["catppuccin/catppuccin", "https://github.com/catppuccin/catppuccin"]],
+    effort: 1,
+    t: { appBg:"#eff1f5", barBg:"#e6e9ef", sideBg:"#e6e9ef", barFg:"#4c4f69", fg:"#4c4f69", fgMuted:"#6c6f85",
+         border:"#ccd0da", accent:"#1e66f5", accentFg:"#ffffff", hover:"#dce0e8", sel:"#bcc0cc",
+         input:"#ffffff", ok:"#40a02b", warn:"#df8e1d", err:"#d20f39", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "nord", name: "Nord", src: "theme", group: "editor",
+    desc: "Bảng màu Bắc Âu: xanh slate lạnh, ít bão hoà, cực kỳ tĩnh và chuyên nghiệp.",
+    links: [["nordtheme/nord", "https://github.com/nordtheme/nord"]],
+    effort: 1,
+    t: { appBg:"#2e3440", barBg:"#292e39", sideBg:"#2e3440", barFg:"#eceff4", fg:"#d8dee9", fgMuted:"#8893a7",
+         border:"#3b4252", accent:"#88c0d0", accentFg:"#2e3440", hover:"#3b4252", sel:"#434c5e",
+         input:"#3b4252", ok:"#a3be8c", warn:"#ebcb8b", err:"#bf616a", radius:"4px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "one-dark", name: "One Dark", src: "theme", group: "editor",
+    desc: "Atom One Dark kinh điển. Xám xanh, accent xanh dương + tím, cân bằng giữa màu và trung tính.",
+    links: [["navarasu/onedark.nvim", "https://github.com/navarasu/onedark.nvim"]],
+    effort: 1,
+    t: { appBg:"#282c34", barBg:"#21252b", sideBg:"#282c34", barFg:"#abb2bf", fg:"#abb2bf", fgMuted:"#7f848e",
+         border:"#3b3f4c", accent:"#61afef", accentFg:"#21252b", hover:"#31353f", sel:"#3b3f4c",
+         input:"#31353f", ok:"#98c379", warn:"#e5c07b", err:"#e86671", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "gruvbox-dark", name: "Gruvbox Dark", src: "theme", group: "terminal",
+    desc: "Retro ấm, nâu-vàng. Rất 'máy tính cũ', đầm và dễ chịu, tương phản mạnh nhưng không gắt.",
+    links: [["morhetz/gruvbox", "https://github.com/morhetz/gruvbox"]],
+    effort: 1,
+    t: { appBg:"#282828", barBg:"#1d2021", sideBg:"#282828", barFg:"#ebdbb2", fg:"#ebdbb2", fgMuted:"#a89984",
+         border:"#3c3836", accent:"#fabd2f", accentFg:"#282828", hover:"#3c3836", sel:"#504945",
+         input:"#3c3836", ok:"#b8bb26", warn:"#fabd2f", err:"#fb4934", radius:"3px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "kanagawa", name: "Kanagawa", src: "theme", group: "editor",
+    desc: "Lấy cảm hứng từ tranh thuỷ mặc Nhật. Sumi ink xanh-đen, màu trầm, rất sang và tĩnh.",
+    links: [["rebelot/kanagawa.nvim", "https://github.com/rebelot/kanagawa.nvim"]],
+    effort: 1,
+    t: { appBg:"#1f1f28", barBg:"#16161d", sideBg:"#1f1f28", barFg:"#dcd7ba", fg:"#dcd7ba", fgMuted:"#938aa9",
+         border:"#2a2a37", accent:"#7e9cd8", accentFg:"#16161d", hover:"#2a2a37", sel:"#363646",
+         input:"#2a2a37", ok:"#98bb6c", warn:"#e6c384", err:"#e46876", radius:"4px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "rose-pine", name: "Rosé Pine", src: "theme", group: "editor",
+    desc: "Tím-hồng dịu trên nền mận. Rất 'aesthetic', nổi bật mà vẫn đọc tốt.",
+    links: [["rose-pine/rose-pine", "https://github.com/rose-pine/rose-pine"], ["rose-pine/neovim", "https://github.com/rose-pine/neovim"]],
+    effort: 1,
+    t: { appBg:"#191724", barBg:"#16141f", sideBg:"#191724", barFg:"#e0def4", fg:"#e0def4", fgMuted:"#908caa",
+         border:"#26233a", accent:"#c4a7e7", accentFg:"#191724", hover:"#26233a", sel:"#403d52",
+         input:"#26233a", ok:"#9ccfd8", warn:"#f6c177", err:"#eb6f92", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "rose-pine-dawn", name: "Rosé Pine Dawn", src: "theme", group: "editor",
+    desc: "Bản sáng của Rosé Pine. Kem ấm, chữ tím than, rất dịu mắt cho người ghét nền trắng.",
+    links: [["rose-pine/rose-pine", "https://github.com/rose-pine/rose-pine"]],
+    effort: 1,
+    t: { appBg:"#faf4ed", barBg:"#f2e9e1", sideBg:"#faf4ed", barFg:"#575279", fg:"#575279", fgMuted:"#797593",
+         border:"#dfdad9", accent:"#907aa9", accentFg:"#ffffff", hover:"#f2e9e1", sel:"#dfdad9",
+         input:"#fffaf3", ok:"#56949f", warn:"#ea9d34", err:"#b4637a", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+
+  /* ============ MINIMAL ============ */
+  {
+    id: "pico", name: "Pico CSS", src: "oss", group: "minimal",
+    desc: "Semantic-first micro-framework. Viền mảnh, bo góc nhẹ, spacing thoáng — 'đúng' mà không cần class.",
+    links: [["picocss/pico", "https://github.com/picocss/pico"]],
+    effort: 2,
+    t: { appBg:"#13171f", barBg:"#0f1218", sideBg:"#13171f", barFg:"#c2c7d0", fg:"#c2c7d0", fgMuted:"#8a919c",
+         border:"#2a3040", accent:"#1095c1", accentFg:"#ffffff", hover:"#1c2230", sel:"#1d3244",
+         input:"#0f1218", ok:"#2e7d32", warn:"#c28c00", err:"#cf3b3b", radius:"5px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"ui-monospace,Consolas,monospace" }
+  },
+  {
+    id: "water", name: "Water.css", src: "oss", group: "minimal",
+    desc: "Classless stylesheet, tối giản gần như không trang trí. Chỉ typography + màu, không shadow.",
+    links: [["kognise/water.css", "https://github.com/kognise/water.css"]],
+    effort: 1,
+    t: { appBg:"#202b38", barBg:"#1a232c", sideBg:"#202b38", barFg:"#dbdbdb", fg:"#dbdbdb", fgMuted:"#9aa5b1",
+         border:"#2e3b47", accent:"#1f6feb", accentFg:"#ffffff", hover:"#2a3744", sel:"#2b4358",
+         input:"#161f27", ok:"#31b356", warn:"#e0a500", err:"#ff3b3b", radius:"4px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"ui-monospace,Consolas,monospace" }
+  },
+  {
+    id: "simple-css", name: "Simple.css", src: "oss", group: "minimal",
+    desc: "Cực nhẹ, gần như không có 'design'. Đẹp ở chỗ không phô trương, hợp dashboard nội bộ.",
+    links: [["kevquirk/simple.css", "https://github.com/kevquirk/simple.css"]],
+    effort: 1,
+    t: { appBg:"#1d1f21", barBg:"#191b1d", sideBg:"#1d1f21", barFg:"#dcdcdc", fg:"#dcdcdc", fgMuted:"#a0a0a0",
+         border:"#333638", accent:"#3b82f6", accentFg:"#ffffff", hover:"#26292b", sel:"#2f3a46",
+         input:"#151718", ok:"#22c55e", warn:"#eab308", err:"#ef4444", radius:"3px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"ui-monospace,Consolas,monospace" }
+  },
+  {
+    id: "mvp-css", name: "MVP.css", src: "oss", group: "minimal",
+    desc: "Classless với hệ thống spacing rõ ràng, viền mảnh, không bo góc nhiều. Rất 'wireframe sạch'.",
+    links: [["andybrewer/mvp", "https://github.com/andybrewer/mvp"]],
+    effort: 1,
+    t: { appBg:"#111318", barBg:"#0d0f13", sideBg:"#111318", barFg:"#ced2d9", fg:"#ced2d9", fgMuted:"#868d9a",
+         border:"#262a33", accent:"#2b6fb0", accentFg:"#ffffff", hover:"#181c23", sel:"#1e2b3a",
+         input:"#0d0f13", ok:"#2f855a", warn:"#b7791f", err:"#c53030", radius:"2px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"ui-monospace,Consolas,monospace" }
+  },
+  {
+    id: "tufte", name: "Tufte CSS", src: "oss", group: "minimal",
+    desc: "Kiểu sách in của Edward Tufte: serif, nền kem, không viền, chú thích lề. Rất học thuật.",
+    links: [["edwardtufte/tufte-css", "https://github.com/edwardtufte/tufte-css"]],
+    effort: 3,
+    t: { appBg:"#fffff8", barBg:"#f4f2e8", sideBg:"#fffff8", barFg:"#111111", fg:"#333333", fgMuted:"#6b6b62",
+         border:"#dddad0", accent:"#a00000", accentFg:"#ffffff", hover:"#f0eee2", sel:"#e8e4d4",
+         input:"#fbfaf2", ok:"#285e28", warn:"#8a6d00", err:"#a00000", radius:"0px",
+         ui:"\"Palatino Linotype\",Palatino,\"Book Antiqua\",Georgia,serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+
+  /* ============ TERMINAL / RETRO ============ */
+  {
+    id: "terminal-green", name: "Phosphor Terminal", src: "custom", group: "terminal",
+    desc: "Màn hình CRT xanh lá đơn sắc. Cực cá tính, gần như không dùng được cho dữ liệu nhiều màu.",
+    links: [["Chủ đề: VT100 / P1 phosphor", "https://en.wikipedia.org/wiki/Phosphor"]],
+    effort: 2,
+    t: { appBg:"#0b0f0b", barBg:"#060906", sideBg:"#0b0f0b", barFg:"#33ff66", fg:"#33ff66", fgMuted:"#1f9e42",
+         border:"#154d24", accent:"#33ff66", accentFg:"#060906", hover:"#0f1a10", sel:"#123a1c",
+         input:"#060906", ok:"#33ff66", warn:"#b7ff33", err:"#ff5533", radius:"0px", ui:"\"Cascadia Code\",Consolas,\"Courier New\",monospace", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "solarized-dark", name: "Solarized Dark", src: "theme", group: "terminal",
+    desc: "Ethan Schoonover thiết kế năm 2011, tối ưu độ tương phản có chủ đích. Xanh mòng két trầm.",
+    links: [["altercation/solarized", "https://github.com/altercation/solarized"]],
+    effort: 1,
+    t: { appBg:"#002b36", barBg:"#00252e", sideBg:"#002b36", barFg:"#93a1a1", fg:"#839496", fgMuted:"#657b83",
+         border:"#0b3f4b", accent:"#268bd2", accentFg:"#fdf6e3", hover:"#073642", sel:"#0b4a58",
+         input:"#00252e", ok:"#859900", warn:"#b58900", err:"#dc322f", radius:"3px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "solarized-light", name: "Solarized Light", src: "theme", group: "terminal",
+    desc: "Bản sáng của Solarized: nền be ấm #fdf6e3, cực dịu, được thiết kế cho đọc lâu.",
+    links: [["altercation/solarized", "https://github.com/altercation/solarized"]],
+    effort: 1,
+    t: { appBg:"#fdf6e3", barBg:"#eee8d5", sideBg:"#fdf6e3", barFg:"#586e75", fg:"#657b83", fgMuted:"#93a1a1",
+         border:"#e0d9c4", accent:"#268bd2", accentFg:"#ffffff", hover:"#eee8d5", sel:"#e4dcc4",
+         input:"#fffbf0", ok:"#859900", warn:"#b58900", err:"#dc322f", radius:"3px", ui:"system-ui,-apple-system,\"Segoe UI\",sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "mono-paper", name: "Mono Paper", src: "custom", group: "terminal",
+    desc: "Đen trắng tuyệt đối, không màu nhấn. Cực kỳ tinh giản — chỉ dùng 1 accent khi cần cảnh báo.",
+    links: [],
+    effort: 1,
+    t: { appBg:"#ffffff", barBg:"#f2f2f2", sideBg:"#fafafa", barFg:"#111111", fg:"#111111", fgMuted:"#767676",
+         border:"#dcdcdc", accent:"#111111", accentFg:"#ffffff", hover:"#eeeeee", sel:"#dcdcdc",
+         input:"#ffffff", ok:"#111111", warn:"#7a5c00", err:"#b00000", radius:"0px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+
+  /* ============ PRODUCT / SAAS ============ */
+  {
+    id: "linear", name: "Linear", src: "vendor", group: "product",
+    desc: "Chuẩn mực SaaS hiện đại 2024: nền tím-than, viền mờ, bo góc lớn, chữ nhỏ gọn, gradient tinh tế.",
+    links: [["Linear (tham chiếu)", "https://linear.app"]],
+    effort: 3,
+    t: { appBg:"#101014", barBg:"#0c0c0f", sideBg:"#101014", barFg:"#e8e8ec", fg:"#e8e8ec", fgMuted:"#8b8b96",
+         border:"#23232b", accent:"#7c6cf0", accentFg:"#ffffff", hover:"#1a1a22", sel:"#26263a",
+         input:"#16161c", ok:"#3ecf8e", warn:"#f0b429", err:"#f05252", radius:"8px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "vercel-geist", name: "Vercel / Geist", src: "vendor", group: "product",
+    desc: "Đen tuyệt đối, tương phản cực mạnh, viền trắng mờ. Rất 'cool' nhưng dễ mỏi mắt nếu dùng lâu.",
+    links: [["vercel/geist-font", "https://github.com/vercel/geist-font"], ["vercel/design", "https://github.com/vercel/design"]],
+    effort: 2,
+    t: { appBg:"#000000", barBg:"#000000", sideBg:"#0a0a0a", barFg:"#ededed", fg:"#ededed", fgMuted:"#888888",
+         border:"#333333", accent:"#ffffff", accentFg:"#000000", hover:"#1a1a1a", sel:"#2a2a2a",
+         input:"#0a0a0a", ok:"#00e599", warn:"#f5a623", err:"#ff4d4d", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "shadcn-neutral", name: "shadcn/ui Neutral", src: "oss", group: "product",
+    desc: "De-facto standard của React 2024. Trung tính, bo góc 8px, viền 1px rõ, không màu thừa.",
+    links: [["shadcn-ui/ui", "https://github.com/shadcn-ui/ui"]],
+    effort: 2,
+    t: { appBg:"#0a0a0a", barBg:"#0a0a0a", sideBg:"#111111", barFg:"#fafafa", fg:"#fafafa", fgMuted:"#a1a1aa",
+         border:"#27272a", accent:"#fafafa", accentFg:"#0a0a0a", hover:"#1c1c1f", sel:"#27272a",
+         input:"#151515", ok:"#22c55e", warn:"#eab308", err:"#ef4444", radius:"8px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "tailwind-slate", name: "Tailwind Slate", src: "oss", group: "product",
+    desc: "Bảng màu slate của Tailwind — lạnh, trung tính, sạch. Nền tảng an toàn cho mọi dashboard.",
+    links: [["tailwindlabs/tailwindcss", "https://github.com/tailwindlabs/tailwindcss"]],
+    effort: 2,
+    t: { appBg:"#0f172a", barBg:"#0b1220", sideBg:"#111c33", barFg:"#e2e8f0", fg:"#e2e8f0", fgMuted:"#94a3b8",
+         border:"#1e293b", accent:"#3b82f6", accentFg:"#ffffff", hover:"#1e293b", sel:"#1e3a5f",
+         input:"#0b1220", ok:"#22c55e", warn:"#f59e0b", err:"#ef4444", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "notion", name: "Notion", src: "vendor", group: "product",
+    desc: "Tối giản kiểu văn phòng phẩm số: nền trắng ấm, chữ đen, viền gần như vô hình, không màu nhấn.",
+    links: [["Notion (tham chiếu)", "https://notion.so"]],
+    effort: 2,
+    t: { appBg:"#ffffff", barBg:"#fbfbfa", sideBg:"#f7f7f5", barFg:"#37352f", fg:"#37352f", fgMuted:"#787774",
+         border:"#e9e9e7", accent:"#2383e2", accentFg:"#ffffff", hover:"#efefed", sel:"#e6e6e4",
+         input:"#ffffff", ok:"#0f7b3e", warn:"#b98900", err:"#d44c47", radius:"4px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "supabase", name: "Supabase", src: "vendor", group: "product",
+    desc: "Xanh lá neon trên nền tối, bo góc lớn, cảm giác hạ tầng hiện đại & năng động.",
+    links: [["supabase/supabase", "https://github.com/supabase/supabase"]],
+    effort: 2,
+    t: { appBg:"#121212", barBg:"#0d0d0d", sideBg:"#171717", barFg:"#ededed", fg:"#ededed", fgMuted:"#8f8f8f",
+         border:"#262626", accent:"#3ecf8e", accentFg:"#0d0d0d", hover:"#1e1e1e", sel:"#1f3d2e",
+         input:"#0d0d0d", ok:"#3ecf8e", warn:"#ffb224", err:"#ff5c5c", radius:"8px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+
+  /* ============ ENTERPRISE ============ */
+  {
+    id: "fluent-2", name: "Fluent 2 (Microsoft)", src: "vendor", group: "enterprise",
+    desc: "Microsoft Fluent 2: acrylic mờ, bo góc 4px, accent xanh, rất quen với người dùng Windows.",
+    links: [["microsoft/fluentui", "https://github.com/microsoft/fluentui"]],
+    effort: 3,
+    t: { appBg:"#1f1f1f", barBg:"#292929", sideBg:"#242424", barFg:"#ffffff", fg:"#d6d6d6", fgMuted:"#a0a0a0",
+         border:"#383838", accent:"#2b88d8", accentFg:"#ffffff", hover:"#2e2e2e", sel:"#1f3550",
+         input:"#1b1b1b", ok:"#54b054", warn:"#fce100", err:"#f1707b", radius:"4px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "carbon", name: "IBM Carbon", src: "vendor", group: "enterprise",
+    desc: "IBM Carbon: lưới 8px nghiêm ngặt, góc vuông hoàn toàn, typography chặt. Rất 'doanh nghiệp lớn'.",
+    links: [["carbon-design-system/carbon", "https://github.com/carbon-design-system/carbon"]],
+    effort: 3,
+    t: { appBg:"#161616", barBg:"#262626", sideBg:"#161616", barFg:"#f4f4f4", fg:"#f4f4f4", fgMuted:"#a8a8a8",
+         border:"#393939", accent:"#0f62fe", accentFg:"#ffffff", hover:"#262626", sel:"#1c3b63",
+         input:"#262626", ok:"#42be65", warn:"#f1c21b", err:"#fa4d56", radius:"0px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "atlassian", name: "Atlassian Design", src: "vendor", group: "enterprise",
+    desc: "Jira/Confluence: xanh dương đậm đặc trưng, bo góc vừa, bố cục chắc chắn, thân thiện.",
+    links: [["konradsoft/atlassian-design-system", "https://github.com/konradsoft/atlassian-design-system"]],
+    effort: 2,
+    t: { appBg:"#1d2125", barBg:"#161a1d", sideBg:"#1d2125", barFg:"#b6c2cf", fg:"#b6c2cf", fgMuted:"#8c9bab",
+         border:"#2c333a", accent:"#0c66e4", accentFg:"#ffffff", hover:"#22272b", sel:"#1c3d5f",
+         input:"#22272b", ok:"#4bce97", warn:"#e2b203", err:"#f87168", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "material-3", name: "Material 3", src: "vendor", group: "enterprise",
+    desc: "Google Material You: bo góc lớn (12–16px), màu tonal, accent indigo, cảm giác 'app Android'.",
+    links: [["material-components/material-web", "https://github.com/material-components/material-web"]],
+    effort: 3,
+    t: { appBg:"#1c1b1f", barBg:"#141317", sideBg:"#1c1b1f", barFg:"#e6e1e5", fg:"#e6e1e5", fgMuted:"#cac4d0",
+         border:"#49454f", accent:"#d0bcff", accentFg:"#1c1b1f", hover:"#2b2930", sel:"#4a4458",
+         input:"#2b2930", ok:"#b9f6ca", warn:"#ffd54f", err:"#ffb4ab", radius:"12px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "polaris", name: "Shopify Polaris", src: "vendor", group: "enterprise",
+    desc: "Polaris: nền xám xanh, bo góc 8px, accent xanh lá Shopify. Thân thiện, thương mại.",
+    links: [["Shopify/polaris", "https://github.com/Shopify/polaris"]],
+    effort: 2,
+    t: { appBg:"#1a1a1a", barBg:"#141414", sideBg:"#1f1f1f", barFg:"#e3e3e3", fg:"#e3e3e3", fgMuted:"#b5b5b5",
+         border:"#303030", accent:"#008060", accentFg:"#ffffff", hover:"#262626", sel:"#1c4034",
+         input:"#1a1a1a", ok:"#008060", warn:"#b98900", err:"#d72c0d", radius:"8px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  /* ============ ADDITIONAL OPEN-SOURCE REFERENCES ============ */
+  {
+    id: "dracula", name: "Dracula", src: "oss", group: "editor",
+    desc: "Tím đen nổi tiếng cho developer tooling: nền sâu, chữ lavender, accent hồng-cyan dễ nhận diện.",
+    links: [["dracula/dracula-theme", "https://github.com/dracula/dracula-theme"]],
+    effort: 2,
+    t: { appBg:"#282a36", barBg:"#21222c", sideBg:"#282a36", barFg:"#f8f8f2", fg:"#f8f8f2", fgMuted:"#a6a6b8", border:"#44475a", accent:"#bd93f9", accentFg:"#282a36", hover:"#343746", sel:"#44475a", input:"#21222c", ok:"#50fa7b", warn:"#ffb86c", err:"#ff5555", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "tokyo-night", name: "Tokyo Night", src: "oss", group: "editor",
+    desc: "Xanh navy và xanh tím lấy cảm hứng từ đêm Tokyo; tương phản dịu, hợp dùng lâu trong IDE.",
+    links: [["folke/tokyonight.nvim", "https://github.com/folke/tokyonight.nvim"]],
+    effort: 2,
+    t: { appBg:"#1a1b26", barBg:"#16161e", sideBg:"#1f2335", barFg:"#c0caf5", fg:"#a9b1d6", fgMuted:"#565f89", border:"#292e42", accent:"#7aa2f7", accentFg:"#1a1b26", hover:"#24283b", sel:"#33467c", input:"#16161e", ok:"#9ece6a", warn:"#e0af68", err:"#f7768e", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "monokai", name: "Monokai", src: "oss", group: "editor",
+    desc: "Màu sắc bão hòa trên nền than, di sản của TextMate/Sublime và nhiều editor cổ điển.",
+    links: [["tmm1/monokai", "https://github.com/tmm1/monokai"]],
+    effort: 2,
+    t: { appBg:"#272822", barBg:"#1e1f1c", sideBg:"#272822", barFg:"#f8f8f2", fg:"#f8f8f2", fgMuted:"#a6a69c", border:"#49483e", accent:"#a6e22e", accentFg:"#272822", hover:"#3e3d32", sel:"#49483e", input:"#1e1f1c", ok:"#a6e22e", warn:"#e6db74", err:"#f92672", radius:"3px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "radix-slate", name: "Radix Slate", src: "oss", group: "product",
+    desc: "Slate trung tính của Radix Colors: surface phân cấp tinh tế, accent indigo, nền tảng tốt cho app chuyên nghiệp.",
+    links: [["radix-ui/colors", "https://github.com/radix-ui/colors"]],
+    effort: 2,
+    t: { appBg:"#fdfdfe", barBg:"#f8f8f8", sideBg:"#f1f1f3", barFg:"#1c2024", fg:"#1c2024", fgMuted:"#687076", border:"#d7d8da", accent:"#3e63dd", accentFg:"#ffffff", hover:"#eceef0", sel:"#e1e4e8", input:"#ffffff", ok:"#2b9a66", warn:"#ad7b00", err:"#ce2c31", radius:"6px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "chakra-teal", name: "Chakra UI Teal", src: "oss", group: "product",
+    desc: "Ngôn ngữ Chakra UI: teal thân thiện, card mềm, bo góc rõ và khoảng thở rộng.",
+    links: [["chakra-ui/chakra-ui", "https://github.com/chakra-ui/chakra-ui"]],
+    effort: 2,
+    t: { appBg:"#ffffff", barBg:"#f7fafc", sideBg:"#edf2f7", barFg:"#1a202c", fg:"#1a202c", fgMuted:"#718096", border:"#e2e8f0", accent:"#319795", accentFg:"#ffffff", hover:"#e6fffa", sel:"#b2f5ea", input:"#ffffff", ok:"#38a169", warn:"#d69e2e", err:"#e53e3e", radius:"8px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "ant-design", name: "Ant Design", src: "oss", group: "enterprise",
+    desc: "Ant Design: xanh hiện đại, form và bảng dày thông tin, phù hợp console vận hành.",
+    links: [["ant-design/ant-design", "https://github.com/ant-design/ant-design"]],
+    effort: 2,
+    t: { appBg:"#ffffff", barBg:"#f5f5f5", sideBg:"#fafafa", barFg:"#262626", fg:"#262626", fgMuted:"#737373", border:"#d9d9d9", accent:"#1677ff", accentFg:"#ffffff", hover:"#e6f4ff", sel:"#bae0ff", input:"#ffffff", ok:"#52c41a", warn:"#faad14", err:"#ff4d4f", radius:"6px", ui:"-apple-system,\"Segoe UI\",Roboto,system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "mantine-indigo", name: "Mantine Indigo", src: "oss", group: "product",
+    desc: "Mantine với indigo rõ nét, surface sáng sạch và bo góc cân bằng giữa dashboard và sản phẩm consumer.",
+    links: [["mantinedev/mantine", "https://github.com/mantinedev/mantine"]],
+    effort: 2,
+    t: { appBg:"#ffffff", barBg:"#f8f9fa", sideBg:"#f1f3f5", barFg:"#212529", fg:"#212529", fgMuted:"#868e96", border:"#dee2e6", accent:"#4263eb", accentFg:"#ffffff", hover:"#edf2ff", sel:"#dbe4ff", input:"#ffffff", ok:"#40c057", warn:"#fab005", err:"#fa5252", radius:"8px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "gitlab-pajamas", name: "GitLab Pajamas", src: "oss", group: "enterprise",
+    desc: "GitLab Pajamas: indigo-purple đặc trưng, nền slate và hierarchy dày cho DevOps console.",
+    links: [["gitlab-org/gitlab-ui", "https://gitlab.com/gitlab-org/gitlab-ui"]],
+    effort: 2,
+    t: { appBg:"#ffffff", barBg:"#f1f1f1", sideBg:"#ececef", barFg:"#333238", fg:"#333238", fgMuted:"#66656f", border:"#dcdcde", accent:"#7759c2", accentFg:"#ffffff", hover:"#f2f0ff", sel:"#e8ddff", input:"#ffffff", ok:"#108548", warn:"#c17d10", err:"#dd2b0e", radius:"4px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "everforest-light", name: "Everforest Light", src: "oss", group: "expressive",
+    desc: "Everforest bản sáng: kem xanh dịu, chữ olive và accent xanh lá; nhẹ mắt hơn trắng tinh.",
+    links: [["sainnhe/everforest", "https://github.com/sainnhe/everforest"]],
+    effort: 2,
+    t: { appBg:"#fdf6e3", barBg:"#f3ead3", sideBg:"#f4f0d9", barFg:"#5c6a72", fg:"#5c6a72", fgMuted:"#829181", border:"#e0dcc7", accent:"#8da101", accentFg:"#ffffff", hover:"#f0ead0", sel:"#d8e0b8", input:"#fffdf0", ok:"#35a77c", warn:"#dfa000", err:"#f85552", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+
+  {
+    id: "daisyui-corporate", name: "DaisyUI Corporate", src: "oss", group: "product",
+    desc: "Bảng màu corporate cân bằng của DaisyUI: xanh navy, cyan rõ và component gọn cho SaaS.",
+    links: [["saadeghi/daisyui", "https://github.com/saadeghi/daisyui"]],
+    effort: 2,
+    t: { appBg:"#f7f9fc", barBg:"#ffffff", sideBg:"#eef2f7", barFg:"#1f2937", fg:"#1f2937", fgMuted:"#64748b", border:"#d7dee8", accent:"#2563eb", accentFg:"#ffffff", hover:"#e8f0ff", sel:"#cfe0ff", input:"#ffffff", ok:"#16a34a", warn:"#d97706", err:"#dc2626", radius:"8px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+  {
+    id: "solarized-sepia", name: "Solarized Sepia", src: "oss", group: "expressive",
+    desc: "Biến thể giấy sepia lấy cảm hứng Solarized: nền vàng nhạt, xanh teal và cam dịu.",
+    links: [["altercation/solarized", "https://github.com/altercation/solarized"]],
+    effort: 2,
+    t: { appBg:"#fdf6e3", barBg:"#eee8d5", sideBg:"#f5efdc", barFg:"#586e75", fg:"#586e75", fgMuted:"#839496", border:"#d8cfb7", accent:"#268bd2", accentFg:"#ffffff", hover:"#eee8d5", sel:"#d9e8e8", input:"#fffaf0", ok:"#859900", warn:"#b58900", err:"#dc322f", radius:"4px", ui:"-apple-system,\"Segoe UI\",system-ui,sans-serif", mono:"Consolas,\"Courier New\",monospace" }
+  },
+
+  /* ============ EXPRESSIVE ============ */
+  {
+    id: "neon-cyber", name: "Neon Cyber", src: "custom", group: "expressive",
+    desc: "Nền tối hut + accent hồng neon. Rất nổi nhưng dễ gây mỏi mắt.",
+    links: [],
+    effort: 3,
+    t: { appBg:"#0a0612", barBg:"#07040d", sideBg:"#0e0918", barFg:"#f0e6ff", fg:"#e0d0f5", fgMuted:"#9d7fc0",
+         border:"#2a1a44", accent:"#ff2d95", accentFg:"#ffffff", hover:"#1a0f2b", sel:"#3d1257",
+         input:"#120b1f", ok:"#00ffc8", warn:"#ffdf5d", err:"#ff3860", radius:"2px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "sunset-warm", name: "Sunset Warm", src: "custom", group: "expressive",
+    desc: "Nền nâu-đỏ ấm, accent cam. Khác biệt hoàn toàn với các dashboard xanh lạnh thông thường.",
+    links: [],
+    effort: 2,
+    t: { appBg:"#211513", barBg:"#1a100e", sideBg:"#261816", barFg:"#f5e0d0", fg:"#f0d8c8", fgMuted:"#b89484",
+         border:"#3d2721", accent:"#ff8a4c", accentFg:"#211513", hover:"#2e1d19", sel:"#4d2a1e",
+         input:"#1a100e", ok:"#8ec07c", warn:"#fabd2f", err:"#ff6b5a", radius:"6px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "forest", name: "Deep Forest", src: "custom", group: "expressive",
+    desc: "Xanh rêu đậm + accent vàng lá. Rất êm mắt, gợi tự nhiên, ít dashboard dùng.",
+    links: [["sainnhe/everforest", "https://github.com/sainnhe/everforest"]],
+    effort: 2,
+    t: { appBg:"#232a2e", barBg:"#1c2226", sideBg:"#232a2e", barFg:"#d3c6aa", fg:"#d3c6aa", fgMuted:"#9da9a0",
+         border:"#343f44", accent:"#a7c080", accentFg:"#232a2e", hover:"#2d353b", sel:"#425047",
+         input:"#1c2226", ok:"#a7c080", warn:"#dbbc7f", err:"#e67e80", radius:"5px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "high-contrast", name: "High Contrast", src: "custom", group: "expressive",
+    desc: "Đen tuyệt đối + vàng/vàng cyan, viền 2px. Tùy chọn tương phản cao; chưa được kiểm toán WCAG.",
+    links: [["WCAG 2.2", "https://www.w3.org/WAI/WCAG22/quickref/"]],
+    effort: 2,
+    t: { appBg:"#000000", barBg:"#000000", sideBg:"#000000", barFg:"#ffffff", fg:"#ffffff", fgMuted:"#d0d0d0",
+         border:"#ffffff", accent:"#ffff00", accentFg:"#000000", hover:"#1a1a1a", sel:"#004080",
+         input:"#000000", ok:"#00ff00", warn:"#ffff00", err:"#ff0000", radius:"0px", ui:"\"Segoe UI Variable Text\",\"Segoe UI\",system-ui,sans-serif", mono:"\"Cascadia Code\",Consolas,monospace" }
+  },
+  {
+    id: "paper-ink", name: "Paper & Ink", src: "custom", group: "expressive",
+    desc: "Serif cho tiêu đề, nền kem, accent đỏ mực. Cảm giác tài liệu in, rất khác biệt với dev tool.",
+    links: [["edwardtufte/tufte-css", "https://github.com/edwardtufte/tufte-css"]],
+    effort: 3,
+    t: { appBg:"#f7f3e9", barBg:"#efe9dc", sideBg:"#faf7f0", barFg:"#2b2b2b", fg:"#2b2b2b", fgMuted:"#6e6a60",
+         border:"#ddd6c6", accent:"#b3261e", accentFg:"#ffffff", hover:"#efe9dc", sel:"#e6ddc9",
+         input:"#fffdf8", ok:"#2e6b3e", warn:"#8a6d00", err:"#b3261e", radius:"2px",
+         ui:"Georgia,\"Palatino Linotype\",\"Times New Roman\",serif", mono:"Consolas,\"Courier New\",monospace" }
+  }
+];
+
+/* ---------- Group labels ---------- */
+const GROUPS = [
+  ["editor", "Editor / IDE", "Phong cách công cụ lập trình — dashboard đang mô phỏng VS Code."],
+  ["minimal", "Tối giản", "Bỏ hết trang trí, chỉ giữ typography và màu. Nhanh, nhẹ, không phân tâm."],
+  ["terminal", "Terminal / Retro", "Cảm giác dòng lệnh và màn hình cũ. Cá tính mạnh."],
+  ["product", "SaaS / Product", "Chuẩn thiết kế web app hiện đại 2024: bo góc lớn, viền mờ, tương phản cao."],
+  ["enterprise", "Enterprise", "Design system của các công ty lớn: lưới chặt, ít màu, rõ ràng."],
+  ["expressive", "Cá tính mạnh", "Khác hoàn toàn lối mòn: nền màu, neon, giấy mực, tương phản cao."]
+];
+
+const SRC_LABEL = { oss: "Open source", theme: "Color theme", vendor: "Design system", custom: "Sáng tác riêng" };
+
+/* ---------- Sample renderer ---------- */
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;" }[c])); }
+
+function sampleHTML(t, id) {
+  const p = `sample-${id}`;
+  return `
+  <style>
+    #${p} {
+      background: ${t.appBg};
+      color: ${t.fg};
+      font-family: ${t.ui};
+      border: 1px solid ${t.border};
+      border-radius: ${t.radius};
+    }
+    #${p} .s-top { background: ${t.barBg}; color: ${t.barFg}; border-bottom: 1px solid ${t.border}; }
+    #${p} .s-side { background: ${t.sideBg}; border-right: 1px solid ${t.border}; }
+    #${p} .s-main { background: ${t.appBg}; }
+    #${p} .s-bot { background: ${t.barBg}; color: ${t.fgMuted}; border-top: 1px solid ${t.border}; }
+    #${p} .s-mark {
+      display: grid; place-items: center; width: 13px; height: 13px;
+      border-radius: ${t.radius === "0px" ? "0px" : "3px"};
+      background: ${t.accent}; color: ${t.accentFg};
+      font-size: 8px; font-weight: 700; flex: none;
+    }
+    #${p} .s-row.is-active { background: ${t.sel}; color: ${t.barFg}; }
+    #${p} .s-row:hover { background: ${t.hover}; }
+    #${p} .s-row .s-dot { background: ${t.ok}; }
+    #${p} .s-row.is-active .s-dot { background: ${t.accent}; }
+    #${p} .s-h1 { color: ${t.fg}; font-family: inherit; }
+    #${p} .s-sub { color: ${t.fgMuted}; }
+    #${p} .s-btn-primary {
+      background: ${t.accent}; color: ${t.accentFg};
+      border: 1px solid ${t.accent}; border-radius: ${t.radius === "0px" ? "0px" : t.radius};
+    }
+    #${p} .s-btn-ghost {
+      background: transparent; color: ${t.fg};
+      border: 1px solid ${t.border}; border-radius: ${t.radius === "0px" ? "0px" : t.radius};
+    }
+    #${p} .s-field {
+      background: ${t.input}; color: ${t.fgMuted};
+      border: 1px solid ${t.border}; border-radius: ${t.radius === "0px" ? "0px" : t.radius};
+    }
+    #${p} .s-tag-ok { background: ${t.ok}22; color: ${t.ok}; border: 1px solid ${t.ok}55; border-radius: 3px; }
+    #${p} .s-tag-warn { background: ${t.warn}22; color: ${t.warn}; border: 1px solid ${t.warn}55; border-radius: 3px; }
+    #${p} .s-tag-accent { background: ${t.accent}22; color: ${t.accent}; border: 1px solid ${t.accent}55; border-radius: 3px; }
+    #${p} .s-item + .s-item { border-top: 1px solid ${t.border}; }
+    #${p} .s-item .k { color: ${t.fgMuted}; }
+    #${p} .s-item .v { color: ${t.fg}; }
+    #${p} .s-accent-text { color: ${t.accent}; }
+  </style>
+  <div class="sample-inner" id="${p}">
+    <div class="s-top">
+      <span class="s-mark">F</span>
+      <span style="font-weight:600">FreeModel Lab</span>
+      <span style="margin-left:auto; display:flex; gap:3px">
+        <span class="s-row" style="padding:1px 5px; font-size:9px">Danh mục</span>
+        <span class="s-row" style="padding:1px 5px; font-size:9px; opacity:.6">Nguồn mới</span>
+      </span>
+    </div>
+    <div class="s-side">
+      <div class="s-row is-active"><span class="s-dot"></span>Groq</div>
+      <div class="s-row"><span class="s-dot"></span>Gemini</div>
+      <div class="s-row"><span class="s-dot"></span>Cerebras</div>
+      <div class="s-row"><span class="s-dot"></span>Mistral</div>
+      <div class="s-row" style="opacity:.55"><span class="s-dot"></span>OpenRouter</div>
+    </div>
+    <div class="s-main">
+      <p class="s-h1">Groq</p>
+      <p class="s-sub">Llama 3.3 · quota free · official</p>
+      <div class="s-btns">
+        <span class="s-btn s-btn-primary">Gửi key</span>
+        <span class="s-btn s-btn-ghost">Mở trang chủ</span>
+      </div>
+      <div class="s-field">sk-••••••••••••4f2a</div>
+      <div class="s-list">
+        <div class="s-item"><span class="k">Trạng thái</span><span class="v"><span class="s-tag s-tag-ok">Đã lưu key</span></span></div>
+        <div class="s-item"><span class="k">Quota</span><span class="v"><span class="s-tag s-tag-ok">Free tier</span></span></div>
+        <div class="s-item"><span class="k">Nguồn</span><span class="v"><span class="s-tag s-tag-warn">Official</span></span></div>
+      </div>
+    </div>
+    <div class="s-bot">
+      <span>Sẵn sàng</span>
+      <span>Key <span class="s-accent-text">3</span>/5</span>
+    </div>
+  </div>`;
+}
+
+/* ---------- Card renderer ---------- */
+function cardHTML(s) {
+  const t = s.t;
+  const sw = [t.barBg, t.appBg, t.sideBg, t.border, t.accent, t.ok, t.warn, t.err];
+  const dots = Array.from({ length: 5 }, (_, i) => `<i class="${i < s.effort ? "on" : ""}"></i>`).join("");
+  const links = (s.links || []).map(([label, href]) =>
+    `<a href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label)}</a>`).join("");
+  return `
+  <article class="card" data-group="${s.group}">
+    <div class="card-head">
+      <div class="card-title">
+        <h3>${esc(s.name)}</h3>
+        <span class="badge-src" data-src="${s.src}">${esc(SRC_LABEL[s.src] || s.src)}</span>
+      </div>
+      <p class="card-desc">${esc(s.desc)}</p>
+      <div class="card-links">${links}</div>
+    </div>
+    <div class="sample">${sampleHTML(t, s.id)}</div>
+    <div class="card-foot">
+      <div class="swatches">${sw.map(c => `<i style="background:${c}" title="${c}"></i>`).join("")}</div>
+      <dl class="specs">
+        <dt>Bo góc</dt><dd>${esc(t.radius)}</dd>
+        <dt>Font UI</dt><dd style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.ui)}</dd>
+        <dt>Accent</dt><dd>${esc(t.accent)}</dd>
+        <dt>Công sức</dt><dd><span class="rate">${dots}</span></dd>
+      </dl>
+      <div class="verdict"><b>${esc(s.id)}</b></div>
+    </div>
+  </article>`;
+}
+let id = "";
+
+/* ---------- Build page ---------- */
+function render(filter) {
+  const out = document.getElementById("out");
+  let html = "";
+  let total = 0;
+  for (const [gid, gname, gsub] of GROUPS) {
+    const items = STYLES.filter(s => s.group === gid && (filter === "all" || filter === gid));
+    if (!items.length) continue;
+    total += items.length;
+    html += `<section class="group">
+      <div class="group-head"><h2>${esc(gname)}</h2><span>${items.length} phong cách</span></div>
+      <p class="group-sub">${esc(gsub)}</p>
+      <div class="grid">${items.map(cardHTML).join("")}</div>
+    </section>`;
+  }
+  out.innerHTML = html;
+  document.getElementById("count").textContent = total;
+}
+
+document.getElementById("filters").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-filter]");
+  if (!btn) return;
+  for (const b of document.querySelectorAll("#filters button")) b.setAttribute("aria-pressed", String(b === btn));
+  render(btn.dataset.filter);
+});
+
+render("all");
+</script>
+</body>
+</html>

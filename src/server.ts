@@ -193,10 +193,6 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
       try { await sendStatic(response, requestUrl.pathname); } catch { writeJson(response, 404, { error: "Dashboard asset not found." }); }
       return;
     }
-    if (request.method === "GET" && requestUrl.pathname === "/api/session") {
-      writeJson(response, 200, { sessionToken, port });
-      return;
-    }
     if (request.method === "POST" && requestUrl.pathname === "/api/catalog/refresh") {
       try {
         await readJson(request);
