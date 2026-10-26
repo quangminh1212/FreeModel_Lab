@@ -361,6 +361,7 @@ a:hover { text-decoration: underline; }
   align-items: center;
   gap: 4px;
   height: 40px;
+  margin: 0;
   padding: 0 16px;
   color: var(--fg-strong);
   font-size: 12px;
@@ -6507,7 +6508,7 @@ dl.kv dd { font-size: 14px; line-height: 1.5; }
 }
 
 @media (max-width: 640px) {
-  .workbench { grid-template-rows: 78px minmax(0, 1fr) 28px; }
+  .workbench { grid-template-rows: 78px minmax(0, 1fr) 36px; }
   .titlebar {
     grid-template-columns: minmax(0, 1fr) auto;
     grid-template-rows: 36px 32px;
@@ -6532,10 +6533,20 @@ dl.kv dd { font-size: 14px; line-height: 1.5; }
     background: transparent;
   }
   .view-tab { min-width: 0; height: 32px; padding-inline: 4px; font-size: 13px; }
-  .editor { inset: 78px 0 28px; }
-  .statusbar { padding-inline: 6px; }
+  .editor { inset: 78px 0 36px; }
+  .statusbar { min-height: 36px; padding-inline: 6px; }
   .statusbar-right { flex: none; }
-  .statusbar .status-item { height: 28px; padding-inline: 5px; }
+  .statusbar .status-item { height: auto; min-height: 28px; padding: 2px 5px; }
+  #status-message { height: auto; white-space: normal; overflow: visible; }
+  #status-message-text {
+    display: -webkit-box;
+    overflow: hidden;
+    white-space: normal;
+    text-overflow: clip;
+    line-height: 1.25;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
   .sidebar-title { min-height: 52px; padding: 13px 18px 8px; }
   .sidebar-search { height: 40px; }
   .sidebar-search input { font-size: 14px; }
