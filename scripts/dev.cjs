@@ -25,6 +25,7 @@ let buildRunning = false;
 let buildQueued = false;
 let version = 0;
 let shuttingDown = false;
+let dashboardBootstrapAnnounced = false;
 
 function log(message) {
   process.stdout.write(`[dev] ${message}\n`);
@@ -65,7 +66,8 @@ async function openDashboard(openChrome) {
   if (dashboardPort !== undefined) options.port = dashboardPort;
   dashboard = await startServer(options);
   if (dashboardPort === undefined) dashboardPort = Number(new URL(dashboard.url).port);
-  if (typeof process.send === "function") {
+  if (!dashboardBootstrapAnnounced && typeof process.send === "function") {
+    dashboardBootstrapAnnounced = true;
     process.send({ type: "dashboard", url: dashboard.url });
   }
   log(`Dashboard: ${new URL(dashboard.url).origin}/`);
