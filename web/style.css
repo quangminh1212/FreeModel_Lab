@@ -6344,6 +6344,11 @@ details.disclosure .entry-form { margin-top: 10px; }
   --fg-faint: color-mix(in srgb, var(--fg) 75%, var(--editor-bg));
 }
 
+/* Keep small metadata text above WCAG AA contrast on the Everforest badge surface. */
+:root[data-style="everforest-light"][data-theme="light"] {
+  --fg-faint: color-mix(in srgb, var(--fg) 80%, var(--editor-bg));
+}
+
 body {
   font-size: 14px;
   line-height: 1.55;

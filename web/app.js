@@ -283,7 +283,10 @@ function renderProviderRows() {
     });
   });
   if (!nodes.length) {
-    dom.providersList.replaceChildren(el("li", "empty-state", state.filter ? "Không có provider khớp bộ lọc." : "Danh mục đang trống."));
+    replaceTreeListChildren(
+      dom.providersList,
+      el("li", "empty-state", state.filter ? "Không có provider khớp bộ lọc." : "Danh mục đang trống.")
+    );
     return;
   }
   const list = el("div");
@@ -292,18 +295,46 @@ function renderProviderRows() {
     li.append(node);
     list.append(li);
   }
-  dom.providersList.replaceChildren(...list.childNodes);
+  replaceTreeListChildren(dom.providersList, ...list.childNodes);
+}
+
+function replaceTreeListChildren(list, ...children) {
+  const focused = document.activeElement instanceof HTMLElement
+    ? document.activeElement.closest(".tree-row")
+    : null;
+  const focusedTargetId = focused && list.contains(focused)
+    ? focused.dataset.targetId
+    : null;
+
+  list.replaceChildren(...children);
+  if (!focusedTargetId) return;
+
+  const replacement = Array.from(list.querySelectorAll(".tree-row"))
+    .find((row) => row.dataset.targetId === focusedTargetId);
+  if (replacement) {
+    replacement.focus({ preventScroll: true });
+    return;
+  }
+
+  if (
+    list.getClientRects().length &&
+    !dom.sidebar.inert &&
+    !dom.workbench.classList.contains("sidebar-hidden")
+  ) {
+    dom.sidebarFilter.focus({ preventScroll: true });
+  }
 }
 
 function renderCandidateRows() {
   const candidates = state.candidates.filter((provider) => matchesFilter(provider.name, provider.id, provider.category, provider.endpoint));
   dom.treeCandidatesCount.textContent = String(state.candidates.length);
   if (!state.catalogLoaded) {
-    dom.candidatesList.replaceChildren(el("li", "empty-state", "Đang tải ứng viên…"));
+    replaceTreeListChildren(dom.candidatesList, el("li", "empty-state", "Đang tải ứng viên…"));
     return;
   }
   if (!candidates.length) {
-    dom.candidatesList.replaceChildren(
+    replaceTreeListChildren(
+      dom.candidatesList,
       el("li", "empty-state", state.filter ? "Không có ứng viên khớp bộ lọc." : "Không có ứng viên mới. Bấm biểu tượng tải lại để cập nhật.")
     );
     return;
@@ -324,7 +355,7 @@ function renderCandidateRows() {
     );
     fragment.append(li);
   }
-  dom.candidatesList.replaceChildren(fragment);
+  replaceTreeListChildren(dom.candidatesList, fragment);
 }
 
 function renderSidebar() {
@@ -339,7 +370,7 @@ function renderSidebar() {
 function renderDiscoverView() {
   if (!state.catalogLoaded) {
     dom.discoverStatus.textContent = "Chưa tải nguồn upstream.";
-    dom.discoverList.replaceChildren();
+    replaceTreeListChildren(dom.discoverList);
     return;
   }
   const candidates = state.candidates.filter((candidate) => matchesFilter(candidate.name, candidate.id, candidate.category));
@@ -362,7 +393,7 @@ function renderDiscoverView() {
     );
     fragment.append(li);
   }
-  dom.discoverList.replaceChildren(fragment);
+  replaceTreeListChildren(dom.discoverList, fragment);
 }
 
 function formatSourceDate(value) {
@@ -1390,16 +1421,6 @@ dom.sidebarFilter.addEventListener("keydown", (event) => {
 });
 
 document.addEventListener("keydown", (event) => {
-  const target = event.target;
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "b") {
-    event.preventDefault();
-    setSidebarVisible(dom.workbench.classList.contains("sidebar-hidden"));
-    return;
-  }
-  if ((event.ctrlKey || event.metaKey) && event.key === "1") { event.preventDefault(); setView("providers"); return; }
-  if ((event.ctrlKey || event.metaKey) && event.key === "2") { event.preventDefault(); setView("discover"); return; }
-  if ((event.ctrlKey || event.metaKey) && event.key === "3") { event.preventDefault(); setView("help"); return; }
-  if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "r") { event.preventDefault(); refreshCatalog(); return; }
   if (event.key === "Escape" && mobileDetailQuery.matches && dom.workbench.classList.contains("detail-open")) {
     event.preventDefault();
     setDetailOpen(false);
