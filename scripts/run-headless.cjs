@@ -87,7 +87,11 @@ function openDashboard(url) {
 
 async function findExistingService() {
   const state = readJson(stateFile);
-  if (state && Number.isInteger(state.controlPort) && state.token) {
+  if (
+    state &&
+    state.token &&
+    (typeof state.controlSocket === "string" || Number.isInteger(state.controlPort))
+  ) {
     try {
       return await callControl(state, "GET", "/status");
     } catch {}
@@ -204,13 +208,47 @@ async function requestStop(state) {
 }
 
 async function callControl(state, method, route) {
-  const response = await fetch(`http://127.0.0.1:${state.controlPort}${route}`, {
-    method,
-    headers: { "x-freemodel-token": state.token },
-    signal: AbortSignal.timeout(2000)
+  if (!state.controlSocket && Number.isInteger(state.controlPort)) {
+    const response = await fetch(`http://127.0.0.1:${state.controlPort}${route}`, {
+      method,
+      headers: { "x-freemodel-token": state.token },
+      signal: AbortSignal.timeout(2000)
+    });
+    if (!response.ok) throw new Error(`Control endpoint returned HTTP ${response.status}.`);
+    return response.json();
+  }
+
+  if (typeof state.controlSocket !== "string") {
+    throw new Error("Control socket is unavailable.");
+  }
+  return new Promise((resolve, reject) => {
+    const request = http.request({
+      socketPath: state.controlSocket,
+      path: route,
+      method,
+      headers: { "x-freemodel-token": state.token }
+    }, (response) => {
+      let body = "";
+      response.setEncoding("utf8");
+      response.on("data", (chunk) => { body += chunk; });
+      response.once("end", () => {
+        if (response.statusCode < 200 || response.statusCode >= 300) {
+          reject(new Error(`Control endpoint returned HTTP ${response.statusCode}.`));
+          return;
+        }
+        try {
+          resolve(JSON.parse(body));
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+    request.setTimeout(2000, () => {
+      request.destroy(new Error("Control request timed out."));
+    });
+    request.once("error", reject);
+    request.end();
   });
-  if (!response.ok) throw new Error(`Control endpoint returned HTTP ${response.status}.`);
-  return response.json();
 }
 
 async function status() {
@@ -390,6 +428,7 @@ function finish(exitCode = 0) {
       await new Promise((resolve) => controlServer.close(() => resolve()));
       controlServer = null;
     }
+    if (state?.controlSocket && process.platform !== "win32") removeFile(state.controlSocket);
     const lock = readJson(lockFile);
     if (lock?.pid === process.pid) removeFile(lockFile);
     if (state?.pid === process.pid) {
@@ -404,6 +443,9 @@ function finish(exitCode = 0) {
 
 function startControlServer() {
   const token = crypto.randomBytes(32).toString("hex");
+  const controlSocket = process.platform === "win32"
+    ? `\\\\.\\pipe\\freemodel-lab-control-${process.pid}`
+    : path.join(dataDirectory, `control-${process.pid}.sock`);
   controlServer = http.createServer((request, response) => {
     const supplied = request.headers["x-freemodel-token"];
     if (typeof supplied !== "string" || supplied.length !== token.length || !crypto.timingSafeEqual(Buffer.from(supplied), Buffer.from(token))) {
@@ -429,10 +471,11 @@ function startControlServer() {
     log(`Control server failed: ${error.message}`);
     void finish(1);
   });
-  controlServer.listen(0, "127.0.0.1", async () => {
+  if (process.platform !== "win32") removeFile(controlSocket);
+  controlServer.listen(controlSocket, async () => {
     state = {
       pid: process.pid,
-      controlPort: controlServer.address().port,
+      controlSocket,
       token,
       startedAt: new Date().toISOString(),
       state: "starting",
