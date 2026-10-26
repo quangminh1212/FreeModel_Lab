@@ -54,7 +54,7 @@
         </nav>
         <div class="titlebar-tools">
           <div class="titlebar-actions">
-            <button id="sidebar-toggle" class="icon-button" type="button" aria-controls="sidebar" aria-pressed="true" title="Ẩn/hiện thanh bên (Ctrl+B)" aria-label="Ẩn/hiện thanh bên">
+            <button id="sidebar-toggle" class="icon-button" type="button" aria-controls="sidebar" aria-pressed="true" title="Ẩn/hiện thanh bên" aria-label="Ẩn/hiện thanh bên">
               <svg class="ico" aria-hidden="true"><use href="#i-sidebar"></use></svg>
             </button>
             <button id="refresh" class="icon-button" type="button" title="Cập nhật danh sách free từ upstream" aria-label="Cập nhật danh sách free từ upstream">
@@ -90,18 +90,23 @@
       <!-- Sidebar -->
       <aside id="sidebar" class="sidebar" aria-label="Thanh bên">
         <div class="sidebar-title">
-          <h2 id="sidebar-heading" tabindex="-1">CHI TIẾT</h2>
+          <h2 id="sidebar-heading" tabindex="-1">Danh mục nhà cung cấp</h2>
         </div>
 
         <div class="sidebar-search">
           <svg class="ico" aria-hidden="true"><use href="#i-search"></use></svg>
-          <input id="sidebar-filter" type="search" placeholder="Lọc provider" aria-label="Lọc provider" autocomplete="off" spellcheck="false">
+          <input id="sidebar-filter" type="search" placeholder="Tìm provider hoặc mã" aria-label="Tìm provider trong danh mục" autocomplete="off" spellcheck="false">
+        </div>
+
+        <div id="category-filters" class="category-filters" role="group" aria-label="Lọc theo loại provider">
+          <button class="category-filter is-active" type="button" data-category-filter="all" aria-pressed="true">Tất cả</button>
+          <button class="category-filter" type="button" data-category-filter="inference" aria-pressed="false">API suy luận</button>
+          <button class="category-filter" type="button" data-category-filter="router" aria-pressed="false">Định tuyến</button>
         </div>
 
         <div id="sidebar-list" class="sidebar-list">
           <section class="tree-section" aria-labelledby="tree-mine">
             <div id="tree-mine" class="tree-heading">
-              <svg class="ico tree-chevron" aria-hidden="true"><use href="#i-chevron-down"></use></svg>
               <span>Nhà cung cấp</span>
               <span id="tree-mine-count" class="tree-count">0</span>
             </div>
@@ -110,7 +115,7 @@
           <p id="catalog-status" class="catalog-status" role="status" aria-live="polite">Đang tải nguồn upstream…</p>
         </div>
 
-        <!-- Hidden anchors kept in sync by app.js (rendered content lives in the views). -->
+        <!-- Hidden compatibility list used by local smoke tooling. -->
         <section class="tree-section is-hidden" aria-labelledby="tree-candidates" hidden>
           <div id="tree-candidates" class="tree-heading">
             <span>Ứng viên upstream</span>

@@ -14,8 +14,10 @@ const state = {
   openTabs: [],
   focusedTabId: null,
   filter: "",
+  categoryFilter: "all",
   catalogLoaded: false,
   catalogBusy: false,
+  providersLoaded: false,
   sourceUpdatedAt: "unknown"
 };
 
@@ -26,6 +28,7 @@ const dom = {
   sidebarHeading: document.querySelector("#sidebar-heading"),
   sidebarList: document.querySelector("#sidebar-list"),
   sidebarFilter: document.querySelector("#sidebar-filter"),
+  categoryFilters: document.querySelector("#category-filters"),
   discoverView: document.querySelector("#discover-view"),
   providersList: document.querySelector("#providers"),
   candidatesList: document.querySelector("#candidates"),
@@ -221,6 +224,12 @@ function matchesFilter(...values) {
   return values.filter(Boolean).some((value) => String(value).toLowerCase().includes(needle));
 }
 
+function matchesCategory(provider) {
+  if (state.categoryFilter === "all") return true;
+  if (state.categoryFilter === "router") return provider.category === "router";
+  return provider.category !== "router";
+}
+
 function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, iconName }) {
   const row = el("button", "tree-row");
   row.type = "button";
@@ -252,6 +261,7 @@ function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, ic
 
 function renderProviderRows() {
   const providers = state.providers.filter((provider) =>
+    matchesCategory(provider) &&
     matchesFilter(provider.name, provider.id, provider.category, provider.endpoint, provider.quota && provider.quota.summary)
   );
   dom.treeMineCount.textContent = String(state.providers.length);
@@ -326,7 +336,9 @@ function replaceTreeListChildren(list, ...children) {
 }
 
 function renderCandidateRows() {
-  const candidates = state.candidates.filter((provider) => matchesFilter(provider.name, provider.id, provider.category, provider.endpoint));
+  const candidates = state.candidates.filter((provider) =>
+    matchesCategory(provider) && matchesFilter(provider.name, provider.id, provider.category, provider.endpoint)
+  );
   dom.treeCandidatesCount.textContent = String(state.candidates.length);
   if (!state.catalogLoaded) {
     replaceTreeListChildren(dom.candidatesList, el("li", "empty-state", "Đang tải ứng viên…"));
@@ -342,17 +354,15 @@ function renderCandidateRows() {
   const fragment = document.createDocumentFragment();
   for (const candidate of candidates) {
     const li = el("li");
-    li.append(
-      treeRow({
-        label: candidate.name,
-        sublabel: candidate.id,
-        iconText: providerInitial(candidate),
-        iconName: "sparkle",
-        id: `candidate:${candidate.id}`,
-        active: state.activeId === `candidate:${candidate.id}`,
-        metaNodes: [el("span", "tag-upstream", "mới")]
-      })
-    );
+    li.append(treeRow({
+      label: candidate.name,
+      sublabel: candidate.id,
+      iconText: providerInitial(candidate),
+      iconName: "sparkle",
+      id: `candidate:${candidate.id}`,
+      active: state.activeId === `candidate:${candidate.id}`,
+      metaNodes: [el("span", "tag-upstream", "mới")]
+    }));
     fragment.append(li);
   }
   replaceTreeListChildren(dom.candidatesList, fragment);
@@ -373,7 +383,9 @@ function renderDiscoverView() {
     replaceTreeListChildren(dom.discoverList);
     return;
   }
-  const candidates = state.candidates.filter((candidate) => matchesFilter(candidate.name, candidate.id, candidate.category));
+  const candidates = state.candidates.filter((candidate) =>
+    matchesCategory(candidate) && matchesFilter(candidate.name, candidate.id, candidate.category)
+  );
   dom.discoverStatus.textContent = candidates.length
     ? `${candidates.length} ứng viên · cập nhật ${formatSourceDate(state.sourceUpdatedAt)}`
     : "Không tìm thấy nguồn phù hợp.";
@@ -449,11 +461,18 @@ function renderTabs() {
   const focusedIndex = Number.parseInt(focusedTab && focusedTab.dataset.tabIndex, 10);
 
   if (!state.openTabs.length) {
-    dom.tabs.replaceChildren(el("span", "tabs-empty", "Chưa mở tab nào"));
+    dom.tabs.hidden = true;
+    dom.tabs.replaceChildren();
     state.focusedTabId = null;
+    dom.panel.setAttribute("role", "region");
+    dom.panel.setAttribute("aria-label", state.view === "discover" ? "Nguồn provider mới" : state.view === "help" ? "Trợ giúp FreeModel Lab" : "Danh mục provider");
     dom.panel.removeAttribute("aria-labelledby");
     return;
   }
+
+  dom.tabs.hidden = false;
+  dom.panel.setAttribute("role", "tabpanel");
+  dom.panel.setAttribute("aria-label", "Nội dung chi tiết");
 
   if (focusKind) {
     state.focusedTabId = state.openTabs.includes(focusedTargetId)
@@ -1060,56 +1079,188 @@ function renderCandidate(provider) {
 /* ---------------------------------------------------------------- */
 
 function renderWelcome() {
-  const doc = el("article", "welcome");
-  doc.append(el("div", "welcome-mark", "F"));
-  doc.append(el("h1", "", "FreeModel Lab"));
-  doc.append(el("p", "welcome-sub", "Bảng điều khiển cục bộ cho danh mục provider LLM có quota free. Chọn một provider ở thanh bên để xem quota, trạng thái key và metadata."));
-  doc.append(el("h2", "", "Bắt đầu"));
-  const shortcuts = el("div", "shortcut-grid");
-  const rows = [
-    ["Lọc provider", ["Ctrl", "B"]],
-    ["Danh mục provider", ["Ctrl", "1"]],
-    ["Nguồn provider mới", ["Ctrl", "2"]],
-    ["Trợ giúp", ["Ctrl", "3"]],
-    ["Tập trung ô lọc", ["/"]],
-    ["Cập nhật danh sách upstream", ["Ctrl", "R"]]
-  ];
-  for (const [label, keys] of rows) {
-    const row = el("div", "shortcut");
-    row.append(el("span", "", label));
-    const keyWrap = el("span", "shortcut-keys");
-    keys.forEach((key, index) => {
-      if (index) keyWrap.append(el("span", "", "+"));
-      keyWrap.append(el("kbd", "", key));
-    });
-    row.append(keyWrap);
-    shortcuts.append(row);
-  }
-  doc.append(shortcuts);
-
-  const providers = state.providers.slice(0, 6);
-  if (providers.length) {
-    doc.append(el("h2", "", "Provider gần đây"));
-    const list = el("ul", "recent-list");
-    for (const provider of providers) {
-      const li = el("li");
-      const button = el("button");
-      button.type = "button";
-      button.append(icon("layers"), el("span", "", provider.name));
-      button.addEventListener("click", () => openTarget(provider.id));
-      li.append(button);
-      list.append(li);
-    }
-    doc.append(list);
-  }
-
-  doc.append(
-    el(
-      "p",
-      "welcome-scope",
-      "Phạm vi: dashboard chỉ đọc danh mục, trạng thái kho bảo mật và ghi key khi bạn yêu cầu. Không gửi model request, không đọc cookie/storage/profile của Chrome, không tự động xoay key. Server chỉ bind 127.0.0.1."
-    )
+  const visibleProviders = state.providers.filter((provider) =>
+    matchesCategory(provider) &&
+    matchesFilter(provider.name, provider.id, provider.category, provider.endpoint, provider.quota && provider.quota.summary)
   );
+  const officialCount = state.providers.filter((provider) => provider.catalogSource !== "upstream").length;
+  const pendingCount = state.providers.length - officialCount;
+  const doc = el("article", "welcome catalog-home");
+  doc.append(catalogIntro(
+    "DANH MỤC LLM",
+    "Provider LLM miễn phí",
+    "So sánh nguồn, loại API và số model được công bố. Mở provider để xem quota, endpoint và cách lưu API key."
+  ));
+  doc.append(catalogStats([
+    [String(state.providers.length), "provider trong danh mục"],
+    [String(officialCount), "nguồn chính thức"],
+    [String(pendingCount), "cần xác minh"]
+  ]));
+  doc.append(catalogSectionHeading("Nhà cung cấp", `${visibleProviders.length} kết quả`));
+  doc.append(renderCatalogGrid(
+    visibleProviders,
+    "provider",
+    state.providersLoaded ? "Không tìm thấy provider phù hợp." : "Đang tải danh mục provider…"
+  ));
+  doc.append(catalogSafetyNote(
+    "Quota phụ thuộc model và tài khoản provider. Dashboard không gửi yêu cầu tới model; API key chỉ được lưu khi bạn chủ động yêu cầu."
+  ));
+  return doc;
+}
+
+function catalogIntro(eyebrow, title, description) {
+  const intro = el("header", "catalog-intro");
+  intro.append(el("p", "catalog-eyebrow", eyebrow));
+  intro.append(el("h1", "", title));
+  intro.append(el("p", "catalog-intro-copy", description));
+  return intro;
+}
+
+function catalogStats(items) {
+  const sectionNode = el("section", "catalog-stats");
+  sectionNode.setAttribute("aria-label", "Tổng quan");
+  for (const [value, label] of items) {
+    const stat = el("div", "catalog-stat");
+    stat.append(el("span", "catalog-stat-value", value));
+    stat.append(el("span", "catalog-stat-label", label));
+    sectionNode.append(stat);
+  }
+  return sectionNode;
+}
+
+function catalogSectionHeading(title, count) {
+  const heading = el("div", "catalog-section-heading");
+  heading.append(el("h2", "", title));
+  const resultCount = el("p", "catalog-result-count", count);
+  resultCount.setAttribute("aria-live", "polite");
+  heading.append(resultCount);
+  return heading;
+}
+
+function renderCatalogGrid(items, kind, emptyMessage) {
+  const list = el("ul", "catalog-grid");
+  if (!items.length) {
+    const empty = el("li", "catalog-empty", emptyMessage);
+    empty.setAttribute("role", "status");
+    list.append(empty);
+    return list;
+  }
+  for (const item of items) {
+    const listItem = el("li", "catalog-grid-item");
+    listItem.append(renderCatalogCard(item, kind));
+    list.append(listItem);
+  }
+  return list;
+}
+
+function renderCatalogCard(provider, kind) {
+  const candidate = kind === "candidate";
+  const card = el("article", candidate ? "catalog-card is-candidate" : "catalog-card");
+  card.dataset.category = provider.category || "inference";
+  card.dataset.providerId = provider.id;
+
+  const top = el("div", "catalog-card-top");
+  const mark = el("span", "catalog-mark", providerInitial(provider));
+  mark.setAttribute("aria-hidden", "true");
+  top.append(mark);
+  top.append(candidate || provider.catalogSource === "upstream"
+    ? badge("Chờ xác minh", "upstream", "warn")
+    : badge("Nguồn chính thức", "official", "shield"));
+  card.append(top);
+
+  card.append(el("h2", "catalog-card-title", provider.name));
+  card.append(el("code", "catalog-card-id", provider.id));
+
+  const meta = el("div", "catalog-card-meta");
+  meta.append(el("span", "catalog-type", providerCategoryLabel(provider.category)));
+  const modelCount = Array.isArray(provider.quota && provider.quota.models)
+    ? provider.quota.models.length
+    : 0;
+  if (modelCount) {
+    meta.append(el("span", "catalog-model-count", candidate
+      ? `${modelCount} model được liệt kê`
+      : `${modelCount} model miễn phí`));
+  }
+  card.append(meta);
+
+  const footer = el("div", "catalog-card-footer");
+  const keyStatus = el("span", "catalog-card-status");
+  const keyState = candidate ? "pending" : keyStateOf(provider);
+  keyStatus.dataset.state = keyState;
+  keyStatus.textContent = candidate
+    ? "Chưa xác minh"
+    : ({ saved: "Key đã lưu", missing: "Chưa có key", unknown: "Kho key chưa sẵn sàng" }[keyState]);
+  footer.append(keyStatus);
+
+  const action = el("button", "catalog-card-action");
+  action.type = "button";
+  action.setAttribute("aria-label", `${candidate ? "Xem ứng viên" : "Mở chi tiết"} ${provider.name}`);
+  action.append(el("span", "", candidate ? "Kiểm tra nguồn" : "Xem chi tiết"), icon("chevron-right"));
+  action.addEventListener("click", () => openTarget(candidate ? `candidate:${provider.id}` : provider.id));
+  footer.append(action);
+  card.append(footer);
+  return card;
+}
+
+function catalogSafetyNote(message, kind = "info") {
+  const note = el("aside", `catalog-safety-note is-${kind}`);
+  note.append(icon(kind === "warning" ? "warn" : "shield"));
+  note.append(el("p", "", message));
+  return note;
+}
+
+function renderDiscoverWelcome() {
+  const candidates = state.candidates.filter((candidate) =>
+    matchesCategory(candidate) && matchesFilter(candidate.name, candidate.id, candidate.category)
+  );
+  const doc = el("article", "welcome catalog-home discover-home");
+  doc.append(catalogIntro(
+    "NGUỒN CỘNG ĐỒNG",
+    "Ứng viên provider",
+    "Danh sách từ nguồn upstream. Đối chiếu quota và điều kiện sử dụng trên trang provider trước khi thêm vào danh mục."
+  ));
+  doc.append(catalogStats([
+    [String(state.candidates.length), "ứng viên upstream"],
+    [formatSourceDate(state.sourceUpdatedAt), "ngày cập nhật nguồn"],
+    [String(state.candidates.length), "chưa xác minh độc lập"]
+  ]));
+  doc.append(catalogSectionHeading("Nguồn mới", `${candidates.length} kết quả`));
+  doc.append(renderCatalogGrid(
+    candidates,
+    "candidate",
+    state.catalogBusy ? "Đang tải danh sách ứng viên…" : "Không tìm thấy ứng viên phù hợp."
+  ));
+  doc.append(catalogSafetyNote(
+    "Ứng viên upstream chưa được xác minh. Chỉ thêm provider sau khi kiểm tra quota, endpoint và điều khoản của nhà cung cấp.",
+    "warning"
+  ));
+  return doc;
+}
+
+function renderHelpWelcome() {
+  const doc = el("article", "welcome help-home");
+  doc.append(catalogIntro(
+    "HƯỚNG DẪN",
+    "Thiết lập provider an toàn",
+    "Dùng nguồn chính thức để kiểm tra quota và tạo API key. FreeModel Lab không đăng nhập thay bạn và không gửi yêu cầu tới model."
+  ));
+  const steps = el("ol", "help-steps");
+  const entries = [
+    ["01", "Kiểm tra nguồn", "Xem ngày xác minh, quota được công bố và các giới hạn theo model/tài khoản."],
+    ["02", "Lưu API key", "Nhập key do bạn tự tạo. Key được chuyển vào kho bảo mật của hệ điều hành."],
+    ["03", "Kết nối endpoint", "Sao chép endpoint và mã provider để cấu hình ứng dụng của bạn."]
+  ];
+  for (const [number, title, description] of entries) {
+    const step = el("li", "help-step");
+    step.append(el("span", "help-step-number", number));
+    step.append(el("h2", "", title));
+    step.append(el("p", "", description));
+    steps.append(step);
+  }
+  doc.append(steps);
+  doc.append(catalogSafetyNote(
+    "API key không được đọc lại để hiển thị, ghi vào log hay gửi tới dashboard API. Server chỉ lắng nghe trên 127.0.0.1."
+  ));
   return doc;
 }
 
@@ -1182,7 +1333,12 @@ mobileDetailQuery.addEventListener("change", syncEditorInteractivity);
 
 function renderEditor() {
   if (!state.activeId) {
-    dom.content.replaceChildren(renderWelcome());
+    const welcomeByView = {
+      providers: renderWelcome,
+      discover: renderDiscoverWelcome,
+      help: renderHelpWelcome
+    };
+    dom.content.replaceChildren((welcomeByView[state.view] || renderWelcome)());
     return;
   }
   if (state.activeId.startsWith("candidate:")) {
@@ -1206,13 +1362,23 @@ function renderViewChrome() {
   dom.sidebarList.hidden = state.view !== "providers";
   dom.discoverView.hidden = state.view !== "discover";
   dom.helpView.hidden = state.view !== "help";
+  dom.categoryFilters.hidden = state.view === "help";
   document.querySelectorAll(".activity-item, .view-tab").forEach((item) => {
     item.setAttribute("aria-pressed", String(item.dataset.view === state.view));
   });
 }
 
+function renderCategoryFilters() {
+  dom.categoryFilters.querySelectorAll("[data-category-filter]").forEach((button) => {
+    const active = button.dataset.categoryFilter === state.categoryFilter;
+    button.setAttribute("aria-pressed", String(active));
+    button.classList.toggle("is-active", active);
+  });
+}
+
 function renderAll() {
   renderViewChrome();
+  renderCategoryFilters();
   renderSidebar();
   renderDiscoverView();
   renderTabs();
@@ -1262,6 +1428,7 @@ async function loadProviders(showLoading = true) {
   try {
     const data = await api("/api/providers");
     state.providers = data.providers || [];
+    state.providersLoaded = true;
     const officialProviders = state.providers.filter((provider) => provider.catalogSource !== "upstream");
     const upstreamCount = state.providers.length - officialProviders.length;
     const latest = officialProviders.map((provider) => provider.verifiedAt)
@@ -1276,6 +1443,7 @@ async function loadProviders(showLoading = true) {
     setStatus(summary, staleCount ? "warning" : "success");
     renderAll();
   } catch (error) {
+    state.providersLoaded = true;
     setStatus(error instanceof Error ? error.message : "Không tải được dashboard.", "error");
   }
 }
@@ -1408,6 +1576,19 @@ dom.sidebarFilter.addEventListener("input", (event) => {
   state.filter = event.target.value;
   renderSidebar();
   renderDiscoverView();
+  if (!state.activeId) renderEditor();
+});
+
+dom.categoryFilters.addEventListener("click", (event) => {
+  const button = event.target instanceof Element
+    ? event.target.closest("[data-category-filter]")
+    : null;
+  if (!button) return;
+  state.categoryFilter = button.dataset.categoryFilter;
+  renderCategoryFilters();
+  renderSidebar();
+  renderDiscoverView();
+  if (!state.activeId) renderEditor();
 });
 
 dom.sidebarFilter.addEventListener("keydown", (event) => {
@@ -1416,6 +1597,7 @@ dom.sidebarFilter.addEventListener("keydown", (event) => {
     state.filter = "";
     renderSidebar();
     renderDiscoverView();
+    if (!state.activeId) renderEditor();
     dom.sidebarFilter.blur();
   }
 });
@@ -1435,8 +1617,7 @@ document.addEventListener("keydown", (event) => {
 /* sidebar tree rows, and the editor tabs. Activation (Enter/Space) */
 /* is left to the native button click handlers, which already call  */
 /* setView() / openTarget() — so aria-pressed / aria-selected stay  */
-/* in sync without duplicating state. Ctrl+b is already wired in    */
-/* the shortcut handler above and is intentionally not duplicated.  */
+/* in sync without duplicating state. Browser shortcuts remain native. */
 /* ---------------------------------------------------------------- */
 
 function isFormField(node) {

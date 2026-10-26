@@ -9,8 +9,8 @@
       if (!response.ok) return;
       const { version } = await response.json();
       if (currentVersion !== null && version !== currentVersion) {
-        // Navigate the current tab to its current URL; never create a tab.
-        window.location.replace(window.location.href);
+        // Reload this browsing context in place; hot reload must never open a tab.
+        window.location.reload();
         return;
       }
       currentVersion = version;
