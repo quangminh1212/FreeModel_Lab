@@ -215,7 +215,7 @@ function matchesFilter(...values) {
   return values.filter(Boolean).some((value) => String(value).toLowerCase().includes(needle));
 }
 
-function treeRow({ label, sublabel, iconText, id, active, metaNodes, iconName }) {
+function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, iconName }) {
   const row = el("button", "tree-row");
   row.type = "button";
   row.dataset.targetId = id;
@@ -225,8 +225,11 @@ function treeRow({ label, sublabel, iconText, id, active, metaNodes, iconName })
   }
   const mark = iconName ? icon(iconName, "ico tree-icon-glyph") : el("span", "tree-icon", iconText);
   row.append(mark);
-  const text = el("span", "tree-label", label);
-  if (sublabel) text.title = `${label} — ${sublabel}`;
+  const text = el("span", "tree-text");
+  const title = el("span", "tree-label", label);
+  if (sublabel) title.title = `${label} — ${sublabel}`;
+  text.append(title);
+  if (caption) text.append(el("span", "tree-caption", caption));
   row.append(text);
   const meta = el("span", "tree-meta");
   for (const node of metaNodes) meta.append(node);
@@ -240,20 +243,33 @@ function renderProviderRows() {
     matchesFilter(provider.name, provider.id, provider.category, provider.endpoint, provider.quota && provider.quota.summary)
   );
   dom.treeMineCount.textContent = String(state.providers.length);
-  const nodes = providers.map((provider) =>
-    treeRow({
+  const nodes = providers.map((provider) => {
+    const keyState = keyStateOf(provider);
+    const keyStatus = el("span", "key-state-chip", {
+      saved: "Key đã lưu",
+      missing: "Chưa có key",
+      unknown: "Kho key chưa sẵn sàng"
+    }[keyState]);
+    keyStatus.dataset.state = keyState;
+    keyStatus.title = "Trạng thái key trong kho credential cục bộ";
+    const modelCount = Array.isArray(provider.quota && provider.quota.models)
+      ? provider.quota.models.length
+      : 0;
+    const categoryLabel = provider.category === "router" ? "Router" : "Hosted inference";
+
+    return treeRow({
       label: provider.name,
       sublabel: provider.id,
+      caption: modelCount ? `${categoryLabel} · ${modelCount} model free` : categoryLabel,
       iconText: providerInitial(provider),
       id: provider.id,
       active: state.activeId === provider.id && state.view === "providers",
       metaNodes: [
-        provider.catalogSource === "upstream" ? el("span", "tag-upstream", "upstream") : document.createDocumentFragment()
-      ].flatMap((node) => (node.nodeType === 11 ? Array.from(node.childNodes) : [node])).concat([
-        (() => { const dot = el("span", "dot"); dot.dataset.state = keyStateOf(provider); return dot; })()
-      ])
-    })
-  );
+        provider.catalogSource === "upstream" ? el("span", "tag-upstream", "upstream") : null,
+        keyStatus
+      ].filter(Boolean)
+    });
+  });
   if (!nodes.length) {
     dom.providersList.replaceChildren(el("li", "empty-state", state.filter ? "Không có provider khớp bộ lọc." : "Danh mục đang trống."));
     return;
