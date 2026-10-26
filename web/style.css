@@ -340,6 +340,7 @@ a:hover { text-decoration: underline; }
 .sidebar-search .ico { width: 15px; height: 15px; color: var(--fg-muted); }
 .sidebar-search input {
   width: 100%;
+  min-height: 32px;
   border: 0;
   outline: none;
   background: transparent;
@@ -1173,6 +1174,8 @@ details.disclosure .entry-form { margin-top: 10px; }
 @media (max-width: 640px) {
   .skip-link-main { display: none; }
   .skip-link-providers { display: block; }
+  body.mobile-detail-open .skip-link-main { display: block; }
+  body.mobile-detail-open .skip-link-providers { display: none; }
   .workbench { grid-template-rows: 62px minmax(0, 1fr) 22px; }
   .titlebar {
     grid-template-columns: minmax(0, 1fr) auto;

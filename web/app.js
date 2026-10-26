@@ -22,6 +22,7 @@ const state = {
 const dom = {
   workbench: document.querySelector("#workbench"),
   editor: document.querySelector(".editor"),
+  sidebar: document.querySelector("#sidebar"),
   sidebarHeading: document.querySelector("#sidebar-heading"),
   sidebarList: document.querySelector("#sidebar-list"),
   sidebarFilter: document.querySelector("#sidebar-filter"),
@@ -343,20 +344,20 @@ function renderDiscoverView() {
   }
   const candidates = state.candidates.filter((candidate) => matchesFilter(candidate.name, candidate.id, candidate.category));
   dom.discoverStatus.textContent = candidates.length
-    ? `${candidates.length} ứng viên chưa xác minh. Nguồn cập nhật: ${formatSourceDate(state.sourceUpdatedAt)}.`
-    : "Không còn ứng viên mới trong danh sách upstream.";
+    ? `${candidates.length} ứng viên · cập nhật ${formatSourceDate(state.sourceUpdatedAt)}`
+    : "Không tìm thấy nguồn phù hợp.";
   const fragment = document.createDocumentFragment();
   for (const candidate of candidates) {
     const li = el("li");
     li.append(
       treeRow({
         label: candidate.name,
-        sublabel: candidate.endpoint,
+        caption: candidate.category === "router" ? "Định tuyến mô hình" : "API suy luận",
         iconText: providerInitial(candidate),
         iconName: "sparkle",
         id: `candidate:${candidate.id}`,
         active: state.activeId === `candidate:${candidate.id}`,
-        metaNodes: [el("span", "tag-upstream", candidate.category === "router" ? "router" : "hosted")]
+        metaNodes: [el("span", "tag-upstream", "Chưa xác minh")]
       })
     );
     fragment.append(li);
@@ -365,7 +366,8 @@ function renderDiscoverView() {
 }
 
 function formatSourceDate(value) {
-  return /^\d{4}-\d{2}-\d{2}$/.test(value || "") ? value : "chưa rõ";
+  const match = (value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[3]}/${match[2]}/${match[1]}` : "chưa rõ";
 }
 
 /* ---------------------------------------------------------------- */
@@ -1071,7 +1073,7 @@ function openTarget(targetId, options = {}) {
   }
   setDetailOpen(true);
   renderAll();
-  if (options.fromSidebar) {
+  if (options.fromSidebar || mobileDetailQuery.matches) {
     const tab = Array.from(dom.tabs.querySelectorAll(".tab-hit"))
       .find((item) => item.dataset.targetId === targetId);
     tab?.focus();
@@ -1106,9 +1108,19 @@ function focusAfterTabClose(targetId) {
 }
 
 function syncEditorInteractivity() {
-  const hidden = mobileDetailQuery.matches && !dom.workbench.classList.contains("detail-open");
+  const mobile = mobileDetailQuery.matches;
+  const detailOpen = dom.workbench.classList.contains("detail-open");
+  const hidden = mobile && !detailOpen;
+  const sidebarCovered = mobile && detailOpen;
+  const focusWasInSidebar = dom.sidebar.contains(document.activeElement);
+  const focusWasInEditor = dom.editor.contains(document.activeElement);
+
   dom.editor.inert = hidden;
-  if (hidden && dom.editor.contains(document.activeElement)) focusActiveSidebarRow();
+  if (sidebarCovered && focusWasInSidebar) dom.editor.focus({ preventScroll: true });
+  dom.sidebar.inert = sidebarCovered;
+  document.body.classList.toggle("mobile-detail-open", sidebarCovered);
+
+  if (hidden && focusWasInEditor) focusActiveSidebarRow();
 }
 
 mobileDetailQuery.addEventListener("change", syncEditorInteractivity);
