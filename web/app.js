@@ -35,7 +35,6 @@ const dom = {
   tabs: document.querySelector("#tabs"),
   content: document.querySelector("#content"),
   refreshButton: document.querySelector("#refresh"),
-  refreshInline: document.querySelector("#catalog-refresh-inline"),
   themeToggle: document.querySelector("#theme-toggle"),
   themeIcon: document.querySelector("#theme-icon"),
   sidebarToggle: document.querySelector("#sidebar-toggle"),
@@ -1096,10 +1095,8 @@ async function loadProviders(showLoading = true) {
     const latest = officialProviders.map((provider) => provider.verifiedAt).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || "";
     dom.verifiedAt.textContent = latest || "—";
     const staleCount = state.providers.filter((provider) => Date.now() - new Date(`${provider.verifiedAt}T00:00:00Z`).getTime() > STALE_WINDOW_MS).length;
-    setStatus(
-      `${officialProviders.length} provider có nguồn chính thức${upstreamCount ? ` · ${upstreamCount} mục upstream chưa xác minh` : ""}. Quota chính thức được rà soát ${latest || "chưa rõ ngày"}; ${staleCount ? `${staleCount} nguồn đã quá 30 ngày, hãy kiểm tra lại` : "các nguồn chính thức còn trong hạn rà soát"}. Dashboard không gửi model request để suy ra quota.`,
-      staleCount ? "warning" : "success"
-    );
+    const summary = `Danh mục: ${officialProviders.length} nguồn chính thức${upstreamCount ? ` · ${upstreamCount} chờ xác minh` : ""}${staleCount ? ` · ${staleCount} cần rà soát` : ""}.`;
+    setStatus(summary, staleCount ? "warning" : "success");
     renderAll();
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Không tải được dashboard.", "error");
@@ -1108,13 +1105,8 @@ async function loadProviders(showLoading = true) {
 
 function setCatalogBusy(busy) {
   state.catalogBusy = busy;
-  for (const button of [dom.refreshButton, dom.refreshInline]) {
-    if (!button) continue;
-    button.disabled = busy;
-    button.classList.toggle("is-busy", busy);
-    const label = button.querySelector("span:last-child");
-    if (label) label.textContent = busy ? "Đang cập nhật…" : "Cập nhật danh sách free";
-  }
+  dom.refreshButton.disabled = busy;
+  dom.refreshButton.classList.toggle("is-busy", busy);
 }
 
 function renderCatalogStatus(message, kind) {
@@ -1306,9 +1298,7 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-for (const button of [dom.refreshButton, dom.refreshInline]) {
-  if (button) button.addEventListener("click", () => refreshCatalog());
-}
+dom.refreshButton.addEventListener("click", () => refreshCatalog());
 
 /* Keep the status icon in sync whenever kind changes. */
 const statusObserver = new MutationObserver(() => refreshStatusIcon());

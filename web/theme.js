@@ -32,7 +32,7 @@
    * app.js owns data-theme only, so writing data-style here is safe.
    */
   var STYLES = [
-    { id: "", name: "FreeModel Lab (mặc định)", light: false },
+    { id: "", name: "Mặc định", light: false },
     { id: "vscode-dark-modern", name: "VS Code Dark Modern", light: false },
     { id: "vscode-light-modern", name: "VS Code Light Modern", light: true },
     { id: "github-primer", name: "GitHub Primer", light: false },

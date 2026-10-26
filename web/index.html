@@ -46,9 +46,11 @@
           <span class="app-title">FreeModel Lab</span>
         </div>
         <div class="titlebar-right">
-          <button class="view-tab" type="button" data-view="providers" aria-pressed="true">Danh mục</button>
-          <button class="view-tab" type="button" data-view="discover" aria-pressed="false">Nguồn mới</button>
-          <button class="view-tab" type="button" data-view="help" aria-pressed="false">Trợ giúp</button>
+          <nav class="view-nav" aria-label="Điều hướng chính">
+            <button class="view-tab" type="button" data-view="providers" aria-pressed="true">Danh mục</button>
+            <button class="view-tab" type="button" data-view="discover" aria-pressed="false">Nguồn mới</button>
+            <button class="view-tab" type="button" data-view="help" aria-pressed="false">Trợ giúp</button>
+          </nav>
           <span class="titlebar-sep" aria-hidden="true"></span>
           <label class="style-picker" title="Chọn phong cách giao diện">
             <span class="style-picker-label" aria-hidden="true">Giao diện</span>
@@ -90,11 +92,6 @@
       <aside class="sidebar" aria-label="Thanh bên">
         <div class="sidebar-title">
           <h1 id="sidebar-heading">CHI TIẾT</h1>
-          <div class="sidebar-title-actions">
-            <button id="catalog-refresh-inline" class="icon-button icon-button-small" type="button" title="Tải lại danh sách upstream" aria-label="Tải lại danh sách upstream">
-              <svg class="ico" aria-hidden="true"><use href="#i-sync"></use></svg>
-            </button>
-          </div>
         </div>
 
         <div class="sidebar-search">
