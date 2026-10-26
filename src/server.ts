@@ -290,7 +290,8 @@ export async function startServer(options: StartOptions = {}): Promise<{ url: st
   const address = server.address();
   if (!address || typeof address === "string") throw new Error("Could not bind the local dashboard.");
   const url = `http://127.0.0.1:${address.port}/?session=${encodeURIComponent(sessionToken)}`;
-  if (options.openChrome) {
+  // Dev reloads reuse the current tab; the launcher owns the one-time browser open.
+  if (options.openChrome && !options.devMode) {
     try {
       const openModule = await import("open");
       await openModule.default(url, { app: { name: "chrome" } });
