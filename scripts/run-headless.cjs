@@ -450,7 +450,7 @@ function startControlServer() {
 }
 
 async function beginServer() {
-  const openOnBootstrap = !process.argv.includes("--no-open");
+  let shouldOpenDashboard = !process.argv.includes("--no-open");
   await ensureDependencies();
   if (stopping) return;
   state.state = "starting";
@@ -470,7 +470,10 @@ async function beginServer() {
   pipeLog(child.stderr, "[stderr] ");
   child.on("message", (message) => {
     const url = recordDashboardBootstrap(message);
-    if (openOnBootstrap && url) openDashboard(url);
+    if (!shouldOpenDashboard || !url) return;
+    // Rebuilds emit this same IPC event; only the initial bootstrap opens the browser.
+    shouldOpenDashboard = false;
+    openDashboard(url);
   });
   child.once("error", (error) => {
     log(`Could not start dev server: ${error.message}`);
