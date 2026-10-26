@@ -1,5 +1,6 @@
 (function () {
   var THEME_KEY = "freemodel-theme";
+  var EXPLICIT_THEME_KEY = "freemodel-theme-explicit";
   var STYLE_KEY = "freemodel-style";
 
   var root = document.documentElement;
@@ -18,8 +19,7 @@
   /* ---- Theme (dark / light) ------------------------------------------- */
 
   var storedTheme = read(THEME_KEY);
-  var theme = storedTheme === "light" || storedTheme === "dark" ? storedTheme : "dark";
-  root.dataset.theme = theme;
+  var explicitTheme = read(EXPLICIT_THEME_KEY) === "1";
 
   /* ---- Style (visual identity) ---------------------------------------- */
 
@@ -88,6 +88,14 @@
   var current = read(STYLE_KEY) || "";
   if (current && !known[current]) current = "";
 
+  var validStoredTheme = storedTheme === "light" || storedTheme === "dark";
+  var theme = explicitTheme && validStoredTheme
+    ? storedTheme
+    : (current && known[current]
+      ? (known[current].light ? "light" : "dark")
+      : (validStoredTheme ? storedTheme : "dark"));
+  root.dataset.theme = theme;
+
   function applyStyle(id) {
     if (id && known[id]) root.dataset.style = id;
     else {
@@ -100,11 +108,11 @@
     if (select && select.value !== id) select.value = id;
 
     /*
-     * A style implies a polarity. Honour it unless the user has explicitly
-     * chosen a theme, so picking "Notion" does not leave dark chrome behind.
+     * A style implies a polarity until the user explicitly toggles light/dark.
+     * Paired CSS variants let that choice remain effective with any style.
      * app.js re-applies data-theme on boot from the same storage key.
      */
-    if (id && !read(THEME_KEY)) {
+    if (id && read(EXPLICIT_THEME_KEY) !== "1") {
       var wanted = known[id].light ? "light" : "dark";
       if (root.dataset.theme !== wanted) {
         root.dataset.theme = wanted;
@@ -121,6 +129,7 @@
         }
       }
     }
+    if (read(EXPLICIT_THEME_KEY) !== "1") write(THEME_KEY, root.dataset.theme);
   }
 
   function mountPicker() {

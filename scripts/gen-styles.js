@@ -124,6 +124,38 @@ function onColor(hex) {
     : "#ffffff";
 }
 
+/** Keep the style's hue and shape while moving its surfaces to the other mode. */
+function inPolarity(t, light) {
+  if (isLight(t.appBg) === light) return t;
+
+  const neutral = light
+    ? {
+        appBg: "#ffffff", sideBg: "#f5f7f3", barBg: "#edf0eb",
+        input: "#ffffff", hover: "#e7ece7", sel: "#e6eee3",
+        border: "#d7dfd8", fg: "#29342d", fgMuted: "#59665e", barFg: "#344039"
+      }
+    : {
+        appBg: "#111517", sideBg: "#151a1c", barBg: "#0f1214",
+        input: "#101517", hover: "#20292a", sel: "#23372a",
+        border: "#30393b", fg: "#e7ece9", fgMuted: "#a0aaa5", barFg: "#c7d1cd"
+      };
+  const mixSource = (base, source, amount = 0.12) => mix(base, source, amount);
+
+  return {
+    ...t,
+    appBg: mixSource(neutral.appBg, t.appBg, 0.08),
+    sideBg: mixSource(neutral.sideBg, t.sideBg),
+    barBg: mixSource(neutral.barBg, t.barBg),
+    input: mixSource(neutral.input, t.input, 0.07),
+    hover: mixSource(neutral.hover, t.hover, 0.12),
+    sel: mixSource(neutral.sel, t.sel, 0.16),
+    border: mixSource(neutral.border, t.border, 0.18),
+    fg: mixSource(neutral.fg, t.fg, 0.12),
+    fgMuted: mixSource(neutral.fgMuted, t.fgMuted, 0.12),
+    barFg: mixSource(neutral.barFg, t.barFg, 0.12),
+  };
+}
+
 /* ---------- 17 catalog tokens -> 41 dashboard tokens ---------- */
 
 function expand(t) {
@@ -348,6 +380,15 @@ function buildCss() {
     out.push(`/* ${asciiName} - ${light ? "light" : "dark"} */`);
     out.push(`:root[data-style="${s.id}"] {`);
     for (const [k, v] of vars) out.push(`  ${k}: ${v};`);
+    out.push("}");
+    out.push("");
+
+    const oppositeLight = !light;
+    const oppositeTheme = oppositeLight ? "light" : "dark";
+    const opposite = expand(inPolarity(s.t, oppositeLight));
+    out.push(`/* ${asciiName} - ${oppositeTheme} mode */`);
+    out.push(`:root[data-style="${s.id}"][data-theme="${oppositeTheme}"] {`);
+    for (const [k, v] of opposite.vars) out.push(`  ${k}: ${v};`);
     out.push("}");
     out.push("");
   }

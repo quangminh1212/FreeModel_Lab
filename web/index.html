@@ -156,12 +156,12 @@
         <div class="sidebar-collapse" aria-hidden="true"></div>
       </aside>
 
-      <div id="sidebar-resizer" class="resizer" role="separator" aria-orientation="vertical" aria-label="Đổi độ rộng thanh bên" tabindex="0"></div>
+      <div id="sidebar-resizer" class="resizer" role="separator" aria-orientation="vertical" aria-label="Đổi độ rộng thanh bên" aria-valuemin="220" aria-valuemax="520" aria-valuenow="320" aria-valuetext="320 px" tabindex="0"></div>
 
       <!-- Editor area -->
-      <main id="main-content" class="editor" role="tabpanel" aria-label="Nội dung chi tiết" tabindex="-1">
+      <main id="main-content" class="editor" aria-label="Không gian làm việc" tabindex="-1">
         <div id="tabs" class="tabs" role="tablist" aria-label="Tab đang mở"></div>
-        <div class="editor-body">
+        <div id="detail-panel" class="editor-body" role="tabpanel" aria-label="Nội dung chi tiết" tabindex="-1">
           <div id="content" class="content"></div>
         </div>
       </main>
@@ -173,10 +173,6 @@
             <svg class="ico" aria-hidden="true"><use href="#i-info"></use></svg>
             <span id="status-message-text">Đang tải danh sách provider…</span>
           </span>
-          <button id="status-view" class="status-item status-item-button is-hidden" type="button">
-            <svg class="ico" aria-hidden="true"><use href="#i-layers"></use></svg>
-            <span id="status-view-label">Danh mục</span>
-          </button>
         </div>
         <div class="statusbar-right">
           <span class="status-item" title="Ngày kiểm tra nguồn chính thức gần nhất">

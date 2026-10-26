@@ -69,8 +69,8 @@
   --border-strong: #7c8a80;
   --fg: #37443c;
   --fg-strong: #1b261f;
-  --fg-muted: #5e6c62;
-  --fg-faint: #5f6d62;
+  --fg-muted: #58675d;
+  --fg-faint: #556358;
   --accent: #426b47;
   --link: #3d6596;
   --focus-border: #426b47;
@@ -86,7 +86,7 @@
   --syntax-key: #335d92;
   --syntax-string: #94513c;
   --syntax-number: #34714d;
-  --app-mark-bg: #c9e4ac;
+  --app-mark-bg: var(--accent);
   --accent-fg: #ffffff;
 }
 * { box-sizing: border-box; }
@@ -605,17 +605,30 @@ kbd {
 .resizer {
   grid-area: resizer;
   position: relative;
+  z-index: 2;
   background: transparent;
   cursor: col-resize;
+}
+.resizer::before {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset-block: 0;
+  left: -10px;
+  width: 24px;
+  background: transparent;
 }
 .resizer::after {
   content: "";
   position: absolute;
+  z-index: 2;
   inset: 0 1px;
-  background: transparent;
+  background: var(--border-strong);
+  opacity: 0.28;
+  pointer-events: none;
   transition: background 120ms ease;
 }
-.resizer:hover::after, .resizer:focus-visible::after { background: var(--accent); }
+.resizer:hover::after, .resizer:focus-visible::after { background: var(--accent); opacity: 1; }
 /* Editor area */
 .editor {
   grid-area: editor;
@@ -1218,7 +1231,11 @@ details.disclosure .entry-form { margin-top: 10px; }
   .doc-title h2 { font-size: 17px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation: none !important;
+  }
 }
 @media (prefers-contrast: more) {
   :root { --border: #4a4a4a; --border-strong: #6b6b6b; --fg-muted: #bdbdbd; --fg-faint: #a5a5a5; }
@@ -1293,6 +1310,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* VS Code Dark Modern - light mode */
+:root[data-style="vscode-dark-modern"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d2;
+  --activity-bg: #d3d6d2;
+  --sidebar-bg: #dadcd9;
+  --editor-bg: #ededed;
+  --tabbar-bg: #d3d6d2;
+  --tab-active-bg: #ededed;
+  --tab-inactive-bg: #d3d6d2;
+  --statusbar-bg: #d3d6d2;
+  --input-bg: #f1f1f1;
+  --input-bg-focus: #ffffff;
+  --input-border: #878d88;
+  --badge-bg: #d5d5d5;
+  --hover-bg: #d0d4d0;
+  --hover-bg-soft: #dfe1df;
+  --selected-bg: #c8d2cd;
+  --border: #757976;
+  --border-strong: #484a48;
+  --fg: #0f1110;
+  --fg-strong: #0f1110;
+  --fg-muted: #101110;
+  --fg-faint: #111111;
+  --accent: #001221;
+  --link: #001221;
+  --focus-border: #001221;
+  --focus: #001221;
+  --ok: #071408;
+  --ok-soft: #d1eed5;
+  --warn: #151100;
+  --warn-soft: #f0e6b6;
+  --error: #210a0a;
+  --error-soft: #fcd4d4;
+  --info-soft: #cee5f7;
+  --code-bg: #cbcfcb;
+  --syntax-key: #415b6a;
+  --syntax-string: #725043;
+  --syntax-number: #505b4b;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #46514b;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #001221;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* VS Code Light Modern - light */
 :root[data-style="vscode-light-modern"] {
   color-scheme: light;
@@ -1342,6 +1413,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #000000;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
+/* VS Code Light Modern - dark mode */
+:root[data-style="vscode-light-modern"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2e2f;
+  --activity-bg: #2b2e2f;
+  --sidebar-bg: #303536;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2b2e2f;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2b2e2f;
+  --statusbar-bg: #2b2e2f;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f70;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #394142;
+  --hover-bg-soft: #2f3536;
+  --selected-bg: #40534a;
+  --border: #787e7f;
+  --border-strong: #a1a5a5;
+  --fg: #d2d7d4;
+  --fg-strong: #e0e3e1;
+  --fg-muted: #d2d5d4;
+  --fg-faint: #d3d5d4;
+  --accent: #c0d8ed;
+  --link: #c0d8ed;
+  --focus-border: #c0d8ed;
+  --focus: #c0d8ed;
+  --ok: #bfdcc8;
+  --ok-soft: #23342c;
+  --warn: #ddd5b5;
+  --warn-soft: #343323;
+  --error: #f1cccc;
+  --error-soft: #3b292b;
+  --info-soft: #1f303e;
+  --code-bg: #222628;
+  --syntax-key: #5d8fc5;
+  --syntax-string: #c87474;
+  --syntax-number: #379d77;
+  --radius: 4px;
+  --radius-sm: 3px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b6bfbb;
+  --accent-fg: #000000;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #c0d8ed;
   --control-radius: 4px;
   --sidebar-width: 288px;
   --app-mark-radius: 4px;
@@ -1401,6 +1526,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 6px;
 }
 
+/* GitHub Primer - light mode */
+:root[data-style="github-primer"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d4d0;
+  --activity-bg: #d1d4d0;
+  --sidebar-bg: #d9dbd9;
+  --editor-bg: #ececec;
+  --tabbar-bg: #d1d4d0;
+  --tab-active-bg: #ececec;
+  --tab-inactive-bg: #d1d4d0;
+  --statusbar-bg: #d1d4d0;
+  --input-bg: #eeeeef;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a87;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #ced3cf;
+  --hover-bg-soft: #dde0de;
+  --selected-bg: #c6d1ce;
+  --border: #737875;
+  --border-strong: #464948;
+  --fg: #0e100f;
+  --fg-strong: #0e100f;
+  --fg-muted: #0e1010;
+  --fg-faint: #0f0f0f;
+  --accent: #051207;
+  --link: #051207;
+  --focus-border: #051207;
+  --focus: #051207;
+  --ok: #061208;
+  --ok-soft: #d1eed5;
+  --warn: #140f03;
+  --warn-soft: #f2e2bf;
+  --error: #1d0a09;
+  --error-soft: #fdd5d3;
+  --info-soft: #d5e8d8;
+  --code-bg: #cbd0cd;
+  --syntax-key: #1b6629;
+  --syntax-string: #735313;
+  --syntax-number: #23652c;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #49554f;
+  --accent-fg: #ffffff;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #051207;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
 /* Catppuccin Mocha - dark */
 :root[data-style="catppuccin-mocha"] {
   color-scheme: dark;
@@ -1450,6 +1629,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
+/* Catppuccin Mocha - light mode */
+:root[data-style="catppuccin-mocha"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d3;
+  --activity-bg: #d3d6d3;
+  --sidebar-bg: #dadcda;
+  --editor-bg: #ededee;
+  --tabbar-bg: #d3d6d3;
+  --tab-active-bg: #ededee;
+  --tab-inactive-bg: #d3d6d3;
+  --statusbar-bg: #d3d6d3;
+  --input-bg: #f1f1f2;
+  --input-bg-focus: #ffffff;
+  --input-border: #878c8a;
+  --badge-bg: #d5d5d6;
+  --hover-bg: #d1d6d3;
+  --hover-bg-soft: #dfe2e1;
+  --selected-bg: #ccd3cd;
+  --border: #757978;
+  --border-strong: #5e6362;
+  --fg: #3d4745;
+  --fg-strong: #222726;
+  --fg-muted: #414947;
+  --fg-faint: #434947;
+  --accent: #374865;
+  --link: #374865;
+  --focus-border: #374865;
+  --focus: #374865;
+  --ok: #384d37;
+  --ok-soft: #eaf8e8;
+  --warn: #4e4737;
+  --warn-soft: #fdf7e8;
+  --error: #663b47;
+  --error-soft: #fce3ea;
+  --info-soft: #e8f1fe;
+  --code-bg: #cbd0ce;
+  --syntax-key: #44597c;
+  --syntax-string: #615844;
+  --syntax-number: #465f44;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #46524f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #374865;
   --control-radius: 6px;
   --sidebar-width: 288px;
   --app-mark-radius: 6px;
@@ -1509,6 +1742,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 6px;
 }
 
+/* Catppuccin Latte - dark mode */
+:root[data-style="catppuccin-latte"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #292c2e;
+  --activity-bg: #292c2e;
+  --sidebar-bg: #2e3335;
+  --editor-bg: #232729;
+  --tabbar-bg: #292c2e;
+  --tab-active-bg: #232729;
+  --tab-inactive-bg: #292c2e;
+  --statusbar-bg: #292c2e;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f72;
+  --badge-bg: #393d3e;
+  --hover-bg: #373f41;
+  --hover-bg-soft: #2d3335;
+  --selected-bg: #3b4d44;
+  --border: #757c7f;
+  --border-strong: #aaafb1;
+  --fg: #ebeded;
+  --fg-strong: #ebeded;
+  --fg-muted: #ebeded;
+  --fg-faint: #eceded;
+  --accent: #e5edfe;
+  --link: #e5edfe;
+  --focus-border: #e5edfe;
+  --focus: #e5edfe;
+  --ok: #e2f1df;
+  --ok-soft: #273829;
+  --warn: #f9ebd6;
+  --warn-soft: #413727;
+  --error: #fbe9ec;
+  --error-soft: #3c242b;
+  --info-soft: #223046;
+  --code-bg: #222628;
+  --syntax-key: #4f88f7;
+  --syntax-string: #df8e1d;
+  --syntax-number: #40a02b;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b8c1c1;
+  --accent-fg: #000000;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #e5edfe;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
 /* Nord - dark */
 :root[data-style="nord"] {
   color-scheme: dark;
@@ -1558,6 +1845,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
+/* Nord - light mode */
+:root[data-style="nord"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d5d9d6;
+  --activity-bg: #d5d9d6;
+  --sidebar-bg: #dde0de;
+  --editor-bg: #eeeff0;
+  --tabbar-bg: #d5d9d6;
+  --tab-active-bg: #eeeff0;
+  --tab-inactive-bg: #d5d9d6;
+  --statusbar-bg: #d5d9d6;
+  --input-bg: #f1f2f3;
+  --input-bg-focus: #ffffff;
+  --input-border: #888d8b;
+  --badge-bg: #d6d7d8;
+  --hover-bg: #d2d8d5;
+  --hover-bg-soft: #e0e4e3;
+  --selected-bg: #ccd4ce;
+  --border: #767b7a;
+  --border-strong: #606664;
+  --fg: #3e4844;
+  --fg-strong: #222825;
+  --fg-muted: #444c4a;
+  --fg-faint: #464c4b;
+  --accent: #384e55;
+  --link: #384e55;
+  --focus-border: #384e55;
+  --focus: #384e55;
+  --ok: #434e3a;
+  --ok-soft: #e9efe3;
+  --warn: #554932;
+  --warn-soft: #f9f0de;
+  --error: #723a40;
+  --error-soft: #f0d9db;
+  --info-soft: #e8f3f6;
+  --code-bg: #cdd2d1;
+  --syntax-key: #435e66;
+  --syntax-string: #66583d;
+  --syntax-number: #515e46;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4a554f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #384e55;
   --control-radius: 4px;
   --sidebar-width: 288px;
   --app-mark-radius: 4px;
@@ -1617,6 +1958,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 5px;
 }
 
+/* One Dark - light mode */
+:root[data-style="one-dark"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d5d8d4;
+  --activity-bg: #d5d8d4;
+  --sidebar-bg: #dcdfdc;
+  --editor-bg: #eeeeef;
+  --tabbar-bg: #d5d8d4;
+  --tab-active-bg: #eeeeef;
+  --tab-inactive-bg: #d5d8d4;
+  --statusbar-bg: #d5d8d4;
+  --input-bg: #f1f1f2;
+  --input-bg-focus: #ffffff;
+  --input-border: #878c8a;
+  --badge-bg: #d6d6d7;
+  --hover-bg: #d1d6d3;
+  --hover-bg-soft: #e0e2e1;
+  --selected-bg: #cbd2cb;
+  --border: #767a79;
+  --border-strong: #5b615f;
+  --fg: #39423f;
+  --fg-strong: #1f2523;
+  --fg-muted: #3b423f;
+  --fg-faint: #3c4240;
+  --accent: #25435c;
+  --link: #26435c;
+  --focus-border: #25435c;
+  --focus: #25435c;
+  --ok: #36452b;
+  --ok-soft: #e6f1df;
+  --warn: #4b3f29;
+  --warn-soft: #f8edd9;
+  --error: #692e33;
+  --error-soft: #f9dadd;
+  --info-soft: #e1f0fc;
+  --code-bg: #cdd1d0;
+  --syntax-key: #345d80;
+  --syntax-string: #685738;
+  --syntax-number: #4a603b;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #424e49;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #25435c;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
 /* Gruvbox Dark - dark */
 :root[data-style="gruvbox-dark"] {
   color-scheme: dark;
@@ -1666,6 +2061,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 3px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 3px;
+}
+
+/* Gruvbox Dark - light mode */
+:root[data-style="gruvbox-dark"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d7d3;
+  --activity-bg: #d4d7d3;
+  --sidebar-bg: #dcdedb;
+  --editor-bg: #eeeeee;
+  --tabbar-bg: #d4d7d3;
+  --tab-active-bg: #eeeeee;
+  --tab-inactive-bg: #d4d7d3;
+  --statusbar-bg: #d4d7d3;
+  --input-bg: #f1f1f1;
+  --input-bg-focus: #ffffff;
+  --input-border: #888c88;
+  --badge-bg: #d6d6d6;
+  --hover-bg: #d2d6d2;
+  --hover-bg-soft: #e0e2e0;
+  --selected-bg: #ced4ca;
+  --border: #767a76;
+  --border-strong: #646a64;
+  --fg: #40483d;
+  --fg-strong: #232822;
+  --fg-muted: #4e564f;
+  --fg-faint: #505551;
+  --accent: #6a5014;
+  --link: #6a5014;
+  --focus-border: #6a5014;
+  --focus: #6a5014;
+  --ok: #565712;
+  --ok-soft: #eeefcb;
+  --warn: #6a5014;
+  --warn-soft: #feecc3;
+  --error: #9a2d20;
+  --error-soft: #fed3ce;
+  --info-soft: #fef2d7;
+  --code-bg: #cdd1cd;
+  --syntax-key: #715515;
+  --syntax-string: #715515;
+  --syntax-number: #5b5d13;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4a5348;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #6a5014;
   --control-radius: 3px;
   --sidebar-width: 288px;
   --app-mark-radius: 3px;
@@ -1725,6 +2174,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* Kanagawa - light mode */
+:root[data-style="kanagawa"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d2;
+  --activity-bg: #d3d6d2;
+  --sidebar-bg: #dbdddb;
+  --editor-bg: #ededee;
+  --tabbar-bg: #d3d6d2;
+  --tab-active-bg: #ededee;
+  --tab-inactive-bg: #d3d6d2;
+  --statusbar-bg: #d3d6d2;
+  --input-bg: #f0f0f1;
+  --input-bg-focus: #ffffff;
+  --input-border: #878c89;
+  --badge-bg: #d5d5d6;
+  --hover-bg: #d0d5d2;
+  --hover-bg-soft: #dfe1e0;
+  --selected-bg: #cad1ca;
+  --border: #767977;
+  --border-strong: #585c5b;
+  --fg: #323a32;
+  --fg-strong: #222822;
+  --fg-muted: #343938;
+  --fg-faint: #353938;
+  --accent: #2e384e;
+  --link: #2e384e;
+  --focus-border: #2e384e;
+  --focus: #2e384e;
+  --ok: #303c22;
+  --ok-soft: #e6efdc;
+  --warn: #403725;
+  --warn-soft: #f8eedc;
+  --error: #5a292f;
+  --error-soft: #f9dbde;
+  --info-soft: #e6ecf8;
+  --code-bg: #cbcecd;
+  --syntax-key: #475879;
+  --syntax-string: #65553a;
+  --syntax-number: #4c5d36;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #485248;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #2e384e;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* Rose Pine - dark */
 :root[data-style="rose-pine"] {
   color-scheme: dark;
@@ -1774,6 +2277,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
+/* Rose Pine - light mode */
+:root[data-style="rose-pine"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d3;
+  --activity-bg: #d3d6d3;
+  --sidebar-bg: #dbdcda;
+  --editor-bg: #edeced;
+  --tabbar-bg: #d3d6d3;
+  --tab-active-bg: #edeced;
+  --tab-inactive-bg: #d3d6d3;
+  --statusbar-bg: #d3d6d3;
+  --input-bg: #f0f0f1;
+  --input-bg-focus: #ffffff;
+  --input-border: #878b8b;
+  --badge-bg: #d5d4d5;
+  --hover-bg: #d0d4d2;
+  --hover-bg-soft: #dfe0e0;
+  --selected-bg: #cbd2cc;
+  --border: #757979;
+  --border-strong: #5e6463;
+  --fg: #3f4845;
+  --fg-strong: #232826;
+  --fg-muted: #424a47;
+  --fg-faint: #454948;
+  --accent: #4f435d;
+  --link: #4f435d;
+  --focus-border: #4f435d;
+  --focus: #4f435d;
+  --ok: #394b4f;
+  --ok-soft: #e7f3f6;
+  --warn: #58452b;
+  --warn-soft: #fcedd8;
+  --error: #713546;
+  --error-soft: #fadce5;
+  --info-soft: #f4eefa;
+  --code-bg: #cacdcd;
+  --syntax-key: #605171;
+  --syntax-string: #6a5333;
+  --syntax-number: #455b5f;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #49534f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #4f435d;
   --control-radius: 6px;
   --sidebar-width: 288px;
   --app-mark-radius: 6px;
@@ -1833,6 +2390,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 6px;
 }
 
+/* Rose Pine Dawn - dark mode */
+:root[data-style="rose-pine-dawn"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2c2d;
+  --activity-bg: #2a2c2d;
+  --sidebar-bg: #303435;
+  --editor-bg: #242728;
+  --tabbar-bg: #2a2c2d;
+  --tab-active-bg: #242728;
+  --tab-inactive-bg: #2a2c2d;
+  --statusbar-bg: #2a2c2d;
+  --input-bg: #212526;
+  --input-bg-focus: #212526;
+  --input-border: #696f6f;
+  --badge-bg: #3a3d3e;
+  --hover-bg: #394040;
+  --hover-bg-soft: #2f3434;
+  --selected-bg: #415146;
+  --border: #787d7d;
+  --border-strong: #b5b8b8;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #2b3639;
+  --warn: #ffffff;
+  --warn-soft: #443a2a;
+  --error: #ffffff;
+  --error-soft: #382f33;
+  --info-soft: #33333a;
+  --code-bg: #222627;
+  --syntax-key: #9883af;
+  --syntax-string: #ea9d34;
+  --syntax-number: #57959f;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #bac2c3;
+  --accent-fg: #000000;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
 /* Pico CSS - dark */
 :root[data-style="pico"] {
   color-scheme: dark;
@@ -1882,6 +2493,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
+/* Pico CSS - light mode */
+:root[data-style="pico"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d5d2;
+  --activity-bg: #d2d5d2;
+  --sidebar-bg: #dadcda;
+  --editor-bg: #ececed;
+  --tabbar-bg: #d2d5d2;
+  --tab-active-bg: #ececed;
+  --tab-inactive-bg: #d2d5d2;
+  --statusbar-bg: #d2d5d2;
+  --input-bg: #eeeeef;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a88;
+  --badge-bg: #d4d4d5;
+  --hover-bg: #cfd4d1;
+  --hover-bg-soft: #dee0df;
+  --selected-bg: #c6d0ca;
+  --border: #737877;
+  --border-strong: #505453;
+  --fg: #242a27;
+  --fg-strong: #202724;
+  --fg-muted: #252927;
+  --fg-faint: #272929;
+  --accent: #052c3a;
+  --link: #052c3a;
+  --focus-border: #052c3a;
+  --focus: #052c3a;
+  --ok: #112e13;
+  --ok-soft: #cde0ce;
+  --warn: #352600;
+  --warn-soft: #eddeb6;
+  --error: #4c1616;
+  --error-soft: #f3d0d0;
+  --info-soft: #d1ebf3;
+  --code-bg: #cacfce;
+  --syntax-key: #0a5f7c;
+  --syntax-string: #725300;
+  --syntax-number: #256428;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #45504b;
+  --accent-fg: #ffffff;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #052c3a;
   --control-radius: 5px;
   --sidebar-width: 288px;
   --app-mark-radius: 5px;
@@ -1941,6 +2606,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* Water.css - light mode */
+:root[data-style="water"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d7d4;
+  --activity-bg: #d4d7d4;
+  --sidebar-bg: #dbdfdd;
+  --editor-bg: #edeeef;
+  --tabbar-bg: #d4d7d4;
+  --tab-active-bg: #edeeef;
+  --tab-inactive-bg: #d4d7d4;
+  --statusbar-bg: #d4d7d4;
+  --input-bg: #efeff0;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b89;
+  --badge-bg: #d5d6d7;
+  --hover-bg: #d0d6d3;
+  --hover-bg-soft: #dfe2e1;
+  --selected-bg: #c8d3cd;
+  --border: #757a79;
+  --border-strong: #474a49;
+  --fg: #0d0f0e;
+  --fg-strong: #0d0f0e;
+  --fg-muted: #0e0f0f;
+  --fg-faint: #0f0f0f;
+  --accent: #040f21;
+  --link: #040f21;
+  --focus-border: #040f21;
+  --focus: #040f21;
+  --ok: #051108;
+  --ok-soft: #ceedd6;
+  --warn: #140e00;
+  --warn-soft: #f6e5b6;
+  --error: #200707;
+  --error-soft: #ffd0d0;
+  --info-soft: #d4e3fb;
+  --code-bg: #cbd1cf;
+  --syntax-key: #1855b5;
+  --syntax-string: #735400;
+  --syntax-number: #1c6631;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #48534c;
+  --accent-fg: #ffffff;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #040f21;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* Simple.css - dark */
 :root[data-style="simple-css"] {
   color-scheme: dark;
@@ -1990,6 +2709,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 3px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 3px;
+}
+
+/* Simple.css - light mode */
+:root[data-style="simple-css"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d6d2;
+  --activity-bg: #d4d6d2;
+  --sidebar-bg: #dbddda;
+  --editor-bg: #ededed;
+  --tabbar-bg: #d4d6d2;
+  --tab-active-bg: #ededed;
+  --tab-inactive-bg: #d4d6d2;
+  --statusbar-bg: #d4d6d2;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b87;
+  --badge-bg: #d5d5d5;
+  --hover-bg: #d0d5d0;
+  --hover-bg-soft: #dfe1df;
+  --selected-bg: #c9d1ca;
+  --border: #747976;
+  --border-strong: #4f5350;
+  --fg: #202522;
+  --fg-strong: #202522;
+  --fg-muted: #212522;
+  --fg-faint: #222423;
+  --accent: #102343;
+  --link: #102343;
+  --focus-border: #102343;
+  --focus: #102343;
+  --ok: #072a14;
+  --ok-soft: #caf1d8;
+  --warn: #2d2302;
+  --warn-soft: #f9e9b8;
+  --error: #441313;
+  --error-soft: #fbd2d2;
+  --info-soft: #d9e7fd;
+  --code-bg: #cbd0cd;
+  --syntax-key: #2757a4;
+  --syntax-string: #6f5504;
+  --syntax-number: #126631;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #48534d;
+  --accent-fg: #ffffff;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #102343;
   --control-radius: 3px;
   --sidebar-width: 288px;
   --app-mark-radius: 3px;
@@ -2049,6 +2822,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 2px;
 }
 
+/* MVP.css - light mode */
+:root[data-style="mvp-css"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d5d1;
+  --activity-bg: #d2d5d1;
+  --sidebar-bg: #dadcd9;
+  --editor-bg: #ececed;
+  --tabbar-bg: #d2d5d1;
+  --tab-active-bg: #ececed;
+  --tab-inactive-bg: #d2d5d1;
+  --statusbar-bg: #d2d5d1;
+  --input-bg: #eeeeee;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a88;
+  --badge-bg: #d4d4d5;
+  --hover-bg: #ced3cf;
+  --hover-bg-soft: #dde0de;
+  --selected-bg: #c6cfc8;
+  --border: #747876;
+  --border-strong: #404241;
+  --fg: #000000;
+  --fg-strong: #000000;
+  --fg-muted: #000000;
+  --fg-faint: #000000;
+  --accent: #000000;
+  --link: #000000;
+  --focus-border: #000000;
+  --focus: #000000;
+  --ok: #000000;
+  --ok-soft: #cde2d7;
+  --warn: #000000;
+  --warn-soft: #ead8be;
+  --error: #000000;
+  --error-soft: #f1cdcd;
+  --info-soft: #d6e3f0;
+  --code-bg: #cacecc;
+  --syntax-key: #235a8f;
+  --syntax-string: #784f14;
+  --syntax-number: #236243;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #46524c;
+  --accent-fg: #ffffff;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: ui-monospace,Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #000000;
+  --control-radius: 2px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 2px;
+}
+
 /* Tufte CSS - light */
 :root[data-style="tufte"] {
   color-scheme: light;
@@ -2098,6 +2925,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Times New Roman","Palatino Linotype",Palatino,"Book Antiqua",serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #000000;
+  --control-radius: 0px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 0px;
+}
+
+/* Tufte CSS - dark mode */
+:root[data-style="tufte"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2d2d;
+  --activity-bg: #2a2d2d;
+  --sidebar-bg: #313536;
+  --editor-bg: #242829;
+  --tabbar-bg: #2a2d2d;
+  --tab-active-bg: #242829;
+  --tab-inactive-bg: #2a2d2d;
+  --statusbar-bg: #2a2d2d;
+  --input-bg: #202526;
+  --input-bg-focus: #202526;
+  --input-border: #696f6f;
+  --badge-bg: #3a3e3e;
+  --hover-bg: #394140;
+  --hover-bg-soft: #2f3535;
+  --selected-bg: #435345;
+  --border: #787e7e;
+  --border-strong: #979d9b;
+  --fg: #d1d6d3;
+  --fg-strong: #dfe2e0;
+  --fg-muted: #bcc2be;
+  --fg-faint: #bdc1be;
+  --accent: #e3b5b5;
+  --link: #e3b5b5;
+  --focus-border: #e3b5b5;
+  --focus: #e3b5b5;
+  --ok: #b2c6b2;
+  --ok-soft: #253029;
+  --warn: #cdc091;
+  --warn-soft: #343322;
+  --error: #e3b5b5;
+  --error-soft: #352223;
+  --info-soft: #352223;
+  --code-bg: #212627;
+  --syntax-key: #cb7272;
+  --syntax-string: #a18a32;
+  --syntax-number: #719471;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b1bab6;
+  --accent-fg: #000000;
+  --font-ui: "Times New Roman","Palatino Linotype",Palatino,"Book Antiqua",serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #e3b5b5;
   --control-radius: 0px;
   --sidebar-width: 288px;
   --app-mark-radius: 0px;
@@ -2157,6 +3038,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 0px;
 }
 
+/* Phosphor Terminal - light mode */
+:root[data-style="terminal-green"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d4d0;
+  --activity-bg: #d1d4d0;
+  --sidebar-bg: #d9dbd7;
+  --editor-bg: #ebeceb;
+  --tabbar-bg: #d1d4d0;
+  --tab-active-bg: #ebeceb;
+  --tab-inactive-bg: #d1d4d0;
+  --statusbar-bg: #d1d4d0;
+  --input-bg: #eeeeee;
+  --input-bg-focus: #ffffff;
+  --input-border: #808c83;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #cdd3cd;
+  --hover-bg-soft: #dce0dc;
+  --selected-bg: #c4d1c3;
+  --border: #6f7971;
+  --border-strong: #5d6c61;
+  --fg: #2a4c34;
+  --fg-strong: #172a1d;
+  --fg-muted: #465d4e;
+  --fg-faint: #4b5b51;
+  --accent: #146529;
+  --link: #146529;
+  --focus-border: #146529;
+  --focus: #146529;
+  --ok: #146529;
+  --ok-soft: #ceffda;
+  --warn: #456013;
+  --warn-soft: #eaffc4;
+  --error: #9d341f;
+  --error-soft: #ffd6ce;
+  --info-soft: #d8ffe2;
+  --code-bg: #c7d3ca;
+  --syntax-key: #156729;
+  --syntax-string: #466214;
+  --syntax-number: #156729;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #34573e;
+  --accent-fg: #ffffff;
+  --font-ui: "Cascadia Code",Consolas,"Courier New","Segoe UI",monospace;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #146529;
+  --control-radius: 0px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 0px;
+}
+
 /* Solarized Dark - dark */
 :root[data-style="solarized-dark"] {
   color-scheme: dark;
@@ -2206,6 +3141,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 3px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 3px;
+}
+
+/* Solarized Dark - light mode */
+:root[data-style="solarized-dark"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d8d4;
+  --activity-bg: #d1d8d4;
+  --sidebar-bg: #d8dfdc;
+  --editor-bg: #ebeeef;
+  --tabbar-bg: #d1d8d4;
+  --tab-active-bg: #ebeeef;
+  --tab-inactive-bg: #d1d8d4;
+  --statusbar-bg: #d1d8d4;
+  --input-bg: #edf0f0;
+  --input-bg-focus: #ffffff;
+  --input-border: #818c8a;
+  --badge-bg: #d4d6d7;
+  --hover-bg: #ccd6d3;
+  --hover-bg-soft: #dce2e1;
+  --selected-bg: #c3d4cd;
+  --border: #717b7a;
+  --border-strong: #4d5453;
+  --fg: #1f2623;
+  --fg-strong: #1d2320;
+  --fg-muted: #202523;
+  --fg-faint: #222524;
+  --accent: #0b263a;
+  --link: #0a263a;
+  --focus-border: #0b263a;
+  --focus: #0b263a;
+  --ok: #222700;
+  --ok-soft: #e2e7c2;
+  --warn: #2f2300;
+  --warn-soft: #eaddb6;
+  --error: #48100f;
+  --error-soft: #f7cecd;
+  --info-soft: #d5e9f6;
+  --code-bg: #c6d1d0;
+  --syntax-key: #195c8c;
+  --syntax-string: #705400;
+  --syntax-number: #525e00;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #3f4c45;
+  --accent-fg: #ffffff;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #0b263a;
   --control-radius: 3px;
   --sidebar-width: 288px;
   --app-mark-radius: 3px;
@@ -2265,6 +3254,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 3px;
 }
 
+/* Solarized Light - dark mode */
+:root[data-style="solarized-light"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2c2b;
+  --activity-bg: #2a2c2b;
+  --sidebar-bg: #313434;
+  --editor-bg: #242727;
+  --tabbar-bg: #2a2c2b;
+  --tab-active-bg: #242727;
+  --tab-inactive-bg: #2a2c2b;
+  --statusbar-bg: #2a2c2b;
+  --input-bg: #212526;
+  --input-bg-focus: #212526;
+  --input-border: #696f6d;
+  --badge-bg: #3a3d3d;
+  --hover-bg: #39403f;
+  --hover-bg-soft: #2f3433;
+  --selected-bg: #425143;
+  --border: #787d7b;
+  --border-strong: #b5b8b6;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #323722;
+  --warn: #ffffff;
+  --warn-soft: #3b3721;
+  --error: #ffffff;
+  --error-soft: #3e2928;
+  --info-soft: #24353f;
+  --code-bg: #222626;
+  --syntax-key: #3292d5;
+  --syntax-string: #b58900;
+  --syntax-number: #859900;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #bac5c2;
+  --accent-fg: #000000;
+  --font-ui: system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
+  --control-radius: 3px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 3px;
+}
+
 /* Mono Paper - light */
 :root[data-style="mono-paper"] {
   color-scheme: light;
@@ -2314,6 +3357,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #000000;
+  --control-radius: 0px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 0px;
+}
+
+/* Mono Paper - dark mode */
+:root[data-style="mono-paper"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2d2f;
+  --activity-bg: #2a2d2f;
+  --sidebar-bg: #303537;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2a2d2f;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2a2d2f;
+  --statusbar-bg: #2a2d2f;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #696f70;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #394142;
+  --hover-bg-soft: #2f3536;
+  --selected-bg: #415146;
+  --border: #787e7f;
+  --border-strong: #959b9a;
+  --fg: #cdd2cf;
+  --fg-strong: #dce0dd;
+  --fg-muted: #b8bfbb;
+  --fg-faint: #babfbc;
+  --accent: #bebebe;
+  --link: #bebebe;
+  --focus-border: #bebebe;
+  --focus: #bebebe;
+  --ok: #bebebe;
+  --ok-soft: #212527;
+  --warn: #c9bd97;
+  --warn-soft: #323023;
+  --error: #e7b0b0;
+  --error-soft: #382224;
+  --info-soft: #212527;
+  --code-bg: #222628;
+  --syntax-key: #8c8c8c;
+  --syntax-string: #9f8a47;
+  --syntax-number: #8c8c8c;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b1bab6;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #bebebe;
   --control-radius: 0px;
   --sidebar-width: 288px;
   --app-mark-radius: 0px;
@@ -2373,6 +3470,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 8px;
 }
 
+/* Linear - light mode */
+:root[data-style="linear"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d5d1;
+  --activity-bg: #d2d5d1;
+  --sidebar-bg: #dadbd8;
+  --editor-bg: #ececec;
+  --tabbar-bg: #d2d5d1;
+  --tab-active-bg: #ececec;
+  --tab-inactive-bg: #d2d5d1;
+  --statusbar-bg: #d2d5d1;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #878b89;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #ced3cf;
+  --hover-bg-soft: #dde0de;
+  --selected-bg: #c7cec8;
+  --border: #757876;
+  --border-strong: #4d504e;
+  --fg: #1b1f1d;
+  --fg-strong: #1b1f1c;
+  --fg-muted: #1c1f1e;
+  --fg-faint: #1d1e1e;
+  --accent: #1e1a3b;
+  --link: #1e1a3b;
+  --focus-border: #1e1a3b;
+  --focus: #1e1a3b;
+  --ok: #0a2218;
+  --ok-soft: #d1f3e4;
+  --warn: #271d07;
+  --warn-soft: #fbe9c1;
+  --error: #371313;
+  --error-soft: #fbd5d5;
+  --info-soft: #e6e3fc;
+  --code-bg: #cacdcb;
+  --syntax-key: #554aa5;
+  --syntax-string: #6e5313;
+  --syntax-number: #1e6244;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4a544e;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #1e1a3b;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
 /* Vercel / Geist - dark */
 :root[data-style="vercel-geist"] {
   color-scheme: dark;
@@ -2422,6 +3573,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
+/* Vercel / Geist - light mode */
+:root[data-style="vercel-geist"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d3cf;
+  --activity-bg: #d1d3cf;
+  --sidebar-bg: #d9dbd7;
+  --editor-bg: #ebebeb;
+  --tabbar-bg: #d1d3cf;
+  --tab-active-bg: #ebebeb;
+  --tab-inactive-bg: #d1d3cf;
+  --statusbar-bg: #d1d3cf;
+  --input-bg: #eeeeee;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a86;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #ced3ce;
+  --hover-bg-soft: #dddfdd;
+  --selected-bg: #c8cfc5;
+  --border: #737774;
+  --border-strong: #636a66;
+  --fg: #414a44;
+  --fg-strong: #242925;
+  --fg-muted: #505954;
+  --fg-faint: #535955;
+  --accent: #575757;
+  --link: #575757;
+  --focus-border: #575757;
+  --focus: #575757;
+  --ok: #006443;
+  --ok-soft: #c2f9e7;
+  --warn: #765011;
+  --warn-soft: #fce5c0;
+  --error: #9e3030;
+  --error-soft: #ffd4d4;
+  --info-soft: #ffffff;
+  --code-bg: #cbcfcb;
+  --syntax-key: #585858;
+  --syntax-string: #775011;
+  --syntax-number: #006544;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4a554f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #575757;
   --control-radius: 6px;
   --sidebar-width: 288px;
   --app-mark-radius: 6px;
@@ -2481,6 +3686,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 8px;
 }
 
+/* shadcn/ui Neutral - light mode */
+:root[data-style="shadcn-neutral"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d4d0;
+  --activity-bg: #d2d4d0;
+  --sidebar-bg: #dadbd8;
+  --editor-bg: #ebebeb;
+  --tabbar-bg: #d2d4d0;
+  --tab-active-bg: #ebebeb;
+  --tab-inactive-bg: #d2d4d0;
+  --statusbar-bg: #d2d4d0;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b88;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #cfd3cf;
+  --hover-bg-soft: #dddfdd;
+  --selected-bg: #c7cec5;
+  --border: #747875;
+  --border-strong: #646a67;
+  --fg: #424c46;
+  --fg-strong: #242a27;
+  --fg-muted: #505955;
+  --fg-faint: #525855;
+  --accent: #565656;
+  --link: #565656;
+  --focus-border: #565656;
+  --focus: #565656;
+  --ok: #116430;
+  --ok-soft: #caf1d8;
+  --warn: #6d5304;
+  --warn-soft: #f9e9b8;
+  --error: #9f2d2d;
+  --error-soft: #fbd2d2;
+  --info-soft: #fefefe;
+  --code-bg: #c9cecb;
+  --syntax-key: #575757;
+  --syntax-string: #6d5404;
+  --syntax-number: #116430;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4c5650;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #565656;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
 /* Tailwind Slate - dark */
 :root[data-style="tailwind-slate"] {
   color-scheme: dark;
@@ -2530,6 +3789,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
+/* Tailwind Slate - light mode */
+:root[data-style="tailwind-slate"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d5d3;
+  --activity-bg: #d2d5d3;
+  --sidebar-bg: #dadddc;
+  --editor-bg: #ececee;
+  --tabbar-bg: #d2d5d3;
+  --tab-active-bg: #ececee;
+  --tab-inactive-bg: #d2d5d3;
+  --statusbar-bg: #d2d5d3;
+  --input-bg: #eeeeef;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a89;
+  --badge-bg: #d4d4d6;
+  --hover-bg: #cfd5d2;
+  --hover-bg-soft: #dee1e0;
+  --selected-bg: #c6d1ce;
+  --border: #737977;
+  --border-strong: #4e5352;
+  --fg: #202522;
+  --fg-strong: #202522;
+  --fg-muted: #202524;
+  --fg-faint: #222424;
+  --accent: #102343;
+  --link: #102343;
+  --focus-border: #102343;
+  --focus: #102343;
+  --ok: #072a14;
+  --ok-soft: #caf1d8;
+  --warn: #322002;
+  --warn-soft: #fce3b9;
+  --error: #441313;
+  --error-soft: #fbd2d2;
+  --info-soft: #d9e7fd;
+  --code-bg: #c9cece;
+  --syntax-key: #2755a2;
+  --syntax-string: #7a4e05;
+  --syntax-number: #126530;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #49544f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #102343;
   --control-radius: 6px;
   --sidebar-width: 288px;
   --app-mark-radius: 6px;
@@ -2589,6 +3902,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* Notion - dark mode */
+:root[data-style="notion"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2e30;
+  --activity-bg: #2b2e30;
+  --sidebar-bg: #303536;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2b2e30;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2b2e30;
+  --statusbar-bg: #2b2e30;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f6f;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #394141;
+  --hover-bg-soft: #2f3536;
+  --selected-bg: #425348;
+  --border: #777e7e;
+  --border-strong: #b4b8b8;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #21342d;
+  --warn: #ffffff;
+  --warn-soft: #3c3823;
+  --error: #ffffff;
+  --error-soft: #3d2d2e;
+  --info-soft: #243544;
+  --code-bg: #222628;
+  --syntax-key: #378fe5;
+  --syntax-string: #b98900;
+  --syntax-number: #499b6d;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b6beba;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* Supabase - dark */
 :root[data-style="supabase"] {
   color-scheme: dark;
@@ -2638,6 +4005,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
+/* Supabase - light mode */
+:root[data-style="supabase"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d2d5d0;
+  --activity-bg: #d2d5d0;
+  --sidebar-bg: #dadcd9;
+  --editor-bg: #ececec;
+  --tabbar-bg: #d2d5d0;
+  --tab-active-bg: #ececec;
+  --tab-inactive-bg: #d2d5d0;
+  --statusbar-bg: #d2d5d0;
+  --input-bg: #eeeeee;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a86;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #cfd3cf;
+  --hover-bg-soft: #dee0de;
+  --selected-bg: #c6d2c6;
+  --border: #747875;
+  --border-strong: #5e6460;
+  --fg: #414a44;
+  --fg-strong: #242925;
+  --fg-muted: #444c47;
+  --fg-faint: #464b48;
+  --accent: #19543a;
+  --link: #19543a;
+  --focus-border: #19543a;
+  --focus: #19543a;
+  --ok: #19543a;
+  --ok-soft: #d1f3e4;
+  --warn: #62450e;
+  --warn-soft: #ffe9c0;
+  --error: #812f2f;
+  --error-soft: #ffd8d8;
+  --info-soft: #daf6e9;
+  --code-bg: #caceca;
+  --syntax-key: #1e6344;
+  --syntax-string: #745110;
+  --syntax-number: #1e6344;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4a554f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #19543a;
   --control-radius: 8px;
   --sidebar-width: 288px;
   --app-mark-radius: 8px;
@@ -2697,6 +4118,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* Fluent 2 (Microsoft) - light mode */
+:root[data-style="fluent-2"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d5d8d4;
+  --activity-bg: #d5d8d4;
+  --sidebar-bg: #dcdeda;
+  --editor-bg: #ededed;
+  --tabbar-bg: #d5d8d4;
+  --tab-active-bg: #ededed;
+  --tab-inactive-bg: #d5d8d4;
+  --statusbar-bg: #d5d8d4;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b87;
+  --badge-bg: #d5d5d5;
+  --hover-bg: #d1d5d1;
+  --hover-bg-soft: #dfe1df;
+  --selected-bg: #c6d0cb;
+  --border: #767a77;
+  --border-strong: #4f5351;
+  --fg: #202421;
+  --fg-strong: #202422;
+  --fg-muted: #202422;
+  --fg-faint: #222322;
+  --accent: #0c243a;
+  --link: #0b243a;
+  --focus-border: #0c243a;
+  --focus: #0c243a;
+  --ok: #132713;
+  --ok-soft: #d6ecd6;
+  --warn: #282300;
+  --warn-soft: #fef6b6;
+  --error: #381a1d;
+  --error-soft: #fcdddf;
+  --info-soft: #d6e8f8;
+  --code-bg: #ccd0cd;
+  --syntax-key: #1d5c91;
+  --syntax-string: #645900;
+  --syntax-number: #306430;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4c5751;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #0c243a;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* IBM Carbon - dark */
 :root[data-style="carbon"] {
   color-scheme: dark;
@@ -2746,6 +4221,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #dee9ff;
+  --control-radius: 0px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 0px;
+}
+
+/* IBM Carbon - light mode */
+:root[data-style="carbon"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d5d8d3;
+  --activity-bg: #d5d8d3;
+  --sidebar-bg: #dadcd8;
+  --editor-bg: #ececec;
+  --tabbar-bg: #d5d8d3;
+  --tab-active-bg: #ececec;
+  --tab-inactive-bg: #d5d8d3;
+  --statusbar-bg: #d5d8d3;
+  --input-bg: #f0f0f0;
+  --input-bg-focus: #ffffff;
+  --input-border: #878c87;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #d0d4d0;
+  --hover-bg-soft: #dee0de;
+  --selected-bg: #c6d1cf;
+  --border: #777a77;
+  --border-strong: #424442;
+  --fg: #010201;
+  --fg-strong: #010201;
+  --fg-muted: #010201;
+  --fg-faint: #010201;
+  --accent: #000204;
+  --link: #000204;
+  --focus-border: #000204;
+  --focus: #000204;
+  --ok: #010201;
+  --ok-soft: #d2efda;
+  --warn: #020100;
+  --warn-soft: #fbedbd;
+  --error: #040102;
+  --error-soft: #fed4d6;
+  --info-soft: #d1e1ff;
+  --code-bg: #ccd0cc;
+  --syntax-key: #0c4ecb;
+  --syntax-string: #6b560c;
+  --syntax-number: #236536;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4b564f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #000204;
   --control-radius: 0px;
   --sidebar-width: 288px;
   --app-mark-radius: 0px;
@@ -2805,6 +4334,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 5px;
 }
 
+/* Atlassian Design - light mode */
+:root[data-style="atlassian"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d2;
+  --activity-bg: #d3d6d2;
+  --sidebar-bg: #dbddda;
+  --editor-bg: #ededee;
+  --tabbar-bg: #d3d6d2;
+  --tab-active-bg: #ededee;
+  --tab-inactive-bg: #d3d6d2;
+  --statusbar-bg: #d3d6d2;
+  --input-bg: #f0f0f0;
+  --input-bg-focus: #ffffff;
+  --input-border: #868c89;
+  --badge-bg: #d5d5d6;
+  --hover-bg: #cfd4d0;
+  --hover-bg-soft: #dee1df;
+  --selected-bg: #c6d2ce;
+  --border: #747977;
+  --border-strong: #404341;
+  --fg: #000000;
+  --fg-strong: #000000;
+  --fg-muted: #000000;
+  --fg-faint: #000000;
+  --accent: #000000;
+  --link: #000000;
+  --focus-border: #000000;
+  --focus: #000000;
+  --ok: #000000;
+  --ok-soft: #d4f3e6;
+  --warn: #000000;
+  --warn-soft: #f7e9b6;
+  --error: #000000;
+  --error-soft: #fddddb;
+  --info-soft: #d0e2fa;
+  --code-bg: #cbd0ce;
+  --syntax-key: #0a53bb;
+  --syntax-string: #6d5601;
+  --syntax-number: #246349;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #44504b;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #000000;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
 /* Material 3 - dark */
 :root[data-style="material-3"] {
   color-scheme: dark;
@@ -2854,6 +4437,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 12px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 12px;
+}
+
+/* Material 3 - light mode */
+:root[data-style="material-3"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d5d2;
+  --activity-bg: #d3d5d2;
+  --sidebar-bg: #dbddda;
+  --editor-bg: #ededed;
+  --tabbar-bg: #d3d5d2;
+  --tab-active-bg: #ededed;
+  --tab-inactive-bg: #d3d5d2;
+  --statusbar-bg: #d3d5d2;
+  --input-bg: #f0f0f1;
+  --input-bg-focus: #ffffff;
+  --input-border: #878c89;
+  --badge-bg: #d5d5d5;
+  --hover-bg: #d0d5d1;
+  --hover-bg-soft: #dfe1df;
+  --selected-bg: #cdd3cd;
+  --border: #757876;
+  --border-strong: #636866;
+  --fg: #404943;
+  --fg-strong: #232825;
+  --fg-muted: #4e5552;
+  --fg-faint: #505554;
+  --accent: #584f6c;
+  --link: #584f6c;
+  --focus-border: #584f6c;
+  --focus: #584f6c;
+  --ok: #435949;
+  --ok-soft: #eefdf2;
+  --warn: #63521f;
+  --warn-soft: #fff3cc;
+  --error: #6c4c49;
+  --error-soft: #ffedeb;
+  --info-soft: #f6f2ff;
+  --code-bg: #ced2cf;
+  --syntax-key: #5f5574;
+  --syntax-string: #6a5821;
+  --syntax-number: #485f4e;
+  --radius: 12px;
+  --radius-sm: 12px;
+  --radius-md: 12px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #49534e;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #584f6c;
   --control-radius: 12px;
   --sidebar-width: 288px;
   --app-mark-radius: 12px;
@@ -2913,6 +4550,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 8px;
 }
 
+/* Shopify Polaris - light mode */
+:root[data-style="polaris"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d1;
+  --activity-bg: #d3d6d1;
+  --sidebar-bg: #dbddda;
+  --editor-bg: #ededed;
+  --tabbar-bg: #d3d6d1;
+  --tab-active-bg: #ededed;
+  --tab-inactive-bg: #d3d6d1;
+  --statusbar-bg: #d3d6d1;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b87;
+  --badge-bg: #d5d5d5;
+  --hover-bg: #d0d4d0;
+  --hover-bg-soft: #dfe1df;
+  --selected-bg: #c6d2c7;
+  --border: #757976;
+  --border-strong: #434644;
+  --fg: #060707;
+  --fg-strong: #060707;
+  --fg-muted: #060707;
+  --fg-faint: #060707;
+  --accent: #000907;
+  --link: #000907;
+  --focus-border: #000907;
+  --focus: #000907;
+  --ok: #000907;
+  --ok-soft: #c2e1d9;
+  --warn: #090700;
+  --warn-soft: #ebddb6;
+  --error: #110401;
+  --error-soft: #f5ccc5;
+  --info-soft: #cee7e0;
+  --code-bg: #cbd0cc;
+  --syntax-key: #00654c;
+  --syntax-string: #725400;
+  --syntax-number: #00654c;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #49544d;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #000907;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
 /* Dracula - dark */
 :root[data-style="dracula"] {
   color-scheme: dark;
@@ -2962,6 +4653,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
+/* Dracula - light mode */
+:root[data-style="dracula"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d5d7d4;
+  --activity-bg: #d5d7d4;
+  --sidebar-bg: #dcdedc;
+  --editor-bg: #eeeeef;
+  --tabbar-bg: #d5d7d4;
+  --tab-active-bg: #eeeeef;
+  --tab-inactive-bg: #d5d7d4;
+  --statusbar-bg: #d5d7d4;
+  --input-bg: #eff0f0;
+  --input-bg-focus: #ffffff;
+  --input-border: #878b89;
+  --badge-bg: #d6d6d7;
+  --hover-bg: #d2d6d4;
+  --hover-bg-soft: #e0e2e2;
+  --selected-bg: #ccd3cd;
+  --border: #767a79;
+  --border-strong: #5b605f;
+  --fg: #39413b;
+  --fg-strong: #242a26;
+  --fg-muted: #3a413f;
+  --fg-faint: #3c403f;
+  --accent: #483860;
+  --link: #48385f;
+  --focus-border: #483860;
+  --focus: #483860;
+  --ok: #174824;
+  --ok-soft: #d5fedf;
+  --warn: #523b23;
+  --warn-soft: #ffebd5;
+  --error: #712626;
+  --error-soft: #ffd6d6;
+  --info-soft: #f2eafe;
+  --code-bg: #ced3d1;
+  --syntax-key: #675088;
+  --syntax-string: #755432;
+  --syntax-number: #216733;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4c564f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #483860;
   --control-radius: 5px;
   --sidebar-width: 288px;
   --app-mark-radius: 5px;
@@ -3021,6 +4766,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 5px;
 }
 
+/* Tokyo Night - light mode */
+:root[data-style="tokyo-night"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d3d6d2;
+  --activity-bg: #d3d6d2;
+  --sidebar-bg: #dbdedc;
+  --editor-bg: #ededee;
+  --tabbar-bg: #d3d6d2;
+  --tab-active-bg: #ededee;
+  --tab-inactive-bg: #d3d6d2;
+  --statusbar-bg: #d3d6d2;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #868b8a;
+  --badge-bg: #d5d5d6;
+  --hover-bg: #d0d4d2;
+  --hover-bg-soft: #dfe1e0;
+  --selected-bg: #c9d3d3;
+  --border: #757978;
+  --border-strong: #595e5d;
+  --fg: #353f3e;
+  --fg-strong: #1f2524;
+  --fg-muted: #373e3d;
+  --fg-faint: #393e3d;
+  --accent: #2e3c5c;
+  --link: #2e3c5c;
+  --focus-border: #2e3c5c;
+  --focus: #2e3c5c;
+  --ok: #324122;
+  --ok-soft: #e8f3db;
+  --warn: #4b3a23;
+  --warn-soft: #f6e8d4;
+  --error: #5f2e37;
+  --error-soft: #fddee4;
+  --info-soft: #e5edfd;
+  --code-bg: #cbcfce;
+  --syntax-key: #425885;
+  --syntax-string: #6c5432;
+  --syntax-number: #495f31;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #455150;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #2e3c5c;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
 /* Monokai - dark */
 :root[data-style="monokai"] {
   color-scheme: dark;
@@ -3070,6 +4869,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 3px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 3px;
+}
+
+/* Monokai - light mode */
+:root[data-style="monokai"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d7d2;
+  --activity-bg: #d4d7d2;
+  --sidebar-bg: #dcdeda;
+  --editor-bg: #eeeeed;
+  --tabbar-bg: #d4d7d2;
+  --tab-active-bg: #eeeeed;
+  --tab-inactive-bg: #d4d7d2;
+  --statusbar-bg: #d4d7d2;
+  --input-bg: #efefef;
+  --input-bg-focus: #ffffff;
+  --input-border: #878b86;
+  --badge-bg: #d6d6d5;
+  --hover-bg: #d3d7d1;
+  --hover-bg-soft: #e1e3df;
+  --selected-bg: #cdd3c9;
+  --border: #767a75;
+  --border-strong: #666d67;
+  --fg: #424c45;
+  --fg-strong: #242a26;
+  --fg-muted: #525c55;
+  --fg-faint: #545b56;
+  --accent: #486214;
+  --link: #486214;
+  --focus-border: #486214;
+  --focus: #486214;
+  --ok: #486214;
+  --ok-soft: #eaf8cd;
+  --warn: #5f5b30;
+  --warn-soft: #f8f5d7;
+  --error: #ac1a4f;
+  --error-soft: #fecbdd;
+  --info-soft: #eef9d7;
+  --code-bg: #ced3cd;
+  --syntax-key: #486314;
+  --syntax-string: #605c30;
+  --syntax-number: #486314;
+  --radius: 3px;
+  --radius-sm: 3px;
+  --radius-md: 3px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4c564f;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #486214;
   --control-radius: 3px;
   --sidebar-width: 288px;
   --app-mark-radius: 3px;
@@ -3129,6 +4982,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 6px;
 }
 
+/* Radix Slate - dark mode */
+:root[data-style="radix-slate"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2e2f;
+  --activity-bg: #2b2e2f;
+  --sidebar-bg: #2f3436;
+  --editor-bg: #242829;
+  --tabbar-bg: #2b2e2f;
+  --tab-active-bg: #242829;
+  --tab-inactive-bg: #2b2e2f;
+  --statusbar-bg: #2b2e2f;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f70;
+  --badge-bg: #3a3e3e;
+  --hover-bg: #384142;
+  --hover-bg-soft: #2e3536;
+  --selected-bg: #415348;
+  --border: #767d7e;
+  --border-strong: #a8adae;
+  --fg: #e6e9e7;
+  --fg-strong: #e6e9e7;
+  --fg-muted: #e6e8e8;
+  --fg-faint: #e7e8e8;
+  --accent: #e2e8fa;
+  --link: #e2e8fa;
+  --focus-border: #e2e8fa;
+  --focus: #e2e8fa;
+  --ok: #d8ede3;
+  --ok-soft: #253832;
+  --warn: #f0e7d2;
+  --warn-soft: #3a3522;
+  --error: #f8e3e3;
+  --error-soft: #3c292a;
+  --info-soft: #283042;
+  --code-bg: #222628;
+  --syntax-key: #6a87e5;
+  --syntax-string: #b28410;
+  --syntax-number: #329e6b;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b2bcb9;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #e2e8fa;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
 /* Chakra UI Teal - light */
 :root[data-style="chakra-teal"] {
   color-scheme: light;
@@ -3178,6 +5085,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #0f2d2d;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
+/* Chakra UI Teal - dark mode */
+:root[data-style="chakra-teal"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2e30;
+  --activity-bg: #2b2e30;
+  --sidebar-bg: #2f3436;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2b2e30;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2b2e30;
+  --statusbar-bg: #2b2e30;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #676f71;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #384343;
+  --hover-bg-soft: #2e3637;
+  --selected-bg: #3a5549;
+  --border: #757d7f;
+  --border-strong: #b3b8b9;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #273933;
+  --warn: #ffffff;
+  --warn-soft: #403b2b;
+  --error: #ffffff;
+  --error-soft: #3f2b2d;
+  --info-soft: #263839;
+  --code-bg: #222628;
+  --syntax-key: #369a98;
+  --syntax-string: #d69e2e;
+  --syntax-number: #38a169;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b2bcba;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
   --control-radius: 8px;
   --sidebar-width: 288px;
   --app-mark-radius: 8px;
@@ -3237,6 +5198,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 6px;
 }
 
+/* Ant Design - dark mode */
+:root[data-style="ant-design"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2d2f;
+  --activity-bg: #2b2d2f;
+  --sidebar-bg: #303537;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2b2d2f;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2b2d2f;
+  --statusbar-bg: #2b2d2f;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f6f;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #384144;
+  --hover-bg-soft: #2e3537;
+  --selected-bg: #3b524c;
+  --border: #787e7e;
+  --border-strong: #b5b8b8;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #2a3e28;
+  --warn: #ffffff;
+  --warn-soft: #463d26;
+  --error: #ffffff;
+  --error-soft: #432d2f;
+  --info-soft: #223348;
+  --code-bg: #222628;
+  --syntax-key: #368aff;
+  --syntax-string: #faad14;
+  --syntax-number: #52c41a;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b4bcb9;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",Roboto,system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
 /* Mantine Indigo - light */
 :root[data-style="mantine-indigo"] {
   color-scheme: light;
@@ -3286,6 +5301,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #050712;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
+/* Mantine Indigo - dark mode */
+:root[data-style="mantine-indigo"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2b2e30;
+  --activity-bg: #2b2e30;
+  --sidebar-bg: #2f3436;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2b2e30;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2b2e30;
+  --statusbar-bg: #2b2e30;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #686f71;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #394144;
+  --hover-bg-soft: #2f3537;
+  --selected-bg: #40534c;
+  --border: #767d7f;
+  --border-strong: #aaafb0;
+  --fg: #eaedec;
+  --fg-strong: #eaedec;
+  --fg-muted: #eaedec;
+  --fg-faint: #ebedec;
+  --accent: #e7ecfd;
+  --link: #e7ecfc;
+  --focus-border: #e7ecfd;
+  --focus: #e7ecfd;
+  --ok: #d9f3de;
+  --ok-soft: #283d30;
+  --warn: #feebbe;
+  --warn-soft: #463e24;
+  --error: #fee7e7;
+  --error-soft: #422e30;
+  --info-soft: #283045;
+  --code-bg: #222628;
+  --syntax-key: #6b85ef;
+  --syntax-string: #fab005;
+  --syntax-number: #40c057;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b3bcb9;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #e7ecfd;
   --control-radius: 8px;
   --sidebar-width: 288px;
   --app-mark-radius: 8px;
@@ -3345,6 +5414,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 4px;
 }
 
+/* GitLab Pajamas - dark mode */
+:root[data-style="gitlab-pajamas"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2d2f;
+  --activity-bg: #2a2d2f;
+  --sidebar-bg: #2f3335;
+  --editor-bg: #24282a;
+  --tabbar-bg: #2a2d2f;
+  --tab-active-bg: #24282a;
+  --tab-inactive-bg: #2a2d2f;
+  --statusbar-bg: #2a2d2f;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #696f70;
+  --badge-bg: #3a3e3f;
+  --hover-bg: #394144;
+  --hover-bg-soft: #2f3537;
+  --selected-bg: #43524c;
+  --border: #767c7d;
+  --border-strong: #a8acac;
+  --fg: #e4e7e5;
+  --fg-strong: #e4e7e6;
+  --fg-muted: #e4e7e6;
+  --fg-faint: #e5e7e6;
+  --accent: #e8e4f5;
+  --link: #e8e4f5;
+  --focus-border: #e8e4f5;
+  --focus: #e8e4f5;
+  --ok: #d7ebe0;
+  --ok-soft: #21352e;
+  --warn: #f2e5ce;
+  --warn-soft: #3d3626;
+  --error: #fae1dc;
+  --error-soft: #3e2826;
+  --info-soft: #302f3f;
+  --code-bg: #222628;
+  --syntax-key: #967ed0;
+  --syntax-string: #c17d10;
+  --syntax-number: #3e9d6b;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b5bebb;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #e8e4f5;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
 /* Everforest Light - light */
 :root[data-style="everforest-light"] {
   color-scheme: light;
@@ -3394,6 +5517,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #323900;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
+/* Everforest Light - dark mode */
+:root[data-style="everforest-light"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2c2b;
+  --activity-bg: #2a2c2b;
+  --sidebar-bg: #303433;
+  --editor-bg: #242727;
+  --tabbar-bg: #2a2c2b;
+  --tab-active-bg: #242727;
+  --tab-inactive-bg: #2a2c2b;
+  --statusbar-bg: #2a2c2b;
+  --input-bg: #212526;
+  --input-bg-focus: #212526;
+  --input-border: #696f6d;
+  --badge-bg: #3a3d3d;
+  --hover-bg: #39403e;
+  --hover-bg-soft: #2f3433;
+  --selected-bg: #405241;
+  --border: #787d7b;
+  --border-strong: #b5b8b6;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #263933;
+  --warn: #ffffff;
+  --warn-soft: #423a21;
+  --error: #ffffff;
+  --error-soft: #422d2d;
+  --info-soft: #333822;
+  --code-bg: #222626;
+  --syntax-key: #8da101;
+  --syntax-string: #dfa000;
+  --syntax-number: #35a77c;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #bac5c2;
+  --accent-fg: #000000;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
   --control-radius: 5px;
   --sidebar-width: 288px;
   --app-mark-radius: 5px;
@@ -3453,6 +5630,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 8px;
 }
 
+/* DaisyUI Corporate - dark mode */
+:root[data-style="daisyui-corporate"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2c2e30;
+  --activity-bg: #2c2e30;
+  --sidebar-bg: #2f3436;
+  --editor-bg: #232729;
+  --tabbar-bg: #2c2e30;
+  --tab-active-bg: #232729;
+  --tab-inactive-bg: #2c2e30;
+  --statusbar-bg: #2c2e30;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #676f71;
+  --badge-bg: #393d3e;
+  --hover-bg: #384144;
+  --hover-bg-soft: #2e3437;
+  --selected-bg: #3f524c;
+  --border: #767d7f;
+  --border-strong: #a8aeae;
+  --fg: #e5e9e8;
+  --fg-strong: #e5e9e8;
+  --fg-muted: #e6e9e8;
+  --fg-faint: #e7e9e9;
+  --accent: #e0e9fc;
+  --link: #dfe9fc;
+  --focus-border: #e0e9fc;
+  --focus: #e0e9fc;
+  --ok: #d5efdf;
+  --ok-soft: #21382e;
+  --warn: #f8e6d0;
+  --warn-soft: #403423;
+  --error: #fae3e3;
+  --error-soft: #3d2729;
+  --info-soft: #232f44;
+  --code-bg: #222628;
+  --syntax-key: #5888f0;
+  --syntax-string: #d97706;
+  --syntax-number: #16a34a;
+  --radius: 8px;
+  --radius-sm: 8px;
+  --radius-md: 8px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b3bdbb;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #e0e9fc;
+  --control-radius: 8px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 8px;
+}
+
 /* Solarized Sepia - light */
 :root[data-style="solarized-sepia"] {
   color-scheme: light;
@@ -3502,6 +5733,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #0b273c;
+  --control-radius: 4px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 4px;
+}
+
+/* Solarized Sepia - dark mode */
+:root[data-style="solarized-sepia"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2c2b;
+  --activity-bg: #2a2c2b;
+  --sidebar-bg: #303433;
+  --editor-bg: #242727;
+  --tabbar-bg: #2a2c2b;
+  --tab-active-bg: #242727;
+  --tab-inactive-bg: #2a2c2b;
+  --statusbar-bg: #2a2c2b;
+  --input-bg: #212526;
+  --input-bg-focus: #212526;
+  --input-border: #696f6c;
+  --badge-bg: #3a3d3d;
+  --hover-bg: #39403f;
+  --hover-bg-soft: #2f3433;
+  --selected-bg: #405348;
+  --border: #787d7a;
+  --border-strong: #b5b8b6;
+  --fg: #ffffff;
+  --fg-strong: #ffffff;
+  --fg-muted: #ffffff;
+  --fg-faint: #ffffff;
+  --accent: #ffffff;
+  --link: #ffffff;
+  --focus-border: #ffffff;
+  --focus: #ffffff;
+  --ok: #ffffff;
+  --ok-soft: #323722;
+  --warn: #ffffff;
+  --warn-soft: #3b3721;
+  --error: #ffffff;
+  --error-soft: #3e2928;
+  --info-soft: #24353f;
+  --code-bg: #222626;
+  --syntax-key: #3292d5;
+  --syntax-string: #b58900;
+  --syntax-number: #859900;
+  --radius: 4px;
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #bac5c2;
+  --accent-fg: #000000;
+  --font-ui: -apple-system,"Segoe UI",system-ui,sans-serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ffffff;
   --control-radius: 4px;
   --sidebar-width: 288px;
   --app-mark-radius: 4px;
@@ -3561,6 +5846,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 2px;
 }
 
+/* Neon Cyber - light mode */
+:root[data-style="neon-cyber"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d4d0;
+  --activity-bg: #d1d4d0;
+  --sidebar-bg: #d9dad9;
+  --editor-bg: #ebebec;
+  --tabbar-bg: #d1d4d0;
+  --tab-active-bg: #ebebec;
+  --tab-inactive-bg: #d1d4d0;
+  --statusbar-bg: #d1d4d0;
+  --input-bg: #eeeeef;
+  --input-bg-focus: #ffffff;
+  --input-border: #878a8a;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #ced1d0;
+  --hover-bg-soft: #dddede;
+  --selected-bg: #cbcbcd;
+  --border: #757778;
+  --border-strong: #505253;
+  --fg: #222625;
+  --fg-strong: #232625;
+  --fg-muted: #232526;
+  --fg-faint: #242526;
+  --accent: #490d2b;
+  --link: #490d2b;
+  --focus-border: #490d2b;
+  --focus: #490d2b;
+  --ok: #002b22;
+  --ok-soft: #c2fff2;
+  --warn: #2b2510;
+  --warn-soft: #fff6d0;
+  --error: #49101c;
+  --error-soft: #ffcfd9;
+  --info-soft: #ffd7eb;
+  --code-bg: #cacccd;
+  --syntax-key: #a21d5f;
+  --syntax-string: #635624;
+  --syntax-number: #00634e;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4b5451;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #490d2b;
+  --control-radius: 2px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 2px;
+}
+
 /* Sunset Warm - dark */
 :root[data-style="sunset-warm"] {
   color-scheme: dark;
@@ -3610,6 +5949,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
   --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
   --app-mark-bg: #ffffff;
+  --control-radius: 6px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 6px;
+}
+
+/* Sunset Warm - light mode */
+:root[data-style="sunset-warm"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d5d0;
+  --activity-bg: #d4d5d0;
+  --sidebar-bg: #dcdcd8;
+  --editor-bg: #edecec;
+  --tabbar-bg: #d4d5d0;
+  --tab-active-bg: #edecec;
+  --tab-inactive-bg: #d4d5d0;
+  --statusbar-bg: #d4d5d0;
+  --input-bg: #efeeee;
+  --input-bg-focus: #ffffff;
+  --input-border: #888a85;
+  --badge-bg: #d5d4d4;
+  --hover-bg: #d1d3ce;
+  --hover-bg-soft: #dfe0dd;
+  --selected-bg: #cecfc3;
+  --border: #777874;
+  --border-strong: #5d605b;
+  --fg: #3d433c;
+  --fg-strong: #242823;
+  --fg-muted: #3e423d;
+  --fg-faint: #3f423f;
+  --accent: #63351d;
+  --link: #63351e;
+  --focus-border: #63351d;
+  --focus: #63351d;
+  --ok: #34462e;
+  --ok-soft: #e4f0e0;
+  --warn: #533e10;
+  --warn-soft: #feecc3;
+  --error: #6c2e26;
+  --error-soft: #ffdbd7;
+  --info-soft: #ffe9dd;
+  --code-bg: #cdceca;
+  --syntax-key: #844827;
+  --syntax-string: #6e5415;
+  --syntax-number: #465e3d;
+  --radius: 6px;
+  --radius-sm: 6px;
+  --radius-md: 6px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4b534b;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #63351d;
   --control-radius: 6px;
   --sidebar-width: 288px;
   --app-mark-radius: 6px;
@@ -3669,6 +6062,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 5px;
 }
 
+/* Deep Forest - light mode */
+:root[data-style="forest"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d4d7d3;
+  --activity-bg: #d4d7d3;
+  --sidebar-bg: #dcdedb;
+  --editor-bg: #edeeee;
+  --tabbar-bg: #d4d7d3;
+  --tab-active-bg: #edeeee;
+  --tab-inactive-bg: #d4d7d3;
+  --statusbar-bg: #d4d7d3;
+  --input-bg: #eff0f0;
+  --input-bg-focus: #ffffff;
+  --input-border: #868c89;
+  --badge-bg: #d5d6d6;
+  --hover-bg: #d1d6d2;
+  --hover-bg-soft: #dfe2e0;
+  --selected-bg: #ccd5ca;
+  --border: #757a77;
+  --border-strong: #5f6661;
+  --fg: #3d463c;
+  --fg-strong: #222721;
+  --fg-muted: #444d47;
+  --fg-faint: #464c49;
+  --accent: #444e34;
+  --link: #444e34;
+  --focus-border: #444e34;
+  --focus: #444e34;
+  --ok: #444e34;
+  --ok-soft: #eaf0e1;
+  --warn: #564932;
+  --warn-soft: #f5ecda;
+  --error: #6e3d3d;
+  --error-soft: #f9e0e1;
+  --info-soft: #eef3e7;
+  --code-bg: #ccd1ce;
+  --syntax-key: #515d3e;
+  --syntax-string: #66573b;
+  --syntax-number: #515d3e;
+  --radius: 5px;
+  --radius-sm: 5px;
+  --radius-md: 5px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #475047;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #444e34;
+  --control-radius: 5px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 5px;
+}
+
 /* High Contrast - dark */
 :root[data-style="high-contrast"] {
   color-scheme: dark;
@@ -3723,6 +6170,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --app-mark-radius: 0px;
 }
 
+/* High Contrast - light mode */
+:root[data-style="high-contrast"][data-theme="light"] {
+  color-scheme: light;
+  --titlebar-bg: #d1d3cf;
+  --activity-bg: #d1d3cf;
+  --sidebar-bg: #d8d9d6;
+  --editor-bg: #ebebeb;
+  --tabbar-bg: #d1d3cf;
+  --tab-active-bg: #ebebeb;
+  --tab-inactive-bg: #d1d3cf;
+  --statusbar-bg: #d1d3cf;
+  --input-bg: #ededed;
+  --input-bg-focus: #ffffff;
+  --input-border: #858a86;
+  --badge-bg: #d4d4d4;
+  --hover-bg: #ced3ce;
+  --hover-bg-soft: #dddfdd;
+  --selected-bg: #c1d2d3;
+  --border: #747774;
+  --border-strong: #646a66;
+  --fg: #434c46;
+  --fg-strong: #252a27;
+  --fg-muted: #515b55;
+  --fg-faint: #535a56;
+  --accent: #5b5b00;
+  --link: #5b5b00;
+  --focus-border: #5b5b00;
+  --focus: #5b5b00;
+  --ok: #006800;
+  --ok-soft: #c2ffc2;
+  --warn: #5b5b00;
+  --warn-soft: #ffffb6;
+  --error: #b50000;
+  --error-soft: #ffc2c2;
+  --info-soft: #ffffce;
+  --code-bg: #e3e7e3;
+  --syntax-key: #6b6b00;
+  --syntax-string: #6b6b00;
+  --syntax-number: #007800;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #4c5751;
+  --accent-fg: #ffffff;
+  --font-ui: "Segoe UI Variable Text","Segoe UI",system-ui,sans-serif;
+  --font-mono: "Cascadia Code",Consolas,"Segoe UI",monospace;
+  --app-mark-bg: #5b5b00;
+  --control-radius: 0px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 0px;
+}
+
 /* Paper & Ink - light */
 :root[data-style="paper-ink"] {
   color-scheme: light;
@@ -3772,6 +6273,60 @@ details.disclosure .entry-form { margin-top: 10px; }
   --font-ui: "Times New Roman","Palatino Linotype",serif;
   --font-mono: Consolas,"Courier New","Segoe UI",monospace;
   --app-mark-bg: #000000;
+  --control-radius: 2px;
+  --sidebar-width: 288px;
+  --app-mark-radius: 2px;
+}
+
+/* Paper & Ink - dark mode */
+:root[data-style="paper-ink"][data-theme="dark"] {
+  color-scheme: dark;
+  --titlebar-bg: #2a2c2c;
+  --activity-bg: #2a2c2c;
+  --sidebar-bg: #303535;
+  --editor-bg: #232728;
+  --tabbar-bg: #2a2c2c;
+  --tab-active-bg: #232728;
+  --tab-inactive-bg: #2a2c2c;
+  --statusbar-bg: #2a2c2c;
+  --input-bg: #212527;
+  --input-bg-focus: #212527;
+  --input-border: #696f6e;
+  --badge-bg: #393d3e;
+  --hover-bg: #39403f;
+  --hover-bg-soft: #2e3434;
+  --selected-bg: #425243;
+  --border: #797e7d;
+  --border-strong: #9fa3a1;
+  --fg: #d0d5d2;
+  --fg-strong: #dee2e0;
+  --fg-muted: #cdd1ce;
+  --fg-faint: #ced1cf;
+  --accent: #ecc8c5;
+  --link: #ecc8c6;
+  --focus-border: #ecc8c5;
+  --focus: #ecc8c5;
+  --ok: #c3d5c8;
+  --ok-soft: #25312b;
+  --warn: #dad0ad;
+  --warn-soft: #333222;
+  --error: #ecc8c5;
+  --error-soft: #372727;
+  --info-soft: #372727;
+  --code-bg: #222627;
+  --syntax-key: #cd726c;
+  --syntax-string: #a18a32;
+  --syntax-number: #6a9675;
+  --radius: 2px;
+  --radius-sm: 2px;
+  --radius-md: 2px;
+  --radius-pill: 999px;
+  --radius-full: 50%;
+  --bar-fg: #b4bdba;
+  --accent-fg: #000000;
+  --font-ui: "Times New Roman","Palatino Linotype",serif;
+  --font-mono: Consolas,"Courier New","Segoe UI",monospace;
+  --app-mark-bg: #ecc8c5;
   --control-radius: 2px;
   --sidebar-width: 288px;
   --app-mark-radius: 2px;
