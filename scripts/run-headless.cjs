@@ -22,6 +22,7 @@ function log(message) {
     fs.mkdirSync(dataDirectory, { recursive: true });
     fs.appendFileSync(logFile, `${new Date().toISOString()} ${message}\n`, "utf8");
   } catch {}
+  if (process.argv.includes("--foreground")) process.stdout.write(`${message}\n`);
 }
 
 function readJson(filename) {
@@ -97,6 +98,112 @@ async function findExistingService() {
     } catch {}
   }
   return null;
+}
+
+function printLocalEndpoint(url) {
+  if (!url) return;
+  try {
+    const parsed = new URL(url);
+    const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
+    print(`Local dashboard: ${parsed.origin}/`);
+    print(`Port: ${port}`);
+  } catch {}
+}
+
+async function followExistingLogs(url) {
+  printLocalEndpoint(url);
+  print(`Log: ${logFile}`);
+  print("Following the existing server. Press Ctrl+C to detach.");
+
+  let offset = 0;
+  let pending = "";
+  try {
+    const contents = fs.readFileSync(logFile, "utf8");
+    for (const line of contents.split(/\r?\n/).filter(Boolean).slice(-40)) print(line);
+    offset = Buffer.byteLength(contents, "utf8");
+  } catch {
+    print("Waiting for startup log output...");
+  }
+
+  return new Promise((resolve) => {
+    let polling = false;
+    const poll = async () => {
+      if (polling) return;
+      polling = true;
+      let handle;
+      try {
+        const stats = await fsp.stat(logFile);
+        if (stats.size < offset) {
+          offset = 0;
+          pending = "";
+        }
+        const length = Math.min(stats.size - offset, 64 * 1024);
+        if (!length) return;
+        handle = await fsp.open(logFile, "r");
+        const buffer = Buffer.alloc(length);
+        const { bytesRead } = await handle.read(buffer, 0, length, offset);
+        offset += bytesRead;
+        pending += buffer.subarray(0, bytesRead).toString("utf8");
+        const lines = pending.split(/\r?\n/);
+        pending = lines.pop() || "";
+        for (const line of lines) if (line) print(line);
+      } catch {
+        // The server may rotate or recreate its log file while this view is open.
+      } finally {
+        if (handle) await handle.close().catch(() => {});
+        polling = false;
+      }
+    };
+    const interval = setInterval(() => void poll(), 500);
+    const detach = () => {
+      clearInterval(interval);
+      process.off("SIGINT", detach);
+      process.off("SIGTERM", detach);
+      print("Detached from logs; the background server is still running.");
+      resolve();
+    };
+    process.once("SIGINT", detach);
+    process.once("SIGTERM", detach);
+  });
+}
+
+async function startForeground() {
+  fs.mkdirSync(dataDirectory, { recursive: true });
+  const existing = await findExistingService();
+  if (existing?.ok) return followExistingLogs(existing.url);
+
+  let lock;
+  try {
+    lock = await fsp.open(lockFile, "wx");
+  } catch (error) {
+    if (error.code !== "EEXIST") throw error;
+    const owner = readJson(lockFile);
+    if (!owner || !owner.pid || isProcessRunning(owner.pid)) {
+      print("FreeModel Lab is already starting.");
+      return followExistingLogs(readDashboardUrl());
+    }
+    removeFile(lockFile);
+    try {
+      lock = await fsp.open(lockFile, "wx");
+    } catch (retryError) {
+      if (retryError.code !== "EEXIST") throw retryError;
+      print("FreeModel Lab is already starting.");
+      return followExistingLogs(readDashboardUrl());
+    }
+  }
+
+  try {
+    removeFile(stateFile);
+    removeFile(urlFile);
+    await lock.writeFile(JSON.stringify({ pid: process.pid, startedAt: new Date().toISOString() }), "utf8");
+    await lock.close();
+    print("Starting FreeModel Lab in this CMD. Build and server logs follow; press Ctrl+C to stop.");
+    await supervise(true);
+  } catch (error) {
+    await lock.close().catch(() => {});
+    if (readJson(lockFile)?.pid === process.pid) removeFile(lockFile);
+    throw error;
+  }
 }
 
 async function start() {
@@ -256,6 +363,7 @@ async function status() {
   if (service?.ok) {
     const location = service.url ? ` | ${service.url}` : " | đang khởi động";
     print(`FreeModel Lab: ${service.state}${location}`);
+    printLocalEndpoint(service.url);
     print(`Log: ${service.logFile}`);
     print("Mở lại giao diện bằng run.bat --open.");
     return;
@@ -435,7 +543,7 @@ function finish(exitCode = 0) {
       removeFile(stateFile);
       removeFile(urlFile);
     }
-    log("Background server stopped.");
+    log("FreeModel Lab stopped.");
     process.exitCode = exitCode;
   })();
   return finishing;
@@ -534,9 +642,9 @@ async function beginServer() {
   });
 }
 
-async function supervise() {
+async function supervise(foreground = false) {
   try {
-    await waitForLaunchSignal();
+    if (!foreground) await waitForLaunchSignal();
     fs.mkdirSync(dataDirectory, { recursive: true });
     fs.writeFileSync(logFile, "", "utf8");
     startControlServer();
@@ -562,8 +670,9 @@ async function main() {
   if (command === "--supervisor") return supervise();
   if (command === "--status") return status();
   if (command === "--stop") return stop();
+  if (command === "--foreground") return startForeground();
   if (command === "--start") return start();
-  print("Usage: node scripts/run-headless.cjs [--start|--status|--stop]");
+  print("Usage: node scripts/run-headless.cjs [--start|--foreground|--status|--stop]");
   process.exitCode = command === "--help" ? 0 : 2;
 }
 

@@ -69,7 +69,9 @@ async function openDashboard(openChrome) {
     dashboardBootstrapAnnounced = true;
     process.send({ type: "dashboard", url: dashboard.url });
   }
-  log(`Dashboard: ${new URL(dashboard.url).origin}/`);
+  const localUrl = new URL(dashboard.url);
+  log(`Dashboard: ${localUrl.origin}/`);
+  log(`Port: ${localUrl.port || (localUrl.protocol === "https:" ? "443" : "80")}`);
 }
 
 async function restartDashboard() {

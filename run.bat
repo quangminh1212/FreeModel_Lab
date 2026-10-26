@@ -6,9 +6,15 @@ if /i "%~1"=="--status" goto status
 if /i "%~1"=="--stop" goto stop
 if /i "%~1"=="--help" goto help
 if /i "%~1"=="--open" goto launch-open
+if /i "%~1"=="--background" goto launch-background
 if /i "%~1"=="--start" goto launch
+if /i "%~1"=="--foreground" goto launch
 
 :launch
+node "%~dp0scripts\run-headless.cjs" --foreground
+exit /b %ERRORLEVEL%
+
+:launch-background
 if not exist "%~dp0run-hidden.vbs" (
   echo Could not find run-hidden.vbs.
   exit /b 1
@@ -34,7 +40,8 @@ exit /b %ERRORLEVEL%
 
 :help
 echo FreeModel Lab local launcher
-echo   run.bat          Start in the background; open only on first start
+echo   run.bat          Start in this CMD and show build/server logs and port
+echo   run.bat --background  Start hidden in the background
 echo   run.bat --open   Open or reopen the dashboard explicitly
 echo   run.bat --status Show its local URL and running state
 echo   run.bat --stop   Stop the background server
