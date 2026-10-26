@@ -17,7 +17,7 @@ const sessionToken = randomBytes(32).toString("base64url");
 process.chdir(root);
 
 let dashboard;
-let dashboardPort;
+const dashboardPort = Number(process.env.FREE_MODEL_LAB_PORT || 55960);
 let watcher;
 let buildTimer;
 let webTimer;
@@ -63,9 +63,8 @@ async function openDashboard(openChrome) {
   clearCompiledModules();
   const { startServer } = require(path.join(root, "dist", "server.js"));
   const options = { devMode: true, openChrome, sessionToken };
-  if (dashboardPort !== undefined) options.port = dashboardPort;
+  options.port = dashboardPort;
   dashboard = await startServer(options);
-  if (dashboardPort === undefined) dashboardPort = Number(new URL(dashboard.url).port);
   if (!dashboardBootstrapAnnounced && typeof process.send === "function") {
     dashboardBootstrapAnnounced = true;
     process.send({ type: "dashboard", url: dashboard.url });
