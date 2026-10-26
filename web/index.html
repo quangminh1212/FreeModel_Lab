@@ -45,26 +45,28 @@
           <div class="app-mark" aria-hidden="true">F</div>
           <span class="app-title">FreeModel Lab</span>
         </div>
-        <div class="titlebar-right">
-          <nav class="view-nav" aria-label="Điều hướng chính">
+        <nav class="view-nav" aria-label="Điều hướng chính">
             <button class="view-tab" type="button" data-view="providers" aria-pressed="true">Danh mục</button>
             <button class="view-tab" type="button" data-view="discover" aria-pressed="false">Nguồn mới</button>
             <button class="view-tab" type="button" data-view="help" aria-pressed="false">Trợ giúp</button>
-          </nav>
+        </nav>
+        <div class="titlebar-tools">
           <span class="titlebar-sep" aria-hidden="true"></span>
           <label class="style-picker" title="Chọn phong cách giao diện">
             <span class="style-picker-label" aria-hidden="true">Giao diện</span>
             <select id="style-select" aria-label="Chọn phong cách giao diện"></select>
           </label>
-          <button id="sidebar-toggle" class="icon-button" type="button" aria-pressed="true" title="Ẩn/hiện thanh bên (Ctrl+B)" aria-label="Ẩn/hiện thanh bên">
-            <svg class="ico" aria-hidden="true"><use href="#i-sidebar"></use></svg>
-          </button>
-          <button id="refresh" class="icon-button" type="button" title="Cập nhật danh sách free từ upstream" aria-label="Cập nhật danh sách free từ upstream">
-            <svg class="ico" aria-hidden="true"><use href="#i-sync"></use></svg>
-          </button>
-          <button id="theme-toggle" class="icon-button theme-toggle" type="button" aria-pressed="false" title="Chế độ tối" aria-label="Bật giao diện tối">
-            <svg id="theme-icon" class="ico" aria-hidden="true"><use href="#i-moon"></use></svg>
-          </button>
+          <div class="titlebar-actions">
+            <button id="sidebar-toggle" class="icon-button" type="button" aria-pressed="true" title="Ẩn/hiện thanh bên (Ctrl+B)" aria-label="Ẩn/hiện thanh bên">
+              <svg class="ico" aria-hidden="true"><use href="#i-sidebar"></use></svg>
+            </button>
+            <button id="refresh" class="icon-button" type="button" title="Cập nhật danh sách free từ upstream" aria-label="Cập nhật danh sách free từ upstream">
+              <svg class="ico" aria-hidden="true"><use href="#i-sync"></use></svg>
+            </button>
+            <button id="theme-toggle" class="icon-button theme-toggle" type="button" aria-pressed="false" title="Chế độ tối" aria-label="Bật giao diện tối">
+              <svg id="theme-icon" class="ico" aria-hidden="true"><use href="#i-moon"></use></svg>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -103,7 +105,7 @@
           <section class="tree-section" aria-labelledby="tree-mine">
             <div id="tree-mine" class="tree-heading">
               <svg class="ico tree-chevron" aria-hidden="true"><use href="#i-chevron-down"></use></svg>
-              <span>Danh mục của bạn</span>
+              <span>Nhà cung cấp</span>
               <span id="tree-mine-count" class="tree-count">0</span>
             </div>
             <ul id="providers" class="tree-items" aria-label="Providers trong danh mục"></ul>

@@ -2,44 +2,33 @@
 setlocal
 cd /d "%~dp0"
 
-where node >nul 2>nul
-if errorlevel 1 goto node_missing
+if /i "%~1"=="--status" goto status
+if /i "%~1"=="--stop" goto stop
+if /i "%~1"=="--help" goto help
+if /i "%~1"=="--open" goto launch
+if /i "%~1"=="--start" goto launch
 
-node -e "if (Number(process.versions.node.split('.')[0]) < 24) process.exit(1)"
-if errorlevel 1 goto node_old
-
-where npm >nul 2>nul
-if errorlevel 1 goto npm_missing
-
-echo Setting up FreeModel Lab dependencies...
-call npm install --no-audit --no-fund
-if errorlevel 1 goto setup_failed
-
-echo Starting FreeModel Lab with automatic reload...
-call npm run dev
-set "EXIT_CODE=%ERRORLEVEL%"
-if not "%EXIT_CODE%"=="0" (
-  echo FreeModel Lab stopped with exit code %EXIT_CODE%.
-  pause
+:launch
+if not exist "%~dp0run-hidden.vbs" (
+  echo Could not find run-hidden.vbs.
+  exit /b 1
 )
-exit /b %EXIT_CODE%
+wscript.exe //B //NoLogo "%~dp0run-hidden.vbs"
+exit /b %ERRORLEVEL%
 
-:node_missing
-echo Node.js 24 or newer is required. Install it from https://nodejs.org/ and run this file again.
-pause
-exit /b 1
+:status
+node "%~dp0scripts\run-headless.cjs" --status
+exit /b %ERRORLEVEL%
 
-:node_old
-echo This project requires Node.js 24 or newer. Please update Node.js and run this file again.
-pause
-exit /b 1
+:stop
+node "%~dp0scripts\run-headless.cjs" --stop
+exit /b %ERRORLEVEL%
 
-:npm_missing
-echo npm is missing. Reinstall Node.js 24 or newer with npm included, then run this file again.
-pause
-exit /b 1
-
-:setup_failed
-echo Dependency setup failed. Check your internet connection and npm output, then try again.
-pause
-exit /b 1
+:help
+echo FreeModel Lab local launcher
+echo   run.bat          Start the dashboard in the background
+echo   run.bat --open   Open or reopen the dashboard
+echo   run.bat --status Show its local URL and running state
+echo   run.bat --stop   Stop the background server
+echo   run-hidden.vbs   Start without even the brief batch window
+exit /b 0

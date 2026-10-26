@@ -228,7 +228,13 @@ function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, ic
   const title = el("span", "tree-label", label);
   if (sublabel) title.title = `${label} — ${sublabel}`;
   text.append(title);
-  if (caption) text.append(el("span", "tree-caption", caption));
+  if (sublabel || caption) {
+    const details = el("span", "tree-caption");
+    if (sublabel) details.append(el("code", "tree-id", sublabel));
+    if (sublabel && caption) details.append(el("span", "tree-caption-sep", "·"));
+    if (caption) details.append(el("span", "tree-caption-copy", caption));
+    text.append(details);
+  }
   row.append(text);
   const meta = el("span", "tree-meta");
   for (const node of metaNodes) meta.append(node);
@@ -254,17 +260,17 @@ function renderProviderRows() {
     const modelCount = Array.isArray(provider.quota && provider.quota.models)
       ? provider.quota.models.length
       : 0;
-    const categoryLabel = provider.category === "router" ? "Router" : "Hosted inference";
+    const categoryLabel = provider.category === "router" ? "Định tuyến mô hình" : "API suy luận";
 
     return treeRow({
       label: provider.name,
       sublabel: provider.id,
-      caption: modelCount ? `${categoryLabel} · ${modelCount} model free` : categoryLabel,
+      caption: modelCount ? `${categoryLabel} · ${modelCount} model miễn phí` : categoryLabel,
       iconText: providerInitial(provider),
       id: provider.id,
       active: state.activeId === provider.id && state.view === "providers",
       metaNodes: [
-        provider.catalogSource === "upstream" ? el("span", "tag-upstream", "upstream") : null,
+        provider.catalogSource === "upstream" ? el("span", "tag-upstream", "Chờ xác minh") : null,
         keyStatus
       ].filter(Boolean)
     });
@@ -1095,7 +1101,7 @@ async function loadProviders(showLoading = true) {
     const latest = officialProviders.map((provider) => provider.verifiedAt).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || "";
     dom.verifiedAt.textContent = latest || "—";
     const staleCount = state.providers.filter((provider) => Date.now() - new Date(`${provider.verifiedAt}T00:00:00Z`).getTime() > STALE_WINDOW_MS).length;
-    const summary = `Danh mục: ${officialProviders.length} nguồn chính thức${upstreamCount ? ` · ${upstreamCount} chờ xác minh` : ""}${staleCount ? ` · ${staleCount} cần rà soát` : ""}.`;
+    const summary = `${officialProviders.length} chính thức${upstreamCount ? ` · ${upstreamCount} chờ xác minh` : ""}${staleCount ? ` · ${staleCount} cần rà soát` : ""}.`;
     setStatus(summary, staleCount ? "warning" : "success");
     renderAll();
   } catch (error) {

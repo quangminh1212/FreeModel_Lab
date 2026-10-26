@@ -65,7 +65,10 @@ async function openDashboard(openChrome) {
   if (dashboardPort !== undefined) options.port = dashboardPort;
   dashboard = await startServer(options);
   if (dashboardPort === undefined) dashboardPort = Number(new URL(dashboard.url).port);
-  log(`Dashboard: ${dashboard.url}`);
+  if (typeof process.send === "function") {
+    process.send({ type: "dashboard", url: dashboard.url });
+  }
+  log(`Dashboard: ${new URL(dashboard.url).origin}/`);
 }
 
 async function restartDashboard() {
@@ -133,10 +136,16 @@ async function shutdown(exitCode = 0) {
     process.exitCode = 1;
   });
   log("Dashboard stopped.");
+  if (process.connected) process.disconnect();
 }
 
 process.once("SIGINT", () => void shutdown());
 process.once("SIGTERM", () => void shutdown());
+if (typeof process.send === "function") {
+  process.on("message", (message) => {
+    if (message && message.type === "shutdown") void shutdown();
+  });
+}
 
 async function main() {
   await mkdir(versionDirectory, { recursive: true });
