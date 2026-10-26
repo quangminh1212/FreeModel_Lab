@@ -267,7 +267,7 @@ function renderProviderRows() {
     const modelCount = Array.isArray(provider.quota && provider.quota.models)
       ? provider.quota.models.length
       : 0;
-    const categoryLabel = provider.category === "router" ? "Định tuyến mô hình" : "API suy luận";
+    const categoryLabel = providerCategoryLabel(provider.category);
 
     return treeRow({
       label: provider.name,
@@ -352,7 +352,7 @@ function renderDiscoverView() {
     li.append(
       treeRow({
         label: candidate.name,
-        caption: candidate.category === "router" ? "Định tuyến mô hình" : "API suy luận",
+        caption: providerCategoryLabel(candidate.category),
         iconText: providerInitial(candidate),
         iconName: "sparkle",
         id: `candidate:${candidate.id}`,
@@ -367,7 +367,23 @@ function renderDiscoverView() {
 
 function formatSourceDate(value) {
   const match = (value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  return match ? `${match[3]}/${match[2]}/${match[1]}` : "chưa rõ";
+  if (!match) return "chưa rõ";
+  const [, yearText, monthText, dayText] = match;
+  const year = Number(yearText);
+  const month = Number(monthText);
+  const day = Number(dayText);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) return "chưa rõ";
+  return new Intl.DateTimeFormat("vi-VN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    timeZone: "UTC"
+  }).format(date);
+}
+
+function providerCategoryLabel(category) {
+  return category === "router" ? "Định tuyến mô hình" : "API suy luận";
 }
 
 /* ---------------------------------------------------------------- */
@@ -525,7 +541,7 @@ function docHead({ title, subtitle, mark, badges, actions }) {
   head.append(back);
   head.append(el("div", "doc-mark", mark));
   const copy = el("div", "doc-title");
-  copy.append(el("h2", "", title));
+  copy.append(el("h1", "", title));
   if (subtitle) copy.append(el("p", "doc-sub", subtitle));
   if (badges && badges.length) {
     const row = el("div", "doc-actions");
@@ -581,7 +597,7 @@ function codeBlock(rows) {
 
 function section(title, iconName, children) {
   const wrap = el("section", "doc-section");
-  const heading = el("h3");
+  const heading = el("h2");
   heading.append(icon(iconName), el("span", "", title));
   wrap.append(heading);
   for (const child of [].concat(children)) {
@@ -628,6 +644,15 @@ function keyStatusLabel(provider) {
 
 function providerActions(provider) {
   const actions = [];
+  const keyButton = el("button", "button", provider.keySaved === true ? "Quản lý API key" : "Lưu API key");
+  keyButton.type = "button";
+  keyButton.addEventListener("click", () => {
+    const keySection = dom.content.querySelector(".doc-section[data-key-section]");
+    if (!keySection) return;
+    keySection.scrollIntoView({ block: "start", behavior: "auto" });
+    keySection.querySelector("h2")?.focus({ preventScroll: true });
+  });
+  actions.push(keyButton);
   if (provider.keyUrl) actions.push(safeLink("Trang provider", provider.keyUrl, "button button-secondary"));
   if (provider.quotaUrl) actions.push(safeLink("Trang quota", provider.quotaUrl, "button button-secondary"));
   if (provider.sourceUrl) actions.push(safeLink("Nguồn dữ liệu", provider.sourceUrl, "button button-quiet"));
@@ -857,22 +882,20 @@ function renderProvider(provider) {
       badges: [
         badge(official ? "Nguồn chính thức" : "Upstream chưa xác minh", official ? "official" : "upstream", official ? "ok" : "warn"),
         provider.keySaved === true ? badge("Key đã lưu", "saved", "key") : null,
-        badge(provider.category === "router" ? "Router" : "Hosted inference", "local", null)
+        badge(providerCategoryLabel(provider.category), "local", null)
       ].filter(Boolean),
       actions: providerActions(provider)
     })
   );
 
-  doc.append(
-    codeBlock([
-      { key: "id", value: provider.id, copyable: true, copyText: provider.id },
-      { key: "category", value: provider.category, plain: true },
-      { key: "endpoint", value: provider.endpoint, copyable: true, copyText: provider.endpoint },
-      provider.endpointNeedsAccountId ? { key: "account id", value: "cần account id trong endpoint", plain: true } : null,
-      { key: "verifiedAt", value: provider.verifiedAt || "chưa rõ", plain: true },
-      provider.addedAt ? { key: "addedAt", value: provider.addedAt, plain: true } : null
-    ].filter(Boolean))
-  );
+  const metadata = codeBlock([
+    { key: "Mã provider", value: provider.id, copyable: true, copyText: provider.id },
+    { key: "Loại", value: providerCategoryLabel(provider.category), plain: true },
+    { key: "Endpoint", value: provider.endpoint, copyable: true, copyText: provider.endpoint },
+    provider.endpointNeedsAccountId ? { key: "Account ID", value: "Cần account ID trong endpoint", plain: true } : null,
+    { key: "Ngày xác minh", value: formatSourceDate(provider.verifiedAt), plain: true },
+    provider.addedAt ? { key: "Ngày thêm", value: formatSourceDate(provider.addedAt), plain: true } : null
+  ].filter(Boolean));
 
   const quota = provider.quota || {};
   doc.append(
@@ -888,26 +911,25 @@ function renderProvider(provider) {
         "p",
         "muted",
         official
-          ? `Số liệu quota được rà soát ${provider.verifiedAt || "chưa rõ ngày"}. Dashboard không gửi model request để suy ra quota.`
+          ? `Số liệu quota được rà soát ${formatSourceDate(provider.verifiedAt)}. Dashboard không gửi model request để suy ra quota.`
           : "Đây là dữ liệu upstream chưa được FreeModel Lab xác minh. Mở trang provider để đối chiếu trước khi dùng."
       )
     ])
   );
 
-  doc.append(
-    section("Bảo mật", "shield", [
-      el(
-        "p",
-        "muted",
-        "FreeModel Lab lưu key trong kho credential của hệ điều hành, không trả key qua API, không ghi key vào log và không tự động xoay key. Dashboard chỉ bind 127.0.0.1."
-      )
-    ])
-  );
-
-  doc.append(section("Key", "key", [keyStatusPanel(provider), keyForm(provider)]));
+  const keySection = section("Bảo mật và API key", "shield", [
+    keyStatusPanel(provider),
+    keyForm(provider),
+    el("p", "muted security-note", "Dashboard chỉ bind 127.0.0.1. Key không được trả qua API hoặc ghi vào log.")
+  ]);
+  keySection.dataset.keySection = "";
+  keySection.querySelector("h2").tabIndex = -1;
+  doc.append(keySection);
   if (provider.provisioner) {
     doc.append(section("Tạo key", "sparkle", [provisionForm(provider)]));
   }
+
+  doc.append(section("Thông tin kỹ thuật", "info", [metadata]));
 
   doc.append(
     section("Nguồn", "link", [
@@ -915,7 +937,7 @@ function renderProvider(provider) {
         ["Trang provider", provider.keyUrl ? safeLink(provider.keyUrl, provider.keyUrl, "text-link", false) : ""],
         ["Trang quota", provider.quotaUrl ? safeLink(provider.quotaUrl, provider.quotaUrl, "text-link", false) : ""],
         ["Nguồn dữ liệu", provider.sourceUrl ? safeLink(provider.sourceUrl, provider.sourceUrl, "text-link", false) : ""],
-        ["catalogSource", provider.catalogSource || "builtin"]
+        ["Nguồn danh mục", provider.catalogSource === "upstream" ? "Nguồn upstream" : "Tích hợp sẵn"]
       ])
     ])
   );
@@ -935,18 +957,9 @@ function renderCandidate(provider) {
       title: provider.name,
       subtitle: provider.id,
       mark: providerInitial(provider),
-      badges: [badge("Ứng viên upstream", "upstream", "warn"), badge(provider.category === "router" ? "Router" : "Hosted inference", "local", null)],
+      badges: [badge("Ứng viên upstream", "upstream", "warn"), badge(providerCategoryLabel(provider.category), "local", null)],
       actions: keyUrl ? [safeLink("Trang provider", keyUrl, "button button-secondary")] : []
     })
-  );
-
-  doc.append(
-    codeBlock([
-      { key: "id", value: provider.id, copyable: true, copyText: provider.id },
-      { key: "category", value: provider.category, plain: true },
-      { key: "endpoint", value: provider.endpoint, copyable: true, copyText: provider.endpoint },
-      { key: "verifiedAt", value: provider.verifiedAt || "chưa rõ", plain: true }
-    ])
   );
 
   const quota = provider.quota || {};
@@ -960,6 +973,17 @@ function renderCandidate(provider) {
         ["Ghi chú", quota.notes && quota.notes.length ? quota.notes.join(" ") : ""]
       ]),
       el("p", "muted", "Ứng viên chưa được FreeModel Lab xác minh độc lập. Chỉ thêm vào danh mục sau khi bạn tự kiểm tra trang provider.")
+    ])
+  );
+
+  doc.append(
+    section("Thông tin kỹ thuật", "info", [
+      codeBlock([
+        { key: "Mã provider", value: provider.id, copyable: true, copyText: provider.id },
+        { key: "Loại", value: providerCategoryLabel(provider.category), plain: true },
+        { key: "Endpoint", value: provider.endpoint, copyable: true, copyText: provider.endpoint },
+        { key: "Ngày xác minh", value: formatSourceDate(provider.verifiedAt), plain: true }
+      ])
     ])
   );
 
@@ -1007,9 +1031,9 @@ function renderCandidate(provider) {
 function renderWelcome() {
   const doc = el("article", "welcome");
   doc.append(el("div", "welcome-mark", "F"));
-  doc.append(el("h2", "", "FreeModel Lab"));
+  doc.append(el("h1", "", "FreeModel Lab"));
   doc.append(el("p", "welcome-sub", "Bảng điều khiển cục bộ cho danh mục provider LLM có quota free. Chọn một provider ở thanh bên để xem quota, trạng thái key và metadata."));
-  doc.append(el("h3", "", "Bắt đầu"));
+  doc.append(el("h2", "", "Bắt đầu"));
   const shortcuts = el("div", "shortcut-grid");
   const rows = [
     ["Lọc provider", ["Ctrl", "B"]],
@@ -1034,7 +1058,7 @@ function renderWelcome() {
 
   const providers = state.providers.slice(0, 6);
   if (providers.length) {
-    doc.append(el("h3", "", "Provider gần đây"));
+    doc.append(el("h2", "", "Provider gần đây"));
     const list = el("ul", "recent-list");
     for (const provider of providers) {
       const li = el("li");
@@ -1209,8 +1233,13 @@ async function loadProviders(showLoading = true) {
     state.providers = data.providers || [];
     const officialProviders = state.providers.filter((provider) => provider.catalogSource !== "upstream");
     const upstreamCount = state.providers.length - officialProviders.length;
-    const latest = officialProviders.map((provider) => provider.verifiedAt).filter((date) => /^\d{4}-\d{2}-\d{2}$/.test(date)).sort().at(-1) || "";
-    dom.verifiedAt.textContent = latest || "—";
+    const latest = officialProviders.map((provider) => provider.verifiedAt)
+      .filter((date) => formatSourceDate(date) !== "chưa rõ")
+      .sort()
+      .at(-1) || "";
+    dom.verifiedAt.textContent = latest ? formatSourceDate(latest) : "—";
+    if (latest) dom.verifiedAt.setAttribute("datetime", latest);
+    else dom.verifiedAt.removeAttribute("datetime");
     const staleCount = state.providers.filter((provider) => Date.now() - new Date(`${provider.verifiedAt}T00:00:00Z`).getTime() > STALE_WINDOW_MS).length;
     const summary = `${officialProviders.length} chính thức${upstreamCount ? ` · ${upstreamCount} chờ xác minh` : ""}${staleCount ? ` · ${staleCount} cần rà soát` : ""}.`;
     setStatus(summary, staleCount ? "warning" : "success");
@@ -1240,7 +1269,8 @@ async function refreshCatalog() {
     state.candidates = data.candidates || [];
     state.catalogLoaded = true;
     state.sourceUpdatedAt = data.sourceUpdatedAt || "unknown";
-    const when = state.sourceUpdatedAt === "unknown" ? "chưa rõ ngày" : state.sourceUpdatedAt;
+    const displayDate = formatSourceDate(state.sourceUpdatedAt);
+    const when = displayDate === "chưa rõ" ? "chưa rõ ngày" : displayDate;
     renderCatalogStatus(
       state.candidates.length ? `${state.candidates.length} ứng viên mới · nguồn cập nhật ${when}` : `Không có ứng viên mới · nguồn cập nhật ${when}`,
       "success"

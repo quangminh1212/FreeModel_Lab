@@ -53,11 +53,6 @@
             <button class="view-tab" type="button" data-view="help" aria-controls="help-view" aria-pressed="false">Trợ giúp</button>
         </nav>
         <div class="titlebar-tools">
-          <span class="titlebar-sep" aria-hidden="true"></span>
-          <label class="style-picker" title="Chọn phong cách giao diện">
-            <span class="style-picker-label" aria-hidden="true">Giao diện</span>
-            <select id="style-select" aria-label="Chọn phong cách giao diện"></select>
-          </label>
           <div class="titlebar-actions">
             <button id="sidebar-toggle" class="icon-button" type="button" aria-controls="sidebar" aria-pressed="true" title="Ẩn/hiện thanh bên (Ctrl+B)" aria-label="Ẩn/hiện thanh bên">
               <svg class="ico" aria-hidden="true"><use href="#i-sidebar"></use></svg>
@@ -95,7 +90,7 @@
       <!-- Sidebar -->
       <aside id="sidebar" class="sidebar" aria-label="Thanh bên">
         <div class="sidebar-title">
-          <h1 id="sidebar-heading" tabindex="-1">CHI TIẾT</h1>
+          <h2 id="sidebar-heading" tabindex="-1">CHI TIẾT</h2>
         </div>
 
         <div class="sidebar-search">
@@ -147,6 +142,14 @@
             <li><kbd>Ctrl</kbd>+<kbd>3</kbd> Trợ giúp</li>
             <li><kbd>/</kbd> Chuyển tới ô lọc</li>
           </ul>
+          <div class="view-heading style-picker-heading">
+            <h2>Giao diện</h2>
+            <p>Chọn bảng màu và kiểu chữ cho dashboard.</p>
+            <label class="style-picker style-picker-panel" title="Chọn phong cách giao diện">
+              <span class="style-picker-label">Phong cách</span>
+              <select id="style-select" aria-label="Chọn phong cách giao diện"></select>
+            </label>
+          </div>
           <div class="view-heading">
             <h2>Dòng lệnh</h2>
             <p><code>freemodel-lab key-status</code>, <code>freemodel-lab integration export &lt;id&gt;</code>, <code>freemodel-lab save-key &lt;id&gt;</code>. Lệnh export cố ý in key ra stdout — không dán vào chat, log hoặc issue.</p>
