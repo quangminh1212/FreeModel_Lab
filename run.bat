@@ -23,11 +23,7 @@ wscript.exe //B //NoLogo "%~dp0run-hidden.vbs"
 exit /b %ERRORLEVEL%
 
 :launch-open
-if not exist "%~dp0run-hidden.vbs" (
-  echo Could not find run-hidden.vbs.
-  exit /b 1
-)
-wscript.exe //B //NoLogo "%~dp0run-hidden.vbs" --open
+node "%~dp0scripts\run-headless.cjs" --start --open --foreground
 exit /b %ERRORLEVEL%
 
 :status
@@ -43,7 +39,7 @@ echo FreeModel Lab local launcher
 echo   run.bat          Start in this CMD and show build/server logs and port
 echo   run.bat --background  Start hidden in the background
 echo   run.bat --open   Open or reopen the dashboard explicitly
-echo   run.bat --status Show its local URL and running state
+echo   run.bat --status Show local host, port, and running state
 echo   run.bat --stop   Stop the background server
 echo   run-hidden.vbs   Start without even the brief batch window
 exit /b 0

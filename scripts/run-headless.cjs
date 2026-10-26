@@ -70,9 +70,9 @@ function readDashboardUrl() {
 
 function openDashboard(url) {
   let parsed;
-  try { parsed = new URL(url); } catch { return; }
+  try { parsed = new URL(url); } catch { return false; }
   const token = parsed.searchParams.get("session");
-  if (parsed.protocol !== "http:" || parsed.hostname !== "127.0.0.1" || parsed.pathname !== "/" || !/^[A-Za-z0-9_-]{40,64}$/.test(token || "")) return;
+  if (parsed.protocol !== "http:" || parsed.hostname !== "127.0.0.1" || parsed.pathname !== "/" || !/^[A-Za-z0-9_-]{40,64}$/.test(token || "")) return false;
 
   const wscript = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "wscript.exe");
   const opener = path.join(root, "open-dashboard.vbs");
@@ -84,6 +84,7 @@ function openDashboard(url) {
   });
   child.once("error", (error) => log(`Could not open the dashboard: ${error.message}`));
   child.unref();
+  return true;
 }
 
 async function findExistingService() {
@@ -105,9 +106,15 @@ function printLocalEndpoint(url) {
   try {
     const parsed = new URL(url);
     const port = parsed.port || (parsed.protocol === "https:" ? "443" : "80");
-    print(`Local dashboard: ${parsed.origin}/`);
+    print(`Dashboard host: ${parsed.hostname}`);
     print(`Port: ${port}`);
+    print("Open the dashboard with: run.bat --open");
   } catch {}
+}
+
+function printSafeLogLine(line) {
+  if (/Dashboard:\s+https?:\/\/127\.0\.0\.1:\d+\//i.test(line)) return;
+  print(line.replace(/([?&]session=)[^\s&]+/gi, "$1[hidden]"));
 }
 
 async function followExistingLogs(url) {
@@ -119,7 +126,7 @@ async function followExistingLogs(url) {
   let pending = "";
   try {
     const contents = fs.readFileSync(logFile, "utf8");
-    for (const line of contents.split(/\r?\n/).filter(Boolean).slice(-40)) print(line);
+    for (const line of contents.split(/\r?\n/).filter(Boolean).slice(-40)) printSafeLogLine(line);
     offset = Buffer.byteLength(contents, "utf8");
   } catch {
     print("Waiting for startup log output...");
@@ -146,7 +153,7 @@ async function followExistingLogs(url) {
         pending += buffer.subarray(0, bytesRead).toString("utf8");
         const lines = pending.split(/\r?\n/);
         pending = lines.pop() || "";
-        for (const line of lines) if (line) print(line);
+        for (const line of lines) if (line) printSafeLogLine(line);
       } catch {
         // The server may rotate or recreate its log file while this view is open.
       } finally {
@@ -212,8 +219,14 @@ async function start() {
   const noOpen = process.argv.includes("--no-open");
   const existing = await findExistingService();
   if (existing?.ok) {
-    if (openExisting) openDashboard(readDashboardUrl());
-    print(`FreeModel Lab đã chạy: ${existing.url || "đang khởi động"}`);
+    if (openExisting) {
+      const opened = openDashboard(readDashboardUrl());
+      print(opened
+        ? "Opening the dashboard with its current session in your default browser."
+        : "Could not open the dashboard session. Run run.bat to restart the local server.");
+    }
+    print("FreeModel Lab is already running.");
+    printLocalEndpoint(existing.url);
     return;
   }
   removeFile(stateFile);
@@ -361,8 +374,7 @@ async function callControl(state, method, route) {
 async function status() {
   const service = await findExistingService();
   if (service?.ok) {
-    const location = service.url ? ` | ${service.url}` : " | đang khởi động";
-    print(`FreeModel Lab: ${service.state}${location}`);
+    print(`FreeModel Lab: ${service.state}`);
     printLocalEndpoint(service.url);
     print(`Log: ${service.logFile}`);
     print("Mở lại giao diện bằng run.bat --open.");
@@ -469,8 +481,11 @@ async function ensureDependencies() {
 
 function recordDashboardUrl(line) {
   const match = line.match(/Dashboard:\s+(http:\/\/127\.0\.0\.1:\d+\/?)/i);
-  if (!match) return;
-  const url = `${new URL(match[1]).origin}/`;
+  const portMatch = line.match(/\bPort:\s*(\d+)\b/i);
+  if (!match && !portMatch) return;
+  const url = match
+    ? `${new URL(match[1]).origin}/`
+    : `http://127.0.0.1:${portMatch[1]}/`;
   state.url = url;
   persistState();
 }

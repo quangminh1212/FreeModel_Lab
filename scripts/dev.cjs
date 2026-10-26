@@ -70,7 +70,7 @@ async function openDashboard(openChrome) {
     process.send({ type: "dashboard", url: dashboard.url });
   }
   const localUrl = new URL(dashboard.url);
-  log(`Dashboard: ${localUrl.origin}/`);
+  log(`Dashboard host: ${localUrl.hostname}`);
   log(`Port: ${localUrl.port || (localUrl.protocol === "https:" ? "443" : "80")}`);
 }
 
