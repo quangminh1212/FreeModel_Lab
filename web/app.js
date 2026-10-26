@@ -230,7 +230,7 @@ function matchesCategory(provider) {
   return provider.category !== "router";
 }
 
-function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, iconName }) {
+function treeRow({ label, sublabel, caption, summaryText, iconText, id, active, metaNodes, iconName }) {
   const row = el("button", "tree-row");
   row.type = "button";
   row.dataset.targetId = id;
@@ -250,6 +250,11 @@ function treeRow({ label, sublabel, caption, iconText, id, active, metaNodes, ic
     if (sublabel && caption) details.append(el("span", "tree-caption-sep", "·"));
     if (caption) details.append(el("span", "tree-caption-copy", caption));
     text.append(details);
+  }
+  if (summaryText) {
+    const summary = el("span", "tree-summary", summaryText);
+    summary.title = summaryText;
+    text.append(summary);
   }
   row.append(text);
   const meta = el("span", "tree-meta");
@@ -278,11 +283,16 @@ function renderProviderRows() {
       ? provider.quota.models.length
       : 0;
     const categoryLabel = providerCategoryLabel(provider.category);
+    const quotaSummary = provider.quota && provider.quota.summary;
+    const unverified = provider.catalogSource === "upstream";
 
     return treeRow({
       label: provider.name,
       sublabel: provider.id,
-      caption: modelCount ? `${categoryLabel} · ${modelCount} model miễn phí` : categoryLabel,
+      caption: modelCount ? `${categoryLabel} · ${modelCount} model tham khảo` : categoryLabel,
+      summaryText: unverified
+        ? `Chưa xác minh · ${quotaSummary || "quota và điều kiện sử dụng"}`
+        : quotaSummary || "Chưa có thông tin quota công bố.",
       iconText: providerInitial(provider),
       id: provider.id,
       active: state.activeId === provider.id && state.view === "providers",
@@ -1089,13 +1099,8 @@ function renderWelcome() {
   doc.append(catalogIntro(
     "DANH MỤC LLM",
     "Provider LLM miễn phí",
-    "So sánh nguồn, loại API và số model được công bố. Mở provider để xem quota, endpoint và cách lưu API key."
+    "Đọc quota free đã công bố, phạm vi, model, endpoint và nguồn. Số dư tài khoản chỉ hiển thị sau lần làm mới do bạn yêu cầu."
   ));
-  doc.append(catalogStats([
-    [String(state.providers.length), "provider trong danh mục"],
-    [String(officialCount), "nguồn chính thức"],
-    [String(pendingCount), "cần xác minh"]
-  ]));
   doc.append(catalogSectionHeading("Nhà cung cấp", `${visibleProviders.length} kết quả`));
   doc.append(renderCatalogGrid(
     visibleProviders,
@@ -1155,6 +1160,8 @@ function renderCatalogGrid(items, kind, emptyMessage) {
 
 function renderCatalogCard(provider, kind) {
   const candidate = kind === "candidate";
+  const unverified = candidate || provider.catalogSource === "upstream";
+  const quota = provider.quota || {};
   const card = el("article", candidate ? "catalog-card is-candidate" : "catalog-card");
   card.dataset.category = provider.category || "inference";
   card.dataset.providerId = provider.id;
@@ -1163,7 +1170,7 @@ function renderCatalogCard(provider, kind) {
   const mark = el("span", "catalog-mark", providerInitial(provider));
   mark.setAttribute("aria-hidden", "true");
   top.append(mark);
-  top.append(candidate || provider.catalogSource === "upstream"
+  top.append(unverified
     ? badge("Chờ xác minh", "upstream", "warn")
     : badge("Nguồn chính thức", "official", "shield"));
   card.append(top);
@@ -1177,20 +1184,81 @@ function renderCatalogCard(provider, kind) {
     ? provider.quota.models.length
     : 0;
   if (modelCount) {
-    meta.append(el("span", "catalog-model-count", candidate
-      ? `${modelCount} model được liệt kê`
-      : `${modelCount} model miễn phí`));
+    meta.append(el("span", "catalog-model-count", `${modelCount} model tham khảo`));
   }
   card.append(meta);
 
+  const quotaPanel = el("section", "catalog-card-quota");
+  quotaPanel.setAttribute("aria-label", unverified ? "Quota đang chờ xác minh" : `Quota công bố của ${provider.name}`);
+  const quotaHeading = el("div", "catalog-card-quota-heading");
+  quotaHeading.append(el("span", "catalog-card-quota-label", unverified ? "Quota chưa xác minh" : "Quota công bố"));
+  if (!unverified) quotaHeading.append(el("span", "catalog-card-live-note", "Sử dụng hiện tại: chưa đọc"));
+  quotaPanel.append(quotaHeading);
+  quotaPanel.append(el("p", "catalog-card-quota-summary", quota.summary || (unverified
+    ? "Chưa có thông tin quota được đối chiếu với nguồn chính thức."
+    : "Provider chưa công bố mức quota miễn phí cụ thể.")));
+  if (unverified) {
+    quotaPanel.append(el("p", "catalog-card-unverified-note", "Đối chiếu điều kiện miễn phí và quota trên tài liệu chính thức trước khi sử dụng."));
+  }
+
+  const quotaFacts = el("div", "catalog-card-facts");
+  if (quota.scope) quotaFacts.append(catalogCardFact("Phạm vi", quota.scope));
+  if (quota.reset) quotaFacts.append(catalogCardFact("Chu kỳ", quota.reset));
+  quotaFacts.append(catalogCardFact("Nguồn", catalogSourceHost(provider)));
+  if (quotaFacts.childElementCount) quotaPanel.append(quotaFacts);
+
+  if (Array.isArray(quota.models) && quota.models.length) {
+    const modelSection = el("div", "catalog-card-models");
+    modelSection.append(el("span", "catalog-card-detail-label", "Model được nêu"));
+    const modelList = el("ul", "catalog-card-model-list");
+    for (const model of quota.models.slice(0, 3)) {
+      const item = el("li", "catalog-card-model");
+      item.append(el("code", "", model));
+      modelList.append(item);
+    }
+    if (quota.models.length > 3) {
+      const more = el("li", "catalog-card-model-more", `+${quota.models.length - 3} model trong chi tiết`);
+      modelList.append(more);
+    }
+    modelSection.append(modelList);
+    quotaPanel.append(modelSection);
+  }
+
+  if (provider.endpoint) {
+    const endpoint = el("div", "catalog-card-endpoint");
+    endpoint.append(el("span", "catalog-card-detail-label", "Endpoint"));
+    const endpointValue = el("code", "catalog-card-endpoint-value", provider.endpoint);
+    endpointValue.title = provider.endpoint;
+    endpoint.append(endpointValue);
+    quotaPanel.append(endpoint);
+  }
+  card.append(quotaPanel);
+
   const footer = el("div", "catalog-card-footer");
+  const statusGroup = el("div", "catalog-card-status-group");
   const keyStatus = el("span", "catalog-card-status");
-  const keyState = candidate ? "pending" : keyStateOf(provider);
+  const keyState = unverified ? "pending" : keyStateOf(provider);
   keyStatus.dataset.state = keyState;
-  keyStatus.textContent = candidate
-    ? "Chưa xác minh"
+  keyStatus.textContent = unverified
+    ? "Chờ xác minh"
     : ({ saved: "Key đã lưu", missing: "Chưa có key", unknown: "Kho key chưa sẵn sàng" }[keyState]);
-  footer.append(keyStatus);
+  statusGroup.append(keyStatus);
+
+  const verification = el("span", "catalog-card-verified");
+  if (unverified) {
+    verification.textContent = "Nguồn cộng đồng · chưa đối chiếu";
+  } else if (provider.verifiedAt) {
+    const verifiedDate = new Date(`${provider.verifiedAt}T00:00:00Z`);
+    const isStale = Number.isFinite(verifiedDate.getTime()) && Date.now() - verifiedDate.getTime() > STALE_WINDOW_MS;
+    const time = el("time", "", `${isStale ? "Cần rà soát · " : "Rà soát "}${formatSourceDate(provider.verifiedAt)}`);
+    time.dateTime = provider.verifiedAt;
+    if (isStale) time.dataset.stale = "true";
+    verification.append(time);
+  } else {
+    verification.textContent = "Chưa có ngày rà soát";
+  }
+  statusGroup.append(verification);
+  footer.append(statusGroup);
 
   const action = el("button", "catalog-card-action");
   action.type = "button";
@@ -1200,6 +1268,21 @@ function renderCatalogCard(provider, kind) {
   footer.append(action);
   card.append(footer);
   return card;
+}
+
+function catalogCardFact(label, value) {
+  const fact = el("div", "catalog-card-fact");
+  fact.append(el("span", "catalog-card-detail-label", label));
+  fact.append(el("span", "catalog-card-fact-value", value));
+  return fact;
+}
+
+function catalogSourceHost(provider) {
+  try {
+    return new URL(provider.sourceUrl).hostname.replace(/^www\./, "");
+  } catch {
+    return "Chưa có nguồn công khai";
+  }
 }
 
 function catalogSafetyNote(message, kind = "info") {
