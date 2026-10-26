@@ -63,6 +63,28 @@ function print(message) {
   process.stdout.write(`${message}\n`);
 }
 
+function readDashboardUrl() {
+  try { return fs.readFileSync(urlFile, "utf8").trim(); } catch { return ""; }
+}
+
+function openDashboard(url) {
+  let parsed;
+  try { parsed = new URL(url); } catch { return; }
+  const token = parsed.searchParams.get("session");
+  if (parsed.protocol !== "http:" || parsed.hostname !== "127.0.0.1" || parsed.pathname !== "/" || !/^[A-Za-z0-9_-]{40,64}$/.test(token || "")) return;
+
+  const wscript = path.join(process.env.SystemRoot || "C:\\Windows", "System32", "wscript.exe");
+  const opener = path.join(root, "open-dashboard.vbs");
+  const child = spawn(wscript, ["//B", "//NoLogo", opener, parsed.href], {
+    cwd: root,
+    shell: false,
+    windowsHide: true,
+    stdio: "ignore"
+  });
+  child.once("error", (error) => log(`Could not open the dashboard: ${error.message}`));
+  child.unref();
+}
+
 async function findExistingService() {
   const state = readJson(stateFile);
   if (state && Number.isInteger(state.controlPort) && state.token) {
@@ -75,8 +97,11 @@ async function findExistingService() {
 
 async function start() {
   fs.mkdirSync(dataDirectory, { recursive: true });
+  const openExisting = process.argv.includes("--open");
+  const noOpen = process.argv.includes("--no-open");
   const existing = await findExistingService();
   if (existing?.ok) {
+    if (openExisting) openDashboard(readDashboardUrl());
     print(`FreeModel Lab đã chạy: ${existing.url || "đang khởi động"}`);
     return;
   }
@@ -107,7 +132,9 @@ async function start() {
 
   let supervisor;
   try {
-    supervisor = spawn(process.execPath, [__filename, "--supervisor"], {
+    const supervisorArgs = [__filename, "--supervisor"];
+    if (noOpen) supervisorArgs.push("--no-open");
+    supervisor = spawn(process.execPath, supervisorArgs, {
       cwd: root,
       detached: true,
       env: process.env,
@@ -124,7 +151,7 @@ async function start() {
     });
     supervisor.stdin.end("start");
     supervisor.unref();
-    print("FreeModel Lab đang khởi động ẩn. run-hidden.vbs sẽ mở giao diện; run.bat --status xem trạng thái.");
+    print("FreeModel Lab đang khởi động ẩn; giao diện sẽ mở sau khi máy chủ sẵn sàng.");
   } catch (error) {
     await lock.close().catch(() => {});
     removeFile(lockFile);
@@ -312,6 +339,7 @@ function recordDashboardBootstrap(message) {
   state.state = "running";
   fs.writeFileSync(urlFile, parsed.href, { encoding: "utf8", mode: 0o600 });
   persistState();
+  return parsed.href;
 }
 
 function pipeLog(stream, prefix) {
@@ -422,6 +450,7 @@ function startControlServer() {
 }
 
 async function beginServer() {
+  const openOnBootstrap = !process.argv.includes("--no-open");
   await ensureDependencies();
   if (stopping) return;
   state.state = "starting";
@@ -439,7 +468,10 @@ async function beginServer() {
   persistState();
   pipeLog(child.stdout, "");
   pipeLog(child.stderr, "[stderr] ");
-  child.on("message", recordDashboardBootstrap);
+  child.on("message", (message) => {
+    const url = recordDashboardBootstrap(message);
+    if (openOnBootstrap && url) openDashboard(url);
+  });
   child.once("error", (error) => {
     log(`Could not start dev server: ${error.message}`);
     if (activeChild === child) activeChild = null;

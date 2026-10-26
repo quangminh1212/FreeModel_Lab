@@ -385,17 +385,20 @@ function iconForTarget(targetId) {
 function renderTabs() {
   if (!state.openTabs.length) {
     dom.tabs.replaceChildren(el("span", "tabs-empty", "Chưa mở tab nào"));
+    dom.editor.removeAttribute("aria-labelledby");
     return;
   }
   const fragment = document.createDocumentFragment();
-  for (const targetId of state.openTabs) {
+  for (const [index, targetId] of state.openTabs.entries()) {
     const active = state.activeId === targetId;
     const tab = el("div", active ? "tab is-active" : "tab");
     tab.setAttribute("role", "presentation");
     const button = el("button", "tab-hit");
     button.type = "button";
+    button.id = `editor-tab-${index}`;
     button.setAttribute("role", "tab");
     button.setAttribute("aria-selected", String(active));
+    button.setAttribute("aria-controls", "main-content");
     button.tabIndex = active ? 0 : -1;
     button.append(icon(iconForTarget(targetId), "ico"));
     button.append(el("span", "tab-label", labelForTarget(targetId)));
@@ -413,6 +416,9 @@ function renderTabs() {
     fragment.append(tab);
   }
   dom.tabs.replaceChildren(fragment);
+  const activeIndex = state.openTabs.indexOf(state.activeId);
+  if (activeIndex >= 0) dom.editor.setAttribute("aria-labelledby", `editor-tab-${activeIndex}`);
+  else dom.editor.removeAttribute("aria-labelledby");
 }
 
 function openTab(targetId) {
@@ -455,6 +461,16 @@ function breadcrumb(parts) {
 
 function docHead({ title, subtitle, mark, badges, actions }) {
   const head = el("header", "doc-head");
+  const back = el("button", "detail-back");
+  back.type = "button";
+  back.setAttribute("aria-label", "Quay lại danh sách");
+  back.title = "Quay lại danh sách";
+  back.append(icon("chevron-left"));
+  back.addEventListener("click", () => {
+    setDetailOpen(false);
+    focusActiveSidebarRow();
+  });
+  head.append(back);
   head.append(el("div", "doc-mark", mark));
   const copy = el("div", "doc-title");
   copy.append(el("h2", "", title));
@@ -762,11 +778,11 @@ function keyStatusPanel(provider) {
         ? "Key đã có trong kho bảo mật."
         : (unknown ? "Không đọc được trạng thái key." : "Chưa tìm thấy key cho provider này.");
       result.dataset.kind = saved ? "success" : (unknown ? "" : "error");
-      // Reflect on the sidebar dot + status bar without rebuilding this panel,
+      // Refresh the sidebar and header badge without rebuilding this panel,
       // which would detach the result node we just wrote to.
-      const dot = document.querySelector(`.tree-row[data-target-id="${provider.id}"] .dot`);
-      if (dot) dot.dataset.state = saved ? "saved" : (unknown ? "" : "missing");
+      renderSidebar();
       renderStatusKeys();
+      syncProviderKeyBadge(provider);
     } catch (error) {
       result.textContent = error instanceof Error ? error.message : "Không đọc được trạng thái key.";
       result.dataset.kind = "error";
@@ -1085,10 +1101,25 @@ function setView(view) {
 function markProviderSaved(providerId) {
   const provider = state.providers.find((item) => item.id === providerId);
   if (provider) provider.keySaved = true;
-  const row = document.querySelector(`.tree-row[data-target-id="${providerId}"] .dot`);
-  if (row) row.dataset.state = "saved";
+  renderSidebar();
   renderStatusKeys();
-  if (state.activeId === providerId) renderEditor();
+  if (provider) syncProviderKeyBadge(provider);
+}
+
+function syncProviderKeyBadge(provider) {
+  if (state.activeId !== provider.id) return;
+  const badges = dom.content.querySelector(".doc-head .doc-title .doc-actions");
+  if (!badges) return;
+  let keyBadge = badges.querySelector(".provider-key-badge");
+  if (provider.keySaved === true) {
+    if (!keyBadge) {
+      keyBadge = badge("Key đã lưu", "saved", "key");
+      keyBadge.classList.add("provider-key-badge");
+      badges.append(keyBadge);
+    }
+  } else {
+    keyBadge?.remove();
+  }
 }
 
 async function loadProviders(showLoading = true) {

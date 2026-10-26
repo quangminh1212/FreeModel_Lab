@@ -1,6 +1,6 @@
 Option Explicit
 
-Dim shell, fileSystem, environment, pathParts, index, candidate, projectRoot, command
+Dim shell, fileSystem, environment, pathParts, index, candidate, projectRoot, command, mode
 Set shell = CreateObject("WScript.Shell")
 Set fileSystem = CreateObject("Scripting.FileSystemObject")
 projectRoot = fileSystem.GetParentFolderName(WScript.ScriptFullName)
@@ -25,6 +25,11 @@ If Len(candidate) = 0 Then
   WScript.Quit 1
 End If
 
-command = Chr(34) & candidate & Chr(34) & " " & Chr(34) & projectRoot & "\scripts\run-headless.cjs" & Chr(34) & " --start"
+mode = ""
+If WScript.Arguments.Count > 0 Then
+  If WScript.Arguments.Item(0) = "--open" Then mode = " --open"
+  If WScript.Arguments.Item(0) = "--no-open" Then mode = " --no-open"
+End If
+
+command = Chr(34) & candidate & Chr(34) & " " & Chr(34) & projectRoot & "\scripts\run-headless.cjs" & Chr(34) & " --start" & mode
 shell.Run command, 0, False
-shell.Run "wscript.exe //B //NoLogo " & Chr(34) & projectRoot & "\open-dashboard.vbs" & Chr(34), 0, False

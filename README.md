@@ -32,7 +32,7 @@ npm link
 
 ## Chạy dự án với tự động reload
 
-Trên Windows, mở `run.bat` để tự chuyển vào thư mục dự án, kiểm tra Node.js 24 trở lên, cài dependency và khởi chạy dashboard ở chế độ phát triển. App in URL cục bộ và không tự mở trình duyệt. Có thể chạy tương tự trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
+Trên Windows, mở `run.bat` để tự chuyển vào thư mục dự án, kiểm tra Node.js 24 trở lên, cài dependency và khởi chạy dashboard ở chế độ phát triển. Lần khởi chạy đầu sẽ mở dashboard; nếu dịch vụ đã chạy, lệnh mặc định không mở thêm tab. Dùng `run.bat --open` khi muốn mở lại giao diện. Khi lưu file, hot reload cập nhật trang trong tab hiện tại. Có thể chạy server phát triển trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
 
 Chế độ phát triển theo dõi `src/` và `web/`: sửa TypeScript sẽ tự build lại và restart server; sửa HTML, CSS hoặc JavaScript sẽ tự refresh tab dashboard hiện tại. Dùng `Ctrl+C` để dừng.
 

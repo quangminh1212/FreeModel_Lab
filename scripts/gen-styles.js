@@ -67,9 +67,50 @@ function mix(a, b, t) {
 function luminance(hex) {
   const [r, g, b] = parseHex(hex).map((v) => {
     const s = v / 255;
-    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+    return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
   });
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+function contrastRatio(a, b) {
+  const first = luminance(a);
+  const second = luminance(b);
+  return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
+}
+
+function minimumContrast(hex, backgrounds) {
+  return Math.min(...backgrounds.map((background) => contrastRatio(hex, background)));
+}
+
+/** Preserve a palette colour while moving it just far enough to meet contrast. */
+function accessibleColor(hex, backgrounds, minimum = 4.5) {
+  if (minimumContrast(hex, backgrounds) >= minimum) return hex;
+
+  const candidates = [];
+  for (const endpoint of ["#000000", "#ffffff"]) {
+    let low = 0;
+    let high = 1;
+    let result = null;
+    for (let step = 0; step < 24; step++) {
+      const amount = (low + high) / 2;
+      const candidate = mix(hex, endpoint, amount);
+      if (minimumContrast(candidate, backgrounds) >= minimum) {
+        result = { color: candidate, amount };
+        high = amount;
+      } else {
+        low = amount;
+      }
+    }
+    if (result) candidates.push(result);
+  }
+
+  if (candidates.length) {
+    return candidates.sort((a, b) => a.amount - b.amount)[0].color;
+  }
+
+  const black = minimumContrast("#000000", backgrounds);
+  const white = minimumContrast("#ffffff", backgrounds);
+  return black >= white ? "#000000" : "#ffffff";
 }
 
 function isLight(hex) {
@@ -78,25 +119,19 @@ function isLight(hex) {
 
 /** `#fff` or `#000`, whichever contrasts more with the given background. */
 function onColor(hex) {
-  return isLight(hex) ? "#000000" : "#ffffff";
+  return contrastRatio("#000000", hex) >= contrastRatio("#ffffff", hex)
+    ? "#000000"
+    : "#ffffff";
 }
 
 /* ---------- 17 catalog tokens -> 41 dashboard tokens ---------- */
 
 function expand(t) {
   const light = isLight(t.appBg);
-  const ink = light ? "#000000" : "#ffffff";
-
-  // Slightly stronger foreground than --fg, for headings and active labels.
-  const fgStrong = light ? mix(t.fg, "#000000", 0.45) : mix(t.fg, "#ffffff", 0.3);
-  // Faint foreground for disabled / tertiary chrome.
-  const fgFaint = light ? mix(t.fgMuted, t.appBg, 0.28) : mix(t.fgMuted, t.appBg, 0.3);
 
   // Surface used by inline code and quoted blocks.
   const codeBg = light ? mix(t.border, t.appBg, 0.35) : mix(t.appBg, t.input, 0.75);
   const inputFocus = light ? "#ffffff" : t.input;
-
-  const borderStrong = mix(t.border, t.fgMuted, 0.45);
 
   // Tinted "soft" backgrounds for ok/warn/error/info badges and notices.
   // Light themes need a visible but pale tint; blend from white with a
@@ -104,12 +139,39 @@ function expand(t) {
   const soft = (c, amount) =>
     light ? mix("#ffffff", c, Math.min(0.9, amount * 2.4)) : mix(t.appBg, c, amount);
 
-  const link = light ? mix(t.accent, "#000000", 0.2) : mix(t.accent, "#ffffff", 0.3);
+  const badgeBg = mix(t.appBg, light ? "#000000" : "#ffffff", 0.1);
+  const hoverBgSoft = mix(t.appBg, t.hover, 0.5);
+  const activeBg = mix(t.accent, t.sideBg, 0.07);
+  const surfaces = [
+    t.barBg, t.sideBg, t.appBg, t.input, t.hover, t.sel,
+    codeBg, inputFocus, badgeBg, hoverBgSoft, activeBg,
+    soft(t.ok, light ? 0.1 : 0.14),
+    soft(t.warn, light ? 0.12 : 0.16),
+    soft(t.err, light ? 0.1 : 0.14),
+    soft(t.accent, light ? 0.08 : 0.14),
+  ];
 
-  // Syntax: reuse accent-family hues so code blocks stay on-palette.
-  const syntaxKey = t.syntaxKey || t.accent;
-  const syntaxString = t.syntaxString || t.warn;
-  const syntaxNumber = t.syntaxNumber || t.ok;
+  const fg = accessibleColor(t.fg, surfaces);
+  const fgStrongSource = light ? mix(t.fg, "#000000", 0.45) : mix(t.fg, "#ffffff", 0.3);
+  const fgStrong = accessibleColor(fgStrongSource, surfaces);
+  const fgMuted = accessibleColor(t.fgMuted, surfaces);
+  const fgFaintSource = light ? mix(fgMuted, t.appBg, 0.12) : mix(fgMuted, t.appBg, 0.18);
+  const fgFaint = accessibleColor(fgFaintSource, surfaces);
+  const accent = accessibleColor(t.accent, surfaces);
+  const linkSource = light ? mix(t.accent, "#000000", 0.2) : mix(t.accent, "#ffffff", 0.3);
+  const link = accessibleColor(linkSource, surfaces);
+  const okSoft = soft(t.ok, light ? 0.1 : 0.14);
+  const warnSoft = soft(t.warn, light ? 0.12 : 0.16);
+  const errorSoft = soft(t.err, light ? 0.1 : 0.14);
+  const ok = accessibleColor(t.ok, surfaces.concat(okSoft));
+  const warn = accessibleColor(t.warn, surfaces.concat(warnSoft));
+  const error = accessibleColor(t.err, surfaces.concat(errorSoft));
+  const border = accessibleColor(t.border, [t.barBg, t.sideBg, t.appBg, t.input], 3);
+  const inputBorder = accessibleColor(t.border, [t.input], 3);
+  const borderStrong = accessibleColor(mix(border, fgMuted, 0.45), [t.barBg, t.sideBg, t.appBg, t.input], 3);
+  const syntaxKey = accessibleColor(t.syntaxKey || t.accent, [codeBg]);
+  const syntaxString = accessibleColor(t.syntaxString || t.warn, [codeBg]);
+  const syntaxNumber = accessibleColor(t.syntaxNumber || t.ok, [codeBg]);
 
   /*
    * Georgia ships no Vietnamese precomposed glyphs, so "ĐIỀU" renders as
@@ -172,27 +234,27 @@ function expand(t) {
     ["--statusbar-bg", t.barBg],
     ["--input-bg", t.input],
     ["--input-bg-focus", inputFocus],
-    ["--input-border", t.border],
-    ["--badge-bg", mix(t.border, t.fgMuted, 0.4)],
+    ["--input-border", inputBorder],
+    ["--badge-bg", badgeBg],
     ["--hover-bg", t.hover],
-    ["--hover-bg-soft", mix(t.appBg, t.hover, 0.5)],
+    ["--hover-bg-soft", hoverBgSoft],
     ["--selected-bg", t.sel],
-    ["--border", t.border],
+    ["--border", border],
     ["--border-strong", borderStrong],
-    ["--fg", t.fg],
+    ["--fg", fg],
     ["--fg-strong", fgStrong],
-    ["--fg-muted", t.fgMuted],
+    ["--fg-muted", fgMuted],
     ["--fg-faint", fgFaint],
-    ["--accent", t.accent],
+    ["--accent", accent],
     ["--link", link],
-    ["--focus-border", t.accent],
-    ["--focus", t.accent],
-    ["--ok", t.ok],
-    ["--ok-soft", soft(t.ok, light ? 0.1 : 0.14)],
-    ["--warn", t.warn],
-    ["--warn-soft", soft(t.warn, light ? 0.12 : 0.16)],
-    ["--error", t.err],
-    ["--error-soft", soft(t.err, light ? 0.1 : 0.14)],
+    ["--focus-border", accent],
+    ["--focus", accent],
+    ["--ok", ok],
+    ["--ok-soft", okSoft],
+    ["--warn", warn],
+    ["--warn-soft", warnSoft],
+    ["--error", error],
+    ["--error-soft", errorSoft],
     ["--info-soft", soft(t.accent, light ? 0.08 : 0.14)],
     ["--code-bg", codeBg],
     ["--syntax-key", syntaxKey],
@@ -204,10 +266,10 @@ function expand(t) {
     ["--radius-pill", "999px"],
     ["--radius-full", "50%"],
     ["--bar-fg", t.barFg],
-    ["--accent-fg", t.accentFg || onColor(t.accent)],
+    ["--accent-fg", onColor(accent)],
     ["--font-ui", fontUi],
     ["--font-mono", fontMono],
-    ["--app-mark-bg", t.accent],
+    ["--app-mark-bg", accent],
     ["--control-radius", t.radius],
     ["--sidebar-width", t.sidebarWidth || "288px"],
     ["--app-mark-radius", t.radius],
