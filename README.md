@@ -32,6 +32,8 @@ npm link
 
 ## Chạy dự án với tự động reload
 
+Mặc định `run.bat` chạy headless, không tự mở trình duyệt; log build/server vẫn hiển thị trong CMD. Dùng `run.bat --headless` cho cùng chế độ hoặc `run.bat --open` nếu muốn mở dashboard. Chế độ `run.bat --background` cũng không mở trình duyệt.
+
 Trên Windows, mở `run.bat` để chạy server phát triển ngay trong cửa sổ CMD. Lệnh này kiểm tra Node.js 24 trở lên, cài dependency nếu còn thiếu, hiển thị log build/server và in host cùng port local; dùng `run.bat --open` để mở dashboard với session hiện tại. Nhấn `Ctrl+C` để dừng server foreground. Nếu server nền cũ đang chạy, `run.bat` hiển thị host/port rồi theo dõi log của server đó; nhấn `Ctrl+C` chỉ thoát chế độ theo dõi. Dùng `run.bat --background` để chạy ẩn, `run.bat --status` để xem trạng thái, `run.bat --stop` để dừng server nền, hoặc `run.bat --open` để mở lại dashboard. Khi lưu file, hot reload cập nhật trang trong tab hiện tại. Có thể chạy server phát triển trên Windows, macOS và Linux bằng `npm install` rồi `npm run dev`.
 
 Chế độ phát triển theo dõi `src/` và `web/`: sửa TypeScript sẽ tự build lại và restart server; sửa HTML, CSS hoặc JavaScript sẽ tự refresh tab dashboard hiện tại. Dùng `Ctrl+C` để dừng.
