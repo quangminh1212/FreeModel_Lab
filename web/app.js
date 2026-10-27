@@ -284,15 +284,12 @@ function renderProviderRows() {
       : 0;
     const categoryLabel = providerCategoryLabel(provider.category);
     const quotaSummary = provider.quota && provider.quota.summary;
-    const unverified = provider.catalogSource === "upstream";
 
     return treeRow({
       label: provider.name,
       sublabel: provider.id,
       caption: modelCount ? `${categoryLabel} · ${modelCount} model tham khảo` : categoryLabel,
-      summaryText: unverified
-        ? `Chưa xác minh · ${quotaSummary || "quota và điều kiện sử dụng"}`
-        : quotaSummary || "Chưa có thông tin quota công bố.",
+      summaryText: quotaSummary || "Chưa có thông tin quota công bố.",
       iconText: providerInitial(provider),
       id: provider.id,
       active: state.activeId === provider.id && state.view === "providers",
@@ -565,7 +562,10 @@ function closeTab(targetId) {
     }
     state.activeId = null;
     const closedMobileDetail = mobileDetailQuery.matches;
-    if (closedMobileDetail) setDetailOpen(false);
+    if (closedMobileDetail) {
+      setSidebarVisible(true);
+      setDetailOpen(false);
+    }
     renderAll();
     focusAfterTabClose(targetId);
   } else {
@@ -595,6 +595,7 @@ function docHead({ title, subtitle, mark, badges, actions }) {
   back.title = "Quay lại danh sách";
   back.append(icon("chevron-left"));
   back.addEventListener("click", () => {
+    if (mobileDetailQuery.matches) setSidebarVisible(true);
     setDetailOpen(false);
     focusActiveSidebarRow();
   });
@@ -721,6 +722,7 @@ function providerActions(provider) {
 
 function keyForm(provider) {
   const form = el("form", "entry-form");
+  form.dataset.keyEntryForm = "";
   form.append(el("h3", "", "Lưu API key"));
   const secret = field("API key", `secret-${provider.id}`, {
     type: "password",
@@ -889,6 +891,7 @@ function provisionForm(provider) {
 
 function keyStatusPanel(provider) {
   const wrap = el("div", "entry-form");
+  wrap.dataset.keyStatusPanel = "";
   wrap.append(el("h3", "", "Trạng thái key"));
   const result = el("p", "form-result");
   result.setAttribute("role", "status");
@@ -1360,6 +1363,7 @@ function openTarget(targetId, options = {}) {
   } else if (targetId !== "welcome") {
     state.view = "providers";
   }
+  if (options.fromSidebar && mobileDetailQuery.matches) setSidebarVisible(false);
   setDetailOpen(true);
   renderAll();
   if (options.fromSidebar || mobileDetailQuery.matches) {
@@ -1412,7 +1416,15 @@ function syncEditorInteractivity() {
   if (hidden && focusWasInEditor) focusActiveSidebarRow();
 }
 
-mobileDetailQuery.addEventListener("change", syncEditorInteractivity);
+mobileDetailQuery.addEventListener("change", () => {
+  if (mobileDetailQuery.matches) {
+    setSidebarVisible(false);
+    setDetailOpen(true);
+  } else {
+    restoreSidebar();
+    setDetailOpen(false);
+  }
+});
 
 function renderEditor() {
   if (!state.activeId) {
@@ -1576,7 +1588,9 @@ function setSidebarVisible(visible) {
   dom.workbench.classList.toggle("sidebar-hidden", !visible);
   dom.sidebarToggle.setAttribute("aria-pressed", String(visible));
   dom.sidebarToggle.classList.toggle("is-off", !visible);
-  try { localStorage.setItem(SIDEBAR_KEY, visible ? "open" : "closed"); } catch (error) { /* optional */ }
+  if (!mobileDetailQuery.matches) {
+    try { localStorage.setItem(SIDEBAR_KEY, visible ? "open" : "closed"); } catch (error) { /* optional */ }
+  }
 }
 
 function restoreSidebar() {
@@ -1595,7 +1609,9 @@ function restoreSidebar() {
 }
 
 dom.sidebarToggle.addEventListener("click", () => {
-  setSidebarVisible(dom.workbench.classList.contains("sidebar-hidden"));
+  const sidebarVisible = !dom.workbench.classList.contains("sidebar-hidden");
+  setSidebarVisible(!sidebarVisible);
+  if (mobileDetailQuery.matches) setDetailOpen(sidebarVisible);
 });
 
 function currentSidebarWidth() {
@@ -1688,6 +1704,7 @@ dom.sidebarFilter.addEventListener("keydown", (event) => {
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape" && mobileDetailQuery.matches && dom.workbench.classList.contains("detail-open")) {
     event.preventDefault();
+    setSidebarVisible(true);
     setDetailOpen(false);
     focusActiveSidebarRow();
   }
@@ -1781,6 +1798,10 @@ statusObserver.observe(dom.statusMessage, { attributes: true, attributeFilter: [
 
 applyTheme(currentTheme(), false);
 restoreSidebar();
+if (mobileDetailQuery.matches) {
+  setSidebarVisible(false);
+  dom.workbench.classList.add("detail-open");
+}
 syncEditorInteractivity();
 renderAll();
 loadProviders();
